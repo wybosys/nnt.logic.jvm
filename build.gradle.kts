@@ -7,7 +7,8 @@ group = "com.nnt"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    mavenCentral()
+    maven { setUrl("https://maven.aliyun.com/repository/central") }
+    maven { setUrl("https://maven.aliyun.com/repository/public") }
 }
 
 dependencies {
