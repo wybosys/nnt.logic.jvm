@@ -10,7 +10,8 @@ group = "com.nnt"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    maven { setUrl("https://maven.aliyun.com/repository/central") }
+    maven("https://maven.aliyun.com/repository/central")
+    maven("https://maven.aliyun.com/repository/gradle-plugin")
 }
 
 sourceSets {
@@ -22,20 +23,20 @@ sourceSets {
 }
 
 dependencies {
-// kotlin
+
+    // kotlin
     implementation(kotlin("stdlib"))
 
-// dubbo
-    implementation("org.apache.dubbo:dubbo:2.7.8")
-    implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.8")
-
-// grpc
+    // grpc
     implementation("com.google.protobuf:protobuf-java:3.6.1")
     implementation("io.grpc:grpc-stub:1.15.1")
     implementation("io.grpc:grpc-protobuf:1.15.1")
-    runtimeOnly("com.google.protobuf:protobuf-gradle-plugin:0.8.13")
 
-// test
+    // dubbo
+    implementation("org.apache.dubbo:dubbo:2.7.8")
+    implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.8")
+
+    // test
     testImplementation("junit:junit:4.12")
 }
 
