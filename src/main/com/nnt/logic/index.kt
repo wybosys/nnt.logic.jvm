@@ -1,6 +1,6 @@
 package com.nnt.logic
 
-import org.springframework.context.support.ClassPathXmlApplicationContext
+import com.nnt.logic.manager.App
 
 class Index {
 
@@ -8,9 +8,12 @@ class Index {
 
         @JvmStatic
         fun main(args: Array<String>) {
-            val ctx = ClassPathXmlApplicationContext("app.xml")
-            ctx.start()
-            System.`in`.read()
+            // 加载配置
+            App.LoadConfig()
+
+            // 启动程序
+            val app = App()
+            app.start()
         }
     }
 }
