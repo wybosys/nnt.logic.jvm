@@ -23,7 +23,7 @@ repositories {
 }
 
 sourceSets {
-    create("logic") {
+    main {
         proto {
             srcDir("src/proto")
         }
@@ -56,7 +56,7 @@ protobuf {
 
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.9.1"
+            artifact = "io.grpc:protoc-gen-grpc-java:1.30.2"
         }
     }
 }
