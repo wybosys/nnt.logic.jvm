@@ -4,6 +4,7 @@ plugins {
     java
     kotlin("jvm") version "1.4.10"
     id("com.google.protobuf") version "0.8.13"
+    id("org.springframework.boot") version "2.3.4.RELEASE"
 }
 
 group = "com.nnt"
@@ -14,7 +15,9 @@ buildscript {
         maven("https://maven.aliyun.com/repository/central")
     }
     dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10")
         classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.13")
+        classpath("org.springframework.boot:org.springframework.boot.gradle.plugin:2.3.4.RELEASE")
     }
 }
 
@@ -27,6 +30,14 @@ sourceSets {
         proto {
             srcDir("src/proto")
         }
+
+        kotlin {
+
+        }
+
+        java {
+            srcDir("src/main")
+        }
     }
 }
 
@@ -34,6 +45,9 @@ dependencies {
 
     // kotlin
     implementation(kotlin("stdlib"))
+
+    // spring
+    implementation("org.springframework.boot:spring-boot:2.3.4.RELEASE")
 
     // grpc
     implementation("com.google.protobuf:protobuf-java:3.12.0")
