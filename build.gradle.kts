@@ -1,4 +1,4 @@
-import com.google.protobuf.gradle.proto
+import com.google.protobuf.gradle.*
 
 plugins {
     java
@@ -11,7 +11,7 @@ version = "1.0-SNAPSHOT"
 
 buildscript {
     repositories {
-        maven("https://maven.aliyun.com/repository/gradle-plugin")
+        maven("https://maven.aliyun.com/repository/central")
     }
     dependencies {
         classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.13")
@@ -36,10 +36,9 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     // grpc
-    implementation("com.google.protobuf:protobuf-java:3.6.1")
-    implementation("io.grpc:grpc-stub:1.15.1")
-    implementation("io.grpc:grpc-protobuf:1.15.1")
-    runtimeOnly("com.google.protobuf:protobuf-gradle-plugin:0.8.13")
+    implementation("com.google.protobuf:protobuf-java:3.12.0")
+    implementation("io.grpc:grpc-stub:1.32.1")
+    implementation("io.grpc:grpc-protobuf:1.32.1")
 
     // dubbo
     implementation("org.apache.dubbo:dubbo:2.7.8")
@@ -50,5 +49,14 @@ dependencies {
 }
 
 protobuf {
-    
+
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.0.0"
+    }
+
+    plugins {
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.9.1"
+        }
+    }
 }
