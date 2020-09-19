@@ -6,7 +6,7 @@
        http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
 
     <dubbo:application name="nnt-logic-test"/>
-    <dubbo:registry address="zookeeper://zookeeper.aoyou.com:2181"/>
+    <dubbo:registry address="zookeeper://localhost:2181"/>
     <dubbo:protocol name="dubbo"/>
 
     <bean id="testService" class="com.nnt.test.TestServiceImpl"/>
