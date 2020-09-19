@@ -9,9 +9,17 @@ plugins {
 group = "com.nnt"
 version = "1.0-SNAPSHOT"
 
+buildscript {
+    repositories {
+        maven("https://maven.aliyun.com/repository/gradle-plugin")
+    }
+    dependencies {
+        classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.13")
+    }
+}
+
 repositories {
     maven("https://maven.aliyun.com/repository/central")
-    maven("https://maven.aliyun.com/repository/gradle-plugin")
 }
 
 sourceSets {
@@ -31,6 +39,7 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java:3.6.1")
     implementation("io.grpc:grpc-stub:1.15.1")
     implementation("io.grpc:grpc-protobuf:1.15.1")
+    runtimeOnly("com.google.protobuf:protobuf-gradle-plugin:0.8.13")
 
     // dubbo
     implementation("org.apache.dubbo:dubbo:2.7.8")
@@ -41,21 +50,5 @@ dependencies {
 }
 
 protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.6.1"
-    }
-
-    plugins {
-        id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.15.1"
-        }
-    }
-
-    generateProtoTasks {
-        ofSourceSet("main").forEach {
-            it.plugins {
-                id("grpc")
-            }
-        }
-    }
+    
 }
