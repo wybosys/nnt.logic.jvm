@@ -4,11 +4,16 @@ import java.io.File
 
 typealias FnSchemeResolver = (String) -> String
 
-private val schemes = mutableMapOf<String, FnSchemeResolver>()
-
 // 当前的运行目录
 var ROOT = File("/").absolutePath
 var HOME = File("~").absolutePath
+
+private val schemes = mutableMapOf<String, FnSchemeResolver>()
+
+// 注册处理器
+fun RegisterScheme(scheme: String, proc: (body: String) -> String) {
+    schemes[scheme] = proc
+}
 
 // 展开url
 // 如果包含 :// 则拆分成 scheme 和 body，再根绝 scheme 注册的转换器转换
