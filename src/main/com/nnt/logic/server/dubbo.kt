@@ -3,8 +3,10 @@ package com.nnt.logic.server
 import com.nnt.logic.core.JsonObject
 import com.nnt.logic.core.logger
 import com.nnt.logic.manager.App
+import com.nnt.logic.thirds.dubbo.ServiceConfig
 import org.apache.dubbo.config.ApplicationConfig
-import org.apache.dubbo.registry.Registry
+import org.apache.dubbo.config.RegistryConfig
+import org.apache.dubbo.registry.zookeeper.ZookeeperRegistryFactory
 
 private class DubboRegistryCfg {
     var type: String = ""
@@ -18,8 +20,8 @@ private class DubboProtocol {
 
 private class DubboService {
     var id: String = ""
-    lateinit var impl: Class<*>
-    lateinit var iface: Class<*>
+    lateinit var impl: String
+    lateinit var iface: String
 }
 
 open class Dubbo : Server() {
@@ -53,7 +55,8 @@ open class Dubbo : Server() {
             "zookeeper" -> {
                 _registry = DubboRegistryCfg()
                 _registry.type = cfg_reg_type
-                _registry.host = cfg_reg["host"].asText()
+                val host = cfg_reg["host"].asText()
+                _registry.host = "zookeeper://${host}"
             }
             else -> {
                 logger.fatal("registry不支持该类型 ${cfg_reg_type}")
@@ -78,7 +81,7 @@ open class Dubbo : Server() {
                 logger.fatal("没有找到类型 ${clsnm}")
                 return false
             }
-            svc.impl = cls
+            svc.impl = clsnm
 
             clsnm = e["iface"].asText()
             cls = App.shared.findEntry(clsnm)
@@ -86,7 +89,7 @@ open class Dubbo : Server() {
                 logger.fatal("没有找到类型 ${clsnm}")
                 return false
             }
-            svc.iface = cls
+            svc.iface = clsnm
 
             _services[svc.id] = svc
         }
@@ -102,6 +105,7 @@ open class Dubbo : Server() {
             val type = e["type"].asText()
             when (type) {
                 "dubbo" -> {
+                    // pass
                 }
                 else -> {
                     logger.fatal("不支持该协议 ${type}")
@@ -136,12 +140,16 @@ open class Dubbo : Server() {
         val app = ApplicationConfig()
         app.name = _name
 
-        var reg: Registry? = null
+        val reg = RegistryConfig()
+        reg.protocol = _registry.type
+        reg.address = _registry.host
 
-        when (_registry.type) {
-            "zookeeper" -> {
-                
-            }
+        var svcs = mutableMapOf<String, ServiceConfig>()
+        for (e in _services) {
+            val svc = ServiceConfig()
+            svc.application = app
+            svc.registry = reg
+            svc.`interface` = e.value.iface
         }
     }
 
@@ -149,4 +157,11 @@ open class Dubbo : Server() {
 
     }
 
+    companion object {
+
+        private val _zkfactory by lazy {
+            ZookeeperRegistryFactory()
+        }
+
+    }
 }
