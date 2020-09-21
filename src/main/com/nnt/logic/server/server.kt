@@ -8,7 +8,7 @@ abstract class Server {
     var id: String = ""
 
     // 配置服务
-    fun config(cfg: JsonObject): Boolean {
+    open fun config(cfg: JsonObject): Boolean {
         if (!cfg.has("id"))
             return false
         id = cfg["id"].asText()

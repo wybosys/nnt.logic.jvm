@@ -32,10 +32,17 @@ open class App {
 
     // 实例化对象
     fun instanceEntry(entry: String): Any? {
+        val fnd = findEntry(entry)
+        if (fnd != null)
+            return fnd.constructors[0].newInstance()
+        return null;
+    }
+
+    // 查找指定类型
+    fun findEntry(entry: String): Class<*>? {
         try {
             val fnd = Class.forName(entry)
-            // 使用第一个构造函数实例化
-            return fnd.constructors[0].newInstance()
+            return fnd;
         } catch (e: Throwable) {
             // pass
         }

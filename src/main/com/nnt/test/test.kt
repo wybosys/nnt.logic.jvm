@@ -1,11 +1,11 @@
 package com.nnt.test
 
-interface ITestService {
+interface ITest {
 
     fun Test()
 }
 
-class TestServiceImpl : ITestService {
+class TestImpl : ITest {
 
     override fun Test() {
         println("HAHA")

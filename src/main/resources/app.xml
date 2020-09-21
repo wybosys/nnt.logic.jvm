@@ -9,6 +9,6 @@
     <dubbo:registry address="zookeeper://localhost:2181"/>
     <dubbo:protocol name="dubbo"/>
 
-    <bean id="testService" class="com.nnt.test.TestServiceImpl"/>
-    <dubbo:service interface="com.nnt.test.ITestService" ref="testService"/>
+    <bean id="testService" class="com.nnt.test.TestImpl"/>
+    <dubbo:service interface="com.nnt.test.ITest" ref="testService"/>
 </beans>

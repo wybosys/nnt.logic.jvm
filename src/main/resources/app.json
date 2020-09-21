@@ -15,12 +15,22 @@
       "protocol": [
         {
           "type": "dubbo",
-          "service": "test"
+          "service": [
+            "test"
+          ]
         }
       ],
       "registry": {
-        "address": "zookeeper://localhost:2181"
-      }
+        "type": "zookeeper",
+        "host": "localhost:2181"
+      },
+      "service": [
+        {
+          "id": "test",
+          "impl": "com.nnt.test.TestImpl",
+          "iface": "com.nnt.test.ITest"
+        }
+      ]
     }
   ]
 }
