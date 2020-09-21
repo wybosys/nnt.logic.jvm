@@ -1,2 +1,11 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "config": {
+    "sidexpire": 86400,
+    "cidexpire": 600,
+    "cache": "cache",
+    "https": false,
+    "deskey": "joi>:90",
+    "cluster": 1
+  }
 }

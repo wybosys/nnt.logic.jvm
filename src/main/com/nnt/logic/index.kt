@@ -8,6 +8,8 @@ class Index {
 
         @JvmStatic
         fun main(args: Array<String>) {
+            App.args = args
+
             // 加载配置
             App.LoadConfig()
 

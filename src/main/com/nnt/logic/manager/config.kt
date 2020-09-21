@@ -77,17 +77,17 @@ fun <T> DebugValue(d: T, r: T): T {
 
 // 支持DEVOPS的架构判断
 fun IsDevops(): Boolean {
-    return System.getenv("DEVOPS").isNotEmpty()
+    return System.getenv("DEVOPS") != null
 }
 
 fun IsDevopsDevelop(): Boolean {
-    return System.getenv("DEVOPS").isNotEmpty() && System.getenv("DEVOPS_RELEASE").isNullOrEmpty()
+    return System.getenv("DEVOPS") != null && System.getenv("DEVOPS_RELEASE") != null
 }
 
 fun IsDevopsRelease(): Boolean {
-    return System.getenv("DEVOPS_RELEASE").isNotEmpty()
+    return System.getenv("DEVOPS_RELEASE") != null
 }
 
 fun IsLocal(): Boolean {
-    return System.getenv("DEVOPS").isNotEmpty()
+    return System.getenv("DEVOPS") == null
 }
