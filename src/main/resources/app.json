@@ -7,5 +7,20 @@
     "https": false,
     "deskey": "joi>:90",
     "cluster": 1
-  }
+  },
+  "server": [
+    {
+      "id": "sample",
+      "entry": "com.nnt.logic.server.Dubbo",
+      "protocol": [
+        {
+          "type": "dubbo",
+          "service": "test"
+        }
+      ],
+      "registry": {
+        "address": "zookeeper://localhost:2181"
+      }
+    }
+  ]
 }

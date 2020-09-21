@@ -44,6 +44,8 @@ dependencies {
 
     // kotlin
     implementation(kotlin("stdlib"))
+    implementation(kotlin("reflect"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt")
 
     // logic
     implementation("com.google.auto.service:auto-service:1.0-rc7")

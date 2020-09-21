@@ -4,6 +4,8 @@ import com.nnt.logic.core.JsonObject
 import com.nnt.logic.core.expand
 import com.nnt.logic.core.logger
 import com.nnt.logic.core.toJsonObject
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import java.io.File
 
 open class App {
@@ -12,8 +14,32 @@ open class App {
         _shared = this
     }
 
-    fun start() {
+    // 启动服务
+    suspend fun start() {
+        val cfg = App.CurrentConfig!!
+        if (cfg.has("logger")) {
 
+        }
+        if (cfg.has("dbms")) {
+
+        }
+        if (cfg.has("server")) {
+            GlobalScope.async {
+                Servers.Start(cfg["server"])
+            }.await()
+        }
+    }
+
+    // 实例化对象
+    fun instanceEntry(entry: String): Any? {
+        try {
+            val fnd = Class.forName(entry)
+            // 使用第一个构造函数实例化
+            return fnd.constructors[0].newInstance()
+        } catch (e: Throwable) {
+            // pass
+        }
+        return null
     }
 
     companion object {

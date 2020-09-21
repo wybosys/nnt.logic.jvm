@@ -1,6 +1,8 @@
 package com.nnt.logic
 
 import com.nnt.logic.manager.App
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class Index {
 
@@ -15,7 +17,11 @@ class Index {
 
             // 启动程序
             val app = App()
-            app.start()
+            GlobalScope.launch {
+                app.start()
+            }
+
+            System.`in`.read()
         }
     }
 }
