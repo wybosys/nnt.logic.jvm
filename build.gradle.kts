@@ -31,11 +31,12 @@ sourceSets {
         }
 
         kotlin {
-
+            java {
+                srcDir("src/main")
+            }
         }
 
         java {
-            srcDir("src/main")
             srcDir("build/generated/source/proto")
         }
     }
@@ -98,7 +99,7 @@ protobuf {
         all().forEach({
             it.plugins {
                 id("grpc-java") {
-
+                    // pass
                 }
             }
         })

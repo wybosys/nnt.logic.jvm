@@ -115,6 +115,9 @@ open class Dubbo : Server() {
                 "rest" -> {
                     pt.port = e["port"].asInt()
                 }
+                "grpc" -> {
+                    pt.port = e["port"].asInt()
+                }
                 else -> {
                     logger.fatal("不支持该协议 ${pt.type}")
                     return false
@@ -178,6 +181,9 @@ open class Dubbo : Server() {
                 }
                 "rest" -> {
                     p.server = "netty"
+                }
+                "grpc" -> {
+                    // pass
                 }
             }
             for (ecfg in e.value.services) {
