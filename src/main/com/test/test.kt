@@ -26,6 +26,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
         return """["HELLO"]"""
     }
 
+    // grpc协议下必须实现该函数
     fun setProxiedImpl(impl: ITest) {
         super.setProxiedImpl(impl)
     }
