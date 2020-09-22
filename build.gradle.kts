@@ -36,6 +36,7 @@ sourceSets {
 
         java {
             srcDir("src/main")
+            srcDir("build/generated/source/proto")
         }
     }
 }
@@ -53,6 +54,8 @@ dependencies {
 
     // grpc
     implementation("com.google.protobuf:protobuf-java:3.12.0")
+    implementation("com.google.protobuf:protobuf-java-util:3.12.0")
+    implementation("io.grpc:grpc-all:1.32.1")
 
     // dubbo
     implementation("org.apache.dubbo:dubbo:2.7.0")
@@ -74,12 +77,30 @@ dependencies {
 protobuf {
 
     protoc {
-        artifact = "com.google.protobuf:protoc:3.0.0"
+        artifact = "com.google.protobuf:protoc:3.7.0"
     }
 
     plugins {
-        id("grpc") {
+        id("grpc-java") {
             artifact = "io.grpc:protoc-gen-grpc-java:1.30.2"
+
+            protoc {
+                plugins {
+                    id("dubbo-grpc") {
+                        artifact = "org.apache.dubbo:dubbo-compiler:0.0.1"
+                    }
+                }
+            }
         }
+    }
+
+    generateProtoTasks {
+        all().forEach({
+            it.plugins {
+                id("grpc-java") {
+
+                }
+            }
+        })
     }
 }

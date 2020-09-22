@@ -1,15 +1,19 @@
 syntax = "proto3";
 
-option java_package = "com.nnt.logic";
+option java_package = "com.nnt.test";
 option java_outer_classname = "Proto";
 option java_multiple_files = true;
 
+package test;
 
-message Msg {
-  string foo = 1;
-  SecondMsg blah = 2;
+service Test {
+  rpc hello(TestReq) returns (TestReply) {}
 }
 
-message SecondMsg {
-  int32 blah = 1;
+message TestReq {
+
+}
+
+message TestReply {
+  string message = 1;
 }

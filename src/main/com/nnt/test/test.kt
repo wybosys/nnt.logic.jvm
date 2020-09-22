@@ -1,5 +1,6 @@
 package com.nnt.test
 
+import io.grpc.stub.StreamObserver
 import javax.ws.rs.Consumes
 import javax.ws.rs.GET
 import javax.ws.rs.Path
@@ -12,13 +13,19 @@ import javax.ws.rs.core.MediaType
 interface ITest {
 
     @GET
-    @Path("test")
-    fun Test(): String
+    @Path("hello")
+    fun hello(): String
 }
 
-class Test : ITest {
+class Test : ITest, TestGrpc.TestImplBase() {
 
-    override fun Test(): String {
+    override fun hello(): String {
         return """["HELLO"]"""
+    }
+
+    override fun hello(request: TestReq, responseObserver: StreamObserver<TestReply>) {
+        val reply = TestReply.newBuilder().setMessage("hello").build()
+        responseObserver.onNext(reply)
+        responseObserver.onCompleted()
     }
 }
