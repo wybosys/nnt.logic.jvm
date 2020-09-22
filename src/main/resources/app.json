@@ -16,7 +16,6 @@
         {
           "type": "dubbo",
           "port": 8090,
-          "threads": 2,
           "service": [
             "test"
           ]
@@ -36,8 +35,8 @@
       "service": [
         {
           "id": "test",
-          "impl": "com.nnt.test.TestImpl",
-          "iface": "com.nnt.test.ITest"
+          "impl": "com.nnt.test.Test2Impl",
+          "iface": "com.nnt.test.ITest2"
         }
       ]
     }

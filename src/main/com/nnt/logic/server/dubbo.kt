@@ -111,7 +111,6 @@ open class Dubbo : Server() {
             when (pt.type) {
                 "dubbo" -> {
                     pt.port = e["port"].asInt()
-                    pt.threads = e["threads"].asInt(1)
                 }
                 "rest" -> {
                     pt.port = e["port"].asInt()
@@ -175,8 +174,7 @@ open class Dubbo : Server() {
             p.port = e.value.port
             when (e.key) {
                 "dubbo" -> {
-                    p.threads = e.value.threads
-                    p.server = "netty"
+                    p.server = "netty4"
                 }
                 "rest" -> {
                     p.server = "netty"
