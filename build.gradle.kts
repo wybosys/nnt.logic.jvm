@@ -22,6 +22,7 @@ buildscript {
 
 repositories {
     maven("https://maven.aliyun.com/repository/central")
+    maven("https://maven.aliyun.com/repository/apache-snapshots")
 }
 
 sourceSets {
@@ -59,8 +60,11 @@ dependencies {
     implementation("io.grpc:grpc-all:1.32.1")
 
     // dubbo
-    implementation("org.apache.dubbo:dubbo:2.7.0")
+    implementation("org.apache.dubbo:dubbo:2.7.8")
     implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.8")
+
+    // dubbo-spring
+    implementation("org.springframework:spring-remoting:2.0.8")
 
     // dubbo-rest
     implementation("io.netty:netty-all:4.1.9.Final")
@@ -70,6 +74,11 @@ dependencies {
     implementation("org.jboss.resteasy:resteasy-jackson-provider:3.9.0.Final")
     implementation("org.jboss.resteasy:resteasy-jaxb-provider:3.9.0.Final")
     implementation("javax.servlet:javax.servlet-api:4.0.1")
+
+    // dubbo-grpc
+    implementation("com.caucho:hessian:4.0.63")
+    implementation("com.googlecode.xmemcached:xmemcached:2.4.6")
+    implementation("org.apache.cxf:cxf-core:3.4.0")
 
     // test
     testImplementation("junit:junit:4.12")
@@ -83,25 +92,17 @@ protobuf {
 
     plugins {
         id("grpc-java") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.30.2"
-
-            protoc {
-                plugins {
-                    id("dubbo-grpc") {
-                        artifact = "org.apache.dubbo:dubbo-compiler:0.0.1"
-                    }
-                }
-            }
+            //artifact = "io.grpc:protoc-gen-grpc-java:1.30.2"
+            artifact = "org.apache.dubbo:protoc-gen-dubbo-java:1.19.0-20191122.130716-5"
         }
     }
 
     generateProtoTasks {
-        all().forEach({
+        all().forEach {
             it.plugins {
-                id("grpc-java") {
-                    // pass
-                }
+                id("grpc-java")
             }
-        })
+        }
     }
+
 }

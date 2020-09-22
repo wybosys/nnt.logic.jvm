@@ -1,5 +1,6 @@
 package com.nnt.test
 
+import io.grpc.stub.StreamObserver
 import javax.ws.rs.Consumes
 import javax.ws.rs.GET
 import javax.ws.rs.Path
@@ -16,17 +17,15 @@ interface ITest {
     fun hello(): String
 }
 
-class Test : ITest {//, TestGrpc.TestImplBase() {
+class Test : ITest, TestGrpc.TestImplBase() {
 
     override fun hello(): String {
         return """["HELLO"]"""
     }
 
-/*
     override fun hello(request: TestReq, responseObserver: StreamObserver<TestReply>) {
         val reply = TestReply.newBuilder().setMessage("hello").build()
         responseObserver.onNext(reply)
         responseObserver.onCompleted()
     }
- */
 }

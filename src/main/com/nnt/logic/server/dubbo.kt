@@ -116,7 +116,7 @@ open class Dubbo : Server() {
                     pt.port = e["port"].asInt()
                 }
                 "grpc" -> {
-                    pt.port = e["port"].asInt()
+                    // pt.port = e["port"].asInt()
                 }
                 else -> {
                     logger.fatal("不支持该协议 ${pt.type}")
@@ -159,7 +159,10 @@ open class Dubbo : Server() {
             val impl = App.shared.instanceEntry(e.value.impl)!!
 
             val svc = ServiceConfig()
-            svc.application = app
+
+            // 存在一个deprecated
+            BindApplicationToService(app, svc)
+
             svc.registry = reg
             svc.`interface` = e.value.iface
             svc.version = "1.0.0"
@@ -207,4 +210,9 @@ open class Dubbo : Server() {
         _protocols.clear()
         _services.clear()
     }
+}
+
+@Suppress("DEPRECATION")
+private fun BindApplicationToService(app: ApplicationConfig, svc: ServiceConfig) {
+    svc.application = app
 }

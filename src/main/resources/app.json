@@ -26,6 +26,13 @@
           "service": [
             "test"
           ]
+        },
+        {
+          "type": "grpc",
+          "port": 8092,
+          "service": [
+            "test"
+          ]
         }
       ],
       "registry": {
