@@ -15,3 +15,10 @@ fun toJsonObject(str: String?): JsonObject? {
 fun toJsonObject(obj: JsonObject?): JsonObject? {
     return obj
 }
+
+fun toJson(jobj: JsonObject?): String {
+    if (jobj == null)
+        return ""
+    val mapper = ObjectMapper()
+    return mapper.writeValueAsString(jobj)
+}

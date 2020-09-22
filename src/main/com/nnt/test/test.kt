@@ -13,12 +13,12 @@ interface ITest {
 
     @GET
     @Path("test")
-    fun Test()
+    fun Test(): String
 }
 
 class Test : ITest {
 
-    override fun Test() {
-        println("HAHA")
+    override fun Test(): String {
+        return """["HELLO"]"""
     }
 }
