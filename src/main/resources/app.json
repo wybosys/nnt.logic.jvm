@@ -15,8 +15,15 @@
       "protocol": [
         {
           "type": "dubbo",
-          "port": "8090",
+          "port": 8090,
           "threads": 2,
+          "service": [
+            "test"
+          ]
+        },
+        {
+          "type": "rest",
+          "port": 8091,
           "service": [
             "test"
           ]

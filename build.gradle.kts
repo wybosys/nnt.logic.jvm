@@ -55,8 +55,17 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java:3.12.0")
 
     // dubbo
-    implementation("org.apache.dubbo:dubbo:2.7.6")
-    implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.6")
+    implementation("com.alibaba:dubbo:2.6.9")
+    implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.8")
+    implementation("org.apache.curator:curator-framework:5.1.0")
+
+    // dubbo-rest
+    implementation("io.netty:netty-all:4.1.9.Final")
+    implementation("org.jboss.resteasy:resteasy-jaxrs:3.9.0.Final")
+    implementation("org.jboss.resteasy:resteasy-client:3.9.0.Final")
+    implementation("org.jboss.resteasy:resteasy-netty4:3.9.0.Final")
+    implementation("org.jboss.resteasy:resteasy-jackson-provider:3.9.0.Final")
+    implementation("org.jboss.resteasy:resteasy-jaxb-provider:3.9.0.Final")
 
     // test
     testImplementation("junit:junit:4.12")

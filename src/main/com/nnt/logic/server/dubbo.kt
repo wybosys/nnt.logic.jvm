@@ -1,12 +1,12 @@
 package com.nnt.logic.server
 
+import com.alibaba.dubbo.config.ApplicationConfig
+import com.alibaba.dubbo.config.ProtocolConfig
+import com.alibaba.dubbo.config.RegistryConfig
 import com.nnt.logic.core.JsonObject
 import com.nnt.logic.core.logger
 import com.nnt.logic.manager.App
 import com.nnt.logic.thirds.dubbo.ServiceConfig
-import org.apache.dubbo.config.ApplicationConfig
-import org.apache.dubbo.config.ProtocolConfig
-import org.apache.dubbo.config.RegistryConfig
 
 private class DubboRegistryCfg {
     var type: String = ""
@@ -113,6 +113,9 @@ open class Dubbo : Server() {
                     pt.port = e["port"].asInt()
                     pt.threads = e["threads"].asInt(1)
                 }
+                "rest" -> {
+                    pt.port = e["port"].asInt()
+                }
                 else -> {
                     logger.fatal("不支持该协议 ${pt.type}")
                     return false
@@ -144,6 +147,7 @@ open class Dubbo : Server() {
     override suspend fun start() {
         val app = ApplicationConfig()
         app.name = _name
+        app.logger = "log4j"
 
         val reg = RegistryConfig()
         reg.protocol = _registry.type
@@ -159,24 +163,28 @@ open class Dubbo : Server() {
             svc.`interface` = e.value.iface
             svc.version = "1.0.0"
             svc.ref = impl
+            svc.serviceClass = impl.javaClass
 
             svcs[e.key] = svc
             e.value.svccfg = svc
         }
 
         for (e in _protocols) {
+            val p = ProtocolConfig()
+            p.name = e.key
+            p.port = e.value.port
             when (e.key) {
                 "dubbo" -> {
-                    val p = ProtocolConfig()
-                    p.name = "dubbo"
-                    p.port = e.value.port
                     p.threads = e.value.threads
-
-                    for (ecfg in e.value.services) {
-                        val svc = svcs[ecfg.id]!!
-                        svc.protocol = p
-                    }
+                    p.server = "netty"
                 }
+                "rest" -> {
+                    p.server = "netty"
+                }
+            }
+            for (ecfg in e.value.services) {
+                val svc = svcs[ecfg.id]!!
+                svc.protocol = p
             }
         }
 

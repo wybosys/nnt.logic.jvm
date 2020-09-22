@@ -1,6 +1,6 @@
 package com.nnt.logic.thirds.dubbo
 
-import org.apache.dubbo.config.ServiceConfig
+import com.alibaba.dubbo.config.ServiceConfig
 
 class ServiceConfig : ServiceConfig<Any>() {
 
