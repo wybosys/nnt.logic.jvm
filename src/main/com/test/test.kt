@@ -1,5 +1,8 @@
-package com.nnt.test
+package com.test
 
+import com.nnt.test.TestGrpc
+import com.nnt.test.TestReply
+import com.nnt.test.TestReq
 import io.grpc.stub.StreamObserver
 import javax.ws.rs.Consumes
 import javax.ws.rs.GET
@@ -28,7 +31,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
     }
 
     override fun hello(request: TestReq, responseObserver: StreamObserver<TestReply>) {
-        val reply = TestReply.newBuilder().setMessage("hello").build()
+        val reply = TestReply.newBuilder().setMessage("hello grpc").build()
         responseObserver.onNext(reply)
         responseObserver.onCompleted()
     }
