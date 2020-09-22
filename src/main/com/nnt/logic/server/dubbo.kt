@@ -7,7 +7,6 @@ import com.nnt.logic.thirds.dubbo.ServiceConfig
 import org.apache.dubbo.config.ApplicationConfig
 import org.apache.dubbo.config.ProtocolConfig
 import org.apache.dubbo.config.RegistryConfig
-import org.apache.dubbo.registry.zookeeper.ZookeeperRegistryFactory
 
 private class DubboRegistryCfg {
     var type: String = ""
@@ -25,6 +24,7 @@ private class DubboService {
     var id: String = ""
     lateinit var impl: String
     lateinit var iface: String
+    lateinit var svccfg: ServiceConfig
 }
 
 open class Dubbo : Server() {
@@ -134,6 +134,8 @@ open class Dubbo : Server() {
 
                 pt.services.add(fnd)
             }
+
+            _protocols[pt.type] = pt
         }
 
         return true
@@ -149,7 +151,8 @@ open class Dubbo : Server() {
 
         val svcs = mutableMapOf<String, ServiceConfig>()
         for (e in _services) {
-            val impl = App.shared.instanceEntry(e.value.impl)
+            val impl = App.shared.instanceEntry(e.value.impl)!!
+
             val svc = ServiceConfig()
             svc.application = app
             svc.registry = reg
@@ -158,6 +161,7 @@ open class Dubbo : Server() {
             svc.ref = impl
 
             svcs[e.key] = svc
+            e.value.svccfg = svc
         }
 
         for (e in _protocols) {
@@ -179,17 +183,16 @@ open class Dubbo : Server() {
         for (e in svcs) {
             e.value.export()
         }
+
+        logger.info("启动 ${id}@rest")
     }
 
     override suspend fun stop() {
-
-    }
-
-    companion object {
-
-        private val _zkfactory by lazy {
-            ZookeeperRegistryFactory()
+        for (e in _services) {
+            e.value.svccfg.unexport()
         }
 
+        _protocols.clear()
+        _services.clear()
     }
 }
