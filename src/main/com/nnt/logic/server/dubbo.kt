@@ -116,7 +116,7 @@ open class Dubbo : Server() {
                     pt.port = e["port"].asInt()
                 }
                 "grpc" -> {
-                    // pt.port = e["port"].asInt()
+                    pt.port = e["port"].asInt()
                 }
                 else -> {
                     logger.fatal("不支持该协议 ${pt.type}")

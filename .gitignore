@@ -14,3 +14,5 @@ gradle
 gradlew
 gradlew.bat
 build
+.vscode
+__pycache__
