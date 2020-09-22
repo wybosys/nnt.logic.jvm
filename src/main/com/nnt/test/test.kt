@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType
 @Path("test")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-interface ITest {
+interface ITest : TestGrpc.ITest {
 
     @GET
     @Path("hello")
@@ -21,6 +21,10 @@ class Test : ITest, TestGrpc.TestImplBase() {
 
     override fun hello(): String {
         return """["HELLO"]"""
+    }
+
+    fun setProxiedImpl(impl: ITest) {
+        super.setProxiedImpl(impl)
     }
 
     override fun hello(request: TestReq, responseObserver: StreamObserver<TestReply>) {
