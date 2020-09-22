@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='test.proto',
   package='test',
   syntax='proto3',
-  serialized_pb=_b('\n\ntest.proto\x12\x04test\"\t\n\x07TestReq\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t21\n\x04Test\x12)\n\x05hello\x12\r.test.TestReq\x1a\x0f.test.TestReply\"\x00\x42\x17\n\x0c\x63om.nnt.testB\x05ProtoP\x01\x62\x06proto3')
+  serialized_pb=_b('\n\ntest.proto\x12\x04test\"\t\n\x07TestReq\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t21\n\x04Test\x12)\n\x05hello\x12\r.test.TestReq\x1a\x0f.test.TestReply\"\x00\x42\x13\n\x08\x63om.testB\x05ProtoP\x01\x62\x06proto3')
 )
 
 
@@ -99,7 +99,7 @@ _sym_db.RegisterMessage(TestReply)
 
 
 DESCRIPTOR.has_options = True
-DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b('\n\014com.nnt.testB\005ProtoP\001'))
+DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b('\n\010com.testB\005ProtoP\001'))
 
 _TEST = _descriptor.ServiceDescriptor(
   name='Test',
