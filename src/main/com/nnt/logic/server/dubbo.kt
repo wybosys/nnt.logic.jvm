@@ -1,12 +1,12 @@
 package com.nnt.logic.server
 
-import com.alibaba.dubbo.config.ApplicationConfig
-import com.alibaba.dubbo.config.ProtocolConfig
-import com.alibaba.dubbo.config.RegistryConfig
 import com.nnt.logic.core.JsonObject
 import com.nnt.logic.core.logger
 import com.nnt.logic.manager.App
 import com.nnt.logic.thirds.dubbo.ServiceConfig
+import org.apache.dubbo.config.ApplicationConfig
+import org.apache.dubbo.config.ProtocolConfig
+import org.apache.dubbo.config.RegistryConfig
 
 private class DubboRegistryCfg {
     var type: String = ""
@@ -28,7 +28,7 @@ private class DubboService {
 }
 
 open class Dubbo : Server() {
-
+    
     private lateinit var _name: String
     private lateinit var _registry: DubboRegistryCfg
     private val _protocols = mutableMapOf<String, DubboProtocol>()
@@ -147,7 +147,6 @@ open class Dubbo : Server() {
     override suspend fun start() {
         val app = ApplicationConfig()
         app.name = _name
-        app.logger = "log4j"
 
         val reg = RegistryConfig()
         reg.protocol = _registry.type

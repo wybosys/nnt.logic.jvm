@@ -55,9 +55,10 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java:3.12.0")
 
     // dubbo
-    implementation("com.alibaba:dubbo:2.6.9")
+    implementation("org.apache.dubbo:dubbo:2.7.0")
     implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.8")
     implementation("org.apache.curator:curator-framework:5.1.0")
+    implementation("org.apache.curator:curator-recipes:5.1.0")
 
     // dubbo-rest
     implementation("io.netty:netty-all:4.1.9.Final")
