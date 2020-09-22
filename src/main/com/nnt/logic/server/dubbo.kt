@@ -28,7 +28,7 @@ private class DubboService {
 }
 
 open class Dubbo : Server() {
-    
+
     private lateinit var _name: String
     private lateinit var _registry: DubboRegistryCfg
     private val _protocols = mutableMapOf<String, DubboProtocol>()
@@ -163,6 +163,7 @@ open class Dubbo : Server() {
             svc.version = "1.0.0"
             svc.ref = impl
             svc.serviceClass = impl.javaClass
+            svc.protocols = mutableListOf()
 
             svcs[e.key] = svc
             e.value.svccfg = svc
@@ -183,7 +184,7 @@ open class Dubbo : Server() {
             }
             for (ecfg in e.value.services) {
                 val svc = svcs[ecfg.id]!!
-                svc.protocol = p
+                svc.protocols.add(p)
             }
         }
 
