@@ -65,6 +65,7 @@ dependencies {
     implementation("org.jboss.resteasy:resteasy-netty4:3.9.0.Final")
     implementation("org.jboss.resteasy:resteasy-jackson-provider:3.9.0.Final")
     implementation("org.jboss.resteasy:resteasy-jaxb-provider:3.9.0.Final")
+    implementation("javax.servlet:javax.servlet-api:4.0.1")
 
     // test
     testImplementation("junit:junit:4.12")

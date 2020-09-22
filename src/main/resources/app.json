@@ -35,8 +35,8 @@
       "service": [
         {
           "id": "test",
-          "impl": "com.nnt.test.Test2Impl",
-          "iface": "com.nnt.test.ITest2"
+          "impl": "com.nnt.test.Test",
+          "iface": "com.nnt.test.ITest"
         }
       ]
     }

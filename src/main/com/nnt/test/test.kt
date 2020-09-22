@@ -16,7 +16,7 @@ interface ITest {
     fun Test()
 }
 
-class TestImpl : ITest {
+class Test : ITest {
 
     override fun Test() {
         println("HAHA")
