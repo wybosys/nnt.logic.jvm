@@ -12,6 +12,7 @@ version = "1.0-SNAPSHOT"
 
 buildscript {
     repositories {
+        maven("https://maven.aliyun.com/repository/gradle-plugin")
         maven("https://maven.aliyun.com/repository/central")
     }
     dependencies {
@@ -93,7 +94,6 @@ protobuf {
 
     plugins {
         id("grpc-java") {
-            //artifact = "io.grpc:protoc-gen-grpc-java:1.30.2"
             artifact = "org.apache.dubbo:protoc-gen-dubbo-java:1.19.0-20191122.130716-5"
         }
     }
