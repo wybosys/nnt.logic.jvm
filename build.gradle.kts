@@ -55,6 +55,7 @@ dependencies {
     // logic
     implementation("com.google.auto.service:auto-service:1.0-rc7")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.9.9.3")
+    implementation("com.ctrip.framework.apollo:apollo-client:1.7.0")
 
     // grpc
     implementation("com.google.protobuf:protobuf-java:3.12.0")

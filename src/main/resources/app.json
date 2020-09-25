@@ -6,7 +6,10 @@
     "cache": "cache",
     "https": false,
     "deskey": "joi>:90",
-    "cluster": 1
+    "cluster": 1,
+    "apollo": {
+      "host": "apollo-config-server:8080"
+    }
   },
   "server": [
     {
