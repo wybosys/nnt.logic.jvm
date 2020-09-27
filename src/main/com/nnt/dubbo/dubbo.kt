@@ -1,6 +1,6 @@
 package com.nnt.dubbo
 
-import com.nnt.logic.core.JsonObject
+import com.nnt.logic.core.Jsonobj
 import com.nnt.logic.core.logger
 import com.nnt.logic.manager.App
 import com.nnt.logic.server.Server
@@ -34,7 +34,7 @@ open class Dubbo : Server() {
     private val _protocols = mutableMapOf<String, DubboProtocol>()
     private val _services = mutableMapOf<String, DubboService>()
 
-    override fun config(cfg: JsonObject): Boolean {
+    override fun config(cfg: Jsonobj): Boolean {
         if (!super.config(cfg))
             return false
 
@@ -151,8 +151,10 @@ open class Dubbo : Server() {
         app.name = _name
 
         val reg = RegistryConfig()
-        reg.protocol = _registry.type
-        reg.address = _registry.host
+        reg.protocol = "zookeeper"// _registry.type
+        // reg.address = "localhost" //_registry.host
+        //reg.port = 2181
+        reg.address = "127.0.0.1:2181"
 
         val svcs = mutableMapOf<String, ServiceConfig>()
         for (e in _services) {

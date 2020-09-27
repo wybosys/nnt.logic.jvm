@@ -1,6 +1,6 @@
 package com.nnt.logic.server
 
-import com.nnt.logic.core.JsonObject
+import com.nnt.logic.core.Jsonobj
 
 abstract class Server {
 
@@ -8,7 +8,7 @@ abstract class Server {
     var id: String = ""
 
     // 配置服务
-    open fun config(cfg: JsonObject): Boolean {
+    open fun config(cfg: Jsonobj): Boolean {
         if (!cfg.has("id"))
             return false
         id = cfg["id"].asText()

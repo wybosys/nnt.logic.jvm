@@ -62,10 +62,10 @@ open class App {
         val shared get() = _shared!!
 
         // 当前app的配置参数
-        var CurrentConfig: JsonObject? = null
+        var CurrentConfig: Jsonobj? = null
 
         // 加载程序配置
-        fun LoadConfig(appcfg: URI = URI("bundle://app.json"), devcfg: URI = URI("bundle://devops.json")): JsonObject? {
+        fun LoadConfig(appcfg: URI = URI("bundle://app.json"), devcfg: URI = URI("bundle://devops.json")): Jsonobj? {
             // 读取配置信息
             if (!File(appcfg).exists()) {
                 println("读取配置文件失败 ${appcfg}");

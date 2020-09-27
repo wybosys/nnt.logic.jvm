@@ -1,7 +1,7 @@
 package com.nnt.logic.manager
 
 import com.nnt.logic.config.NodeIsEnable
-import com.nnt.logic.core.JsonObject
+import com.nnt.logic.core.Jsonobj
 import com.nnt.logic.core.logger
 import com.nnt.logic.server.Server
 import kotlinx.coroutines.GlobalScope
@@ -13,7 +13,7 @@ class Servers {
 
         private val _servers = mutableMapOf<String, Server>()
 
-        suspend fun Start(cfg: JsonObject) {
+        suspend fun Start(cfg: Jsonobj) {
             if (!cfg.isArray) {
                 logger.fatal("server的配置不是数组")
                 return

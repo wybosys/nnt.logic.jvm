@@ -1,11 +1,11 @@
 package com.nnt.logic.config
 
-import com.nnt.logic.core.JsonObject
+import com.nnt.logic.core.Jsonobj
 import com.nnt.logic.core.logger
 import com.nnt.logic.manager.App
 import com.nnt.logic.manager.Config
 
-fun NodeIsEnable(node: JsonObject): Boolean {
+fun NodeIsEnable(node: Jsonobj): Boolean {
     if (node["enable"] == null)
         return true
     if (!node["enable"].isTextual) {

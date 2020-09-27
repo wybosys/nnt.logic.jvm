@@ -8,6 +8,10 @@ plugins {
     id("org.springframework.boot") version "2.3.4.RELEASE"
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
 group = "com.nnt"
 version = "1.0-SNAPSHOT"
 
