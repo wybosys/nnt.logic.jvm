@@ -151,10 +151,8 @@ open class Dubbo : Server() {
         app.name = _name
 
         val reg = RegistryConfig()
-        reg.protocol = "zookeeper"// _registry.type
-        // reg.address = "localhost" //_registry.host
-        //reg.port = 2181
-        reg.address = "127.0.0.1:2181"
+        reg.protocol = _registry.type
+        reg.address = _registry.host
 
         val svcs = mutableMapOf<String, ServiceConfig>()
         for (e in _services) {
