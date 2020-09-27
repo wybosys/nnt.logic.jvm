@@ -18,9 +18,9 @@ class File(uri: URI) {
 
     fun readText(): String {
         if (uri.bundle) {
-            val stm = javaClass.getResourceAsStream(uri.path)
+            val stm = javaClass.classLoader.getResourceAsStream(uri.path)
             val reader = BufferedReader(InputStreamReader(stm))
-            return reader.readLines().joinToString()
+            return reader.readLines().joinToString("")
         }
 
         return File(uri.path).readText()
