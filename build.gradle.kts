@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm") version "1.4.10"
     kotlin("kapt") version "1.4.10"
     id("com.google.protobuf") version "0.8.13"
+    id("org.springframework.boot") version "2.3.4.RELEASE"
 }
 
 group = "com.nnt"
@@ -18,6 +19,7 @@ buildscript {
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10")
         classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.13")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.3.4.RELEASE")
     }
 }
 
