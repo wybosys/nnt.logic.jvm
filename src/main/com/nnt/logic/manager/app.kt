@@ -1,12 +1,8 @@
 package com.nnt.logic.manager
 
-import com.nnt.logic.core.JsonObject
-import com.nnt.logic.core.expand
-import com.nnt.logic.core.logger
-import com.nnt.logic.core.toJsonObject
+import com.nnt.logic.core.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import java.io.File
 
 open class App {
 
@@ -51,6 +47,12 @@ open class App {
 
     companion object {
 
+        init {
+            // 运行各模块初始化函数
+            com.nnt.logic.core.Init()
+            com.nnt.logic.server.Init()
+        }
+
         // 启动带的参数
         var args = arrayOf("")
 
@@ -63,10 +65,7 @@ open class App {
         var CurrentConfig: JsonObject? = null
 
         // 加载程序配置
-        fun LoadConfig(appcfg_: String = "~/app.json", devcfg_: String = "~/devops.json"): JsonObject? {
-            val appcfg = expand(appcfg_)!!
-            val devcfg = expand(devcfg_)!!
-
+        fun LoadConfig(appcfg: URI = URI("bundle://app.json"), devcfg: URI = URI("bundle://devops.json")): JsonObject? {
             // 读取配置信息
             if (!File(appcfg).exists()) {
                 println("读取配置文件失败 ${appcfg}");
@@ -122,7 +121,7 @@ open class App {
             // 读取系统配置
             val c = cfg!!["config"]!!
             if (c.has("cache")) {
-                Config.CACHE = expand(c["cache"].asText())!!
+                Config.CACHE = URI(c["cache"].asText()!!)
             }
 
             if (!File(Config.CACHE).exists()) {

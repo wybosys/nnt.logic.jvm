@@ -1,5 +1,7 @@
 package com.nnt.logic.manager
 
+import com.nnt.logic.core.URI
+
 class Config {
 
     companion object {
@@ -53,7 +55,7 @@ class Config {
         var ACCESS_DENY = mutableListOf<String>()
 
         // 服务端缓存目录
-        var CACHE = "cache"
+        var CACHE = URI("cache")
 
         // 最大下载文件的大小
         var FILESIZE_LIMIT = 10485760; // 10M
