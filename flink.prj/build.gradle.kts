@@ -61,6 +61,18 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java-util:3.12.0")
     implementation("io.grpc:grpc-all:1.32.1")
 
+    // flink
+    implementation("com.alibaba.blink:flink-java:blink-3.7.0")
+    implementation("com.alibaba.blink:flink-streaming-java_2.11:blink-3.7.0")
+    implementation("com.alibaba.blink:flink-clients_2.11:blink-3.7.0")
+    implementation("org.apache.flink:statefun-sdk:2.1.0")
+    implementation("org.apache.flink:statefun-flink-harness:2.1.0")
+    implementation("org.apache.bahir:flink-connector-redis_2.11:1.0")
+    implementation("com.alibaba.blink:flink-connector-kafka-0.10_2.11:blink-3.7.0")
+    implementation("com.alibaba.ververica:flink-connector-mysql-cdc:1.1.0")
+    implementation("org.apache.flink:flink-connector-hbase_2.11:1.11.2")
+    implementation("com.alibaba.blink:flink-connector-elasticsearch-base_2.11:blink-3.7.0")
+
     // test
     testImplementation("junit:junit:4.12")
 }
