@@ -31,12 +31,12 @@ repositories {
 sourceSets {
     main {
         proto {
-            srcDir("src/proto")
+            srcDir("../src/proto")
         }
 
         kotlin {
             java {
-                srcDir("src/main")
+                srcDir("../src/main")
             }
         }
 
