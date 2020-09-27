@@ -27,6 +27,9 @@ sourceSets {
         kotlin {
             java {
                 srcDir("../src/main")
+
+                exclude("com/nnt/dubbo")
+                exclude("com/test/dubbo")
             }
         }
     }

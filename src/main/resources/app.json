@@ -45,8 +45,8 @@
       "service": [
         {
           "id": "test",
-          "impl": "com.test.Test",
-          "iface": "com.test.ITest"
+          "impl": "com.test.dubbo.Test",
+          "iface": "com.test.dubbo.ITest"
         }
       ]
     }

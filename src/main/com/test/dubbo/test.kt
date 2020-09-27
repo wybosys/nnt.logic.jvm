@@ -1,4 +1,4 @@
-package com.test
+package com.test.dubbo
 
 import io.grpc.stub.StreamObserver
 import javax.ws.rs.Consumes
