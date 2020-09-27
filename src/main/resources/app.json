@@ -14,7 +14,7 @@
   "server": [
     {
       "id": "sample",
-      "entry": "com.nnt.logic.server.Dubbo",
+      "entry": "com.nnt.dubbo.Dubbo",
       "protocol": [
         {
           "type": "dubbo",

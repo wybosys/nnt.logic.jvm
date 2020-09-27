@@ -1,4 +1,4 @@
-package com.nnt.logic.thirds.dubbo
+package com.nnt.dubbo
 
 import org.apache.dubbo.config.ServiceConfig
 

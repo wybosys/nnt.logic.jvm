@@ -9,7 +9,7 @@ fun Init() {
     // 注册处理bundle资源
     RegisterScheme("bundle") {
         if (!IsJar()) {
-            it.path = "${HOME}/src/main/resources/${it.path}"
+            it.path = "${HOME}/../src/main/resources/${it.path}"
         } else {
             it.bundle = true
         }

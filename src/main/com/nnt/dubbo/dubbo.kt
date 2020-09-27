@@ -1,9 +1,9 @@
-package com.nnt.logic.server
+package com.nnt.dubbo
 
 import com.nnt.logic.core.JsonObject
 import com.nnt.logic.core.logger
 import com.nnt.logic.manager.App
-import com.nnt.logic.thirds.dubbo.ServiceConfig
+import com.nnt.logic.server.Server
 import org.apache.dubbo.config.ApplicationConfig
 import org.apache.dubbo.config.ProtocolConfig
 import org.apache.dubbo.config.RegistryConfig
