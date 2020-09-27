@@ -40,7 +40,7 @@ open class App {
             val fnd = Class.forName(entry)
             return fnd;
         } catch (e: Throwable) {
-            // pass
+            print(e.message)
         }
         return null
     }
