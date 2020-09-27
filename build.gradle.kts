@@ -59,6 +59,15 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.9.9.3")
     implementation("com.ctrip.framework.apollo:apollo-client:1.7.0")
 
+    // db
+    implementation("org.mybatis:mybatis:3.5.5")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.3.4.RELEASE")
+    implementation("mysql:mysql-connector-java:8.0.21")
+    implementation("redis.clients:jedis:3.3.0")
+    implementation("org.apache.hbase:hbase:2.3.2")
+    implementation("org.neo4j:neo4j:4.1.2")
+    implementation("org.apache.phoenix:phoenix:4.15.0-HBase-1.4")
+
     // grpc
     implementation("com.google.protobuf:protobuf-java:3.12.0")
     implementation("com.google.protobuf:protobuf-java-util:3.12.0")
