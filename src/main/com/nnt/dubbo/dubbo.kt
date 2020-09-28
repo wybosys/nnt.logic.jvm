@@ -209,6 +209,8 @@ open class Dubbo : Server() {
 
         _protocols.clear()
         _services.clear()
+
+        logger.info("停止 ${id}@rest")
     }
 }
 

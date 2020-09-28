@@ -1,7 +1,10 @@
 package com.nnt.logic
 
+import com.nnt.logic.config.Apollo
 import com.nnt.logic.manager.App
+import com.nnt.signals.kSignalChanged
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class Index {
@@ -19,6 +22,20 @@ class Index {
             val app = App()
             GlobalScope.launch {
                 app.start()
+            }
+
+            // 配置变化需要重启
+            if (Apollo.enabled) {
+                Apollo.signals.connect(kSignalChanged) {
+                    GlobalScope.launch {
+                        GlobalScope.async {
+                            app.stop()
+                        }.await()
+
+                        // 重新启动
+                        app.start()
+                    }
+                }
             }
 
             System.`in`.read()

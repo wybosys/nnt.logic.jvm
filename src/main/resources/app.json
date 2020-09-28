@@ -8,7 +8,9 @@
     "deskey": "joi>:90",
     "cluster": 1,
     "apollo": {
-      "host": "apollo-config-server:8080"
+      "host": "http://apollo-config-server:8080",
+      "appid": "test",
+      "key": "nnt.logic.jvm"
     }
   },
   "server": [

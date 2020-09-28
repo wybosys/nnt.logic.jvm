@@ -2,6 +2,7 @@ package com.nnt.logic.core
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 
 typealias Jsonobj = JsonNode
 
@@ -21,4 +22,11 @@ fun toJson(jobj: Jsonobj?): String {
         return ""
     val mapper = ObjectMapper()
     return mapper.writeValueAsString(jobj)
+}
+
+fun Merge(base: Jsonobj, r: Jsonobj?): Jsonobj {
+    if (r == null || !base.isObject || !r.isObject)
+        return base
+    (base as ObjectNode).setAll<ObjectNode>(r as ObjectNode)
+    return base
 }

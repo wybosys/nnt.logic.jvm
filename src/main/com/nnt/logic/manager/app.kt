@@ -1,5 +1,6 @@
 package com.nnt.logic.manager
 
+import com.nnt.logic.config.Apollo
 import com.nnt.logic.core.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -24,6 +25,13 @@ open class App {
                 Servers.Start(cfg["server"])
             }.await()
         }
+    }
+
+    // 停止服务
+    suspend fun stop() {
+        GlobalScope.async {
+            Servers.Stop()
+        }.await()
     }
 
     // 实例化对象
@@ -126,6 +134,15 @@ open class App {
 
             if (!File(Config.CACHE).exists()) {
                 File(Config.CACHE).mkdirs()
+            }
+
+            // 如果使用apollo，则从对应服务读取
+            if (c.has("apollo")) {
+                if (!Apollo.config(c["apollo"])) {
+                    logger.error("apollo配置失败")
+                    return null
+                }
+                Merge(CurrentConfig!!, Apollo.value())
             }
 
             return cfg
