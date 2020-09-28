@@ -27,6 +27,10 @@ class Index {
             // 配置变化需要重启
             if (Apollo.enabled) {
                 Apollo.signals.connect(kSignalChanged) {
+                    // 重新加载配置
+                    App.LoadConfig()
+
+                    // 重启应用
                     GlobalScope.launch {
                         GlobalScope.async {
                             app.stop()
