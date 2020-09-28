@@ -99,7 +99,11 @@ dependencies {
     implementation("org.apache.cxf:cxf-core:3.4.0")
 
     // test
-    testImplementation("junit:junit:4.12")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 protobuf {
