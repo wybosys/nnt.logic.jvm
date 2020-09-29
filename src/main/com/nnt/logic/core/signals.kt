@@ -304,11 +304,8 @@ class Signals(
 // 基础对象，用于实现成员函数插槽
 open class Object {
 
+    @Volatile
     protected var _signals: Signals? = null
-
-    protected open fun _initSignals() {
-        // pass
-    }
 
     val signals: Signals
         get() {
@@ -316,7 +313,6 @@ open class Object {
                 synchronized(this) {
                     if (_signals == null) {
                         _signals = Signals(this)
-                        _initSignals()
                     }
                 }
             }
