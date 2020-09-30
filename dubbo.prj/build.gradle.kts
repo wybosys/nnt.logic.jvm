@@ -63,7 +63,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt")
 
     // logic
-    implementation("com.google.auto.service:auto-service:1.0-rc7")
+    kapt("com.google.auto.service:auto-service:1.0-rc7")
+    implementation("com.google.auto.service:auto-service-annotations:1.0-rc7")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.9.9.3")
     implementation("com.ctrip.framework.apollo:apollo-client:1.7.0")
 
