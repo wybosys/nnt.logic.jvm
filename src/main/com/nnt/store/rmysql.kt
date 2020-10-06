@@ -4,8 +4,6 @@ import com.nnt.core.File
 import com.nnt.core.Jsonobj
 import com.nnt.core.URI
 import com.nnt.core.logger
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
 import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory
 import org.apache.ibatis.mapping.Environment
@@ -114,16 +112,15 @@ class RMysql : AbstractRdb() {
         // pass
     }
 
-    suspend fun execute(autocommit: Boolean = true, proc: suspend (session: SqlSession) -> Unit) {
-        val ses = _factory.openSession(autocommit)
+    suspend fun execute(proc: suspend (session: SqlSession) -> Unit) {
         try {
-            GlobalScope.async {
-                proc(ses)
-            }.await()
+            val ses = _factory.openSession(false)
+            proc(ses)
+            ses.commit()
+            ses.close()
         } catch (err: Throwable) {
             logger.exception(err.localizedMessage)
         }
-        ses.close()
     }
 
 }

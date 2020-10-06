@@ -59,10 +59,10 @@ class Test : ITest, TestGrpc.TestImplBase() {
                 val res = map.listEchoo()
                 println(res)
             }
-        }
 
-        val reply = TestReply.newBuilder().setMessage("hello grpc").build()
-        responseObserver.onNext(reply)
-        responseObserver.onCompleted()
+            val reply = TestReply.newBuilder().setMessage("hello grpc").build()
+            responseObserver.onNext(reply)
+            responseObserver.onCompleted()
+        }
     }
 }
