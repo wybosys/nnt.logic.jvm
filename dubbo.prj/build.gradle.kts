@@ -139,7 +139,3 @@ protobuf {
         }
     }
 }
-
-tasks.test {
-    useJUnitPlatform()
-}

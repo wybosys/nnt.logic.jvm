@@ -33,6 +33,14 @@ sourceSets {
             }
         }
     }
+
+    test {
+        kotlin {
+            java {
+                srcDir("../src/test")
+            }
+        }
+    }
 }
 
 dependencies {
@@ -74,5 +82,9 @@ dependencies {
     implementation("com.alibaba.blink:flink-connector-elasticsearch-base_2.11:blink-3.7.0")
 
     // test
-    testImplementation("junit:junit:4.12")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
