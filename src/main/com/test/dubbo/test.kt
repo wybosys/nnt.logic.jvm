@@ -1,5 +1,6 @@
 package com.test.dubbo
 
+import com.nnt.core.logger
 import io.grpc.stub.StreamObserver
 import javax.ws.rs.Consumes
 import javax.ws.rs.GET
@@ -20,6 +21,8 @@ interface ITest : TestGrpc.ITest {
 class Test : ITest, TestGrpc.TestImplBase() {
 
     override fun hello(): String {
+        logger.info("调用 rest-hello")
+
         return """["HELLO"]"""
     }
 
@@ -29,6 +32,8 @@ class Test : ITest, TestGrpc.TestImplBase() {
     }
 
     override fun hello(request: TestReq, responseObserver: StreamObserver<TestReply>) {
+        logger.info("调用 grpc-hello")
+
         val reply = TestReply.newBuilder().setMessage("hello grpc").build()
         responseObserver.onNext(reply)
         responseObserver.onCompleted()
