@@ -1,7 +1,7 @@
-package com.nnt.logic.logger
+package com.nnt.logger
 
-import com.nnt.logic.core.STATUS
-import com.nnt.logic.manager.Config
+import com.nnt.core.STATUS
+import com.nnt.manager.Config
 
 class Console : AbstractLogger() {
 

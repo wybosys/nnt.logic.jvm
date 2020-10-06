@@ -1,4 +1,4 @@
-package com.nnt.logic.core
+package com.nnt.core
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper

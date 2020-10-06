@@ -1,10 +1,10 @@
-package com.nnt.logic.manager
+package com.nnt.manager
 
-import com.nnt.logic.config.NodeIsEnable
-import com.nnt.logic.core.Jsonobj
-import com.nnt.logic.core.logger
-import com.nnt.logic.logger.AbstractLogger
-import com.nnt.logic.logger.Filter
+import com.nnt.config.NodeIsEnable
+import com.nnt.core.Jsonobj
+import com.nnt.core.logger
+import com.nnt.logger.AbstractLogger
+import com.nnt.logger.Filter
 
 enum class LOGTYPE {
     LOG,

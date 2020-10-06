@@ -1,6 +1,6 @@
-package com.nnt.logic.manager
+package com.nnt.manager
 
-import com.nnt.logic.core.Jsonobj
+import com.nnt.core.Jsonobj
 
 class Dbms {
 

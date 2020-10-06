@@ -57,7 +57,7 @@
     {
       "id": "console",
       "filter": "all",
-      "entry": "com.nnt.logic.logger.Console",
+      "entry": "com.nnt.logger.Console",
       "enable": "local"
     }
   ]

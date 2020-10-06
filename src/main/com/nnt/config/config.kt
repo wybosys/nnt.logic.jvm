@@ -1,9 +1,9 @@
-package com.nnt.logic.config
+package com.nnt.config
 
-import com.nnt.logic.core.Jsonobj
-import com.nnt.logic.core.logger
-import com.nnt.logic.manager.App
-import com.nnt.logic.manager.Config
+import com.nnt.core.Jsonobj
+import com.nnt.core.logger
+import com.nnt.manager.App
+import com.nnt.manager.Config
 
 class Attribute {
     companion object {

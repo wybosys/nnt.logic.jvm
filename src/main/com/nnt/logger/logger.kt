@@ -1,8 +1,8 @@
-package com.nnt.logic.logger
+package com.nnt.logger
 
-import com.nnt.logic.config.Attribute
-import com.nnt.logic.core.Jsonobj
-import com.nnt.logic.core.STATUS
+import com.nnt.config.Attribute
+import com.nnt.core.Jsonobj
+import com.nnt.core.STATUS
 
 class Filter {
 

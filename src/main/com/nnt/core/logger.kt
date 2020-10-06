@@ -1,4 +1,4 @@
-package com.nnt.logic.core
+package com.nnt.core
 
 enum class Level(val v: Int) {
     SPECIAL(9),

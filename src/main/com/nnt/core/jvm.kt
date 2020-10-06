@@ -1,4 +1,4 @@
-package com.nnt.logic.core
+package com.nnt.core
 
 // File("jar:file:/home/develop/github/nnt.logic.jvm/build/libs/logic-1.0-SNAPSHOT.jar!/BOOT-INF/classes!/app.json").exists()
 

@@ -1,6 +1,6 @@
-package com.nnt.logic.server
+package com.nnt.server
 
-import com.nnt.logic.core.Jsonobj
+import com.nnt.core.Jsonobj
 
 abstract class Server {
 

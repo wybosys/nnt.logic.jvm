@@ -1,6 +1,6 @@
-package com.nnt.logic.manager
+package com.nnt.manager
 
-import com.nnt.logic.core.URI
+import com.nnt.core.URI
 
 class Config {
 

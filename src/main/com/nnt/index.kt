@@ -1,7 +1,7 @@
-package com.nnt.logic
+package com.nnt
 
-import com.nnt.logic.config.Apollo
-import com.nnt.logic.manager.App
+import com.nnt.config.Apollo
+import com.nnt.manager.App
 import com.nnt.signals.kSignalChanged
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async

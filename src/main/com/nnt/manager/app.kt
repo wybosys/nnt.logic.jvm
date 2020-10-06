@@ -1,7 +1,7 @@
-package com.nnt.logic.manager
+package com.nnt.manager
 
-import com.nnt.logic.config.Apollo
-import com.nnt.logic.core.*
+import com.nnt.config.Apollo
+import com.nnt.core.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 
@@ -66,8 +66,8 @@ open class App {
 
         init {
             // 运行各模块初始化函数
-            com.nnt.logic.core.Init()
-            com.nnt.logic.server.Init()
+            com.nnt.core.Init()
+            com.nnt.server.Init()
         }
 
         // 启动带的参数

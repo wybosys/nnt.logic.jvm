@@ -1,11 +1,11 @@
-package com.nnt.logic.config
+package com.nnt.config
 
 import com.ctrip.framework.apollo.Config
 import com.ctrip.framework.apollo.ConfigChangeListener
 import com.ctrip.framework.apollo.ConfigService
 import com.ctrip.framework.apollo.model.ConfigChangeEvent
-import com.nnt.logic.core.Jsonobj
-import com.nnt.logic.core.toJsonObject
+import com.nnt.core.Jsonobj
+import com.nnt.core.toJsonObject
 import com.nnt.signals.Object
 import com.nnt.signals.kSignalChanged
 
