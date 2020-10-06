@@ -63,7 +63,7 @@
       "entry": "com.nnt.store.RMysql",
       "mybatis": {
         "map": [
-          "bundle://mybatis/echoo.xml"
+          "bundle://mybatis/sample.xml"
         ]
       }
     }

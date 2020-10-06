@@ -12,10 +12,18 @@ import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 
+interface Sample {
+    fun listEchoo(): List<Echoo>
+}
+
 class Echoo {
     var id: Int = 0
     var input: String = ""
     var output: String = ""
+
+    override fun toString(): String {
+        return "${id} ${input} ${output}"
+    }
 }
 
 @Path("test")
@@ -36,10 +44,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
         return """["HELLO"]"""
     }
 
-    // grpc协议下必须实现该函数        val mysql = Dbms.Find("mysql") as RMysql
-    //        mysql.execute {
-    //            it.selectOne("list")
-    //        }
+    // grpc协议下必须实现该函数
     fun setProxiedImpl(impl: ITest) {
         super.setProxiedImpl(impl)
     }
@@ -50,7 +55,8 @@ class Test : ITest, TestGrpc.TestImplBase() {
         GlobalScope.launch {
             val mysql = Dbms.Find("mysql") as RMysql
             mysql.execute {
-                val res = it.selectList<Echoo>("list")
+                val map = it.getMapper(Sample::class.java)
+                val res = map.listEchoo()
                 println(res)
             }
         }
