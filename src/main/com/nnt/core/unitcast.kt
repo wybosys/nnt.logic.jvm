@@ -342,6 +342,9 @@ class ByteUnit : IStringable, Comparable<ByteUnit> {
                     cache = ""
                     hasdot = false
                 }
+                'B' -> {
+                    continue
+                }
                 else -> {
                     if (e == '.') {
                         if (hasdot)
