@@ -413,7 +413,7 @@ class ByteUnit : IStringable, Comparable<ByteUnit> {
             _t = (v % _K).toInt()
             v /= _K
             _p = (v % _K).toInt()
-            _dirty = false
+            _dirty = true
         }
 
     override fun hashCode(): Int {
