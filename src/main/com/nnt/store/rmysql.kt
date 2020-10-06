@@ -4,10 +4,13 @@ import com.nnt.core.File
 import com.nnt.core.Jsonobj
 import com.nnt.core.URI
 import com.nnt.core.logger
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
 import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory
 import org.apache.ibatis.mapping.Environment
 import org.apache.ibatis.session.Configuration
+import org.apache.ibatis.session.SqlSession
 import org.apache.ibatis.session.SqlSessionFactory
 import org.apache.ibatis.session.SqlSessionFactoryBuilder
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
@@ -90,27 +93,18 @@ class RMysql : AbstractRdb() {
 
         // 遍历加入map
         maps.forEach() {
-            File(it).walk()
-                .filter {
-                    it.isFile
-                }
-                .filter {
-                    it.extension == "xml"
-                }
-                .forEach {
-                    try {
-                        val builder =
-                            XMLMapperBuilder(
-                                File(URI(it.absolutePath)).open(),
-                                conf,
-                                it.absolutePath,
-                                conf.sqlFragments
-                            )
-                        builder.parse()
-                    } catch (err: Throwable) {
-                        logger.exception(err.stackTraceToString())
-                    }
-                }
+            try {
+                val builder =
+                    XMLMapperBuilder(
+                        File(it).open(),
+                        conf,
+                        it.path,
+                        conf.sqlFragments
+                    )
+                builder.parse()
+            } catch (err: Throwable) {
+                logger.exception(err.localizedMessage)
+            }
         }
 
         _factory = SqlSessionFactoryBuilder().build(conf)
@@ -118,6 +112,18 @@ class RMysql : AbstractRdb() {
 
     override suspend fun close() {
         // pass
+    }
+
+    suspend fun execute(autocommit: Boolean = true, proc: suspend (session: SqlSession) -> Unit) {
+        val ses = _factory.openSession(autocommit)
+        try {
+            GlobalScope.async {
+                proc(ses)
+            }.await()
+        } catch (err: Throwable) {
+            logger.exception(err.localizedMessage)
+        }
+        ses.close()
     }
 
 }

@@ -48,5 +48,9 @@ class Dbms {
             }
             dbs.clear()
         }
+
+        fun Find(id: String): AbstractDbms? {
+            return dbs[id]
+        }
     }
 }
