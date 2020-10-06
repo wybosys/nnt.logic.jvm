@@ -59,6 +59,16 @@
       "filter": "all",
       "entry": "com.nnt.logger.Console",
       "enable": "local"
+    },
+    {
+      "id": "log4j",
+      "filter": "all",
+      "entry": "com.nnt.logger.Log4j",
+      "dir": "cache",
+      "name": "app",
+      "roll": {
+        "size": "1M"
+      }
     }
   ]
 }

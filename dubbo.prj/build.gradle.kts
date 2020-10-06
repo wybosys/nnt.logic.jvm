@@ -53,6 +53,14 @@ sourceSets {
             srcDir("build/generated/source/proto/main/grpc-java")
         }
     }
+
+    test {
+        kotlin {
+            java {
+                srcDir("../src/test")
+            }
+        }
+    }
 }
 
 dependencies {
@@ -130,4 +138,8 @@ protobuf {
             }
         }
     }
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
