@@ -58,9 +58,14 @@
       "id": "mysql",
       "host": "localhost:3306",
       "user": "root",
-      "password": "root",
+      "pwd": "root",
       "scheme": "nnt-logic",
-      "entry": "com.nnt.store.RMysql"
+      "entry": "com.nnt.store.RMysql",
+      "mybatis": {
+        "map": [
+          "bundle://mybatis"
+        ]
+      }
     }
   ],
   "logger": [

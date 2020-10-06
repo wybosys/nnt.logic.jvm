@@ -1,12 +1,15 @@
 package com.nnt.core
 
-import java.io.BufferedReader
+import java.io.*
 import java.io.File
-import java.io.InputStreamReader
 
 class File(uri: URI) {
 
     val uri: URI = uri
+
+    fun walk(direction: FileWalkDirection = FileWalkDirection.TOP_DOWN): FileTreeWalk {
+        return File(uri.path).walk(direction)
+    }
 
     fun exists(): Boolean {
         if (uri.bundle) {
@@ -24,6 +27,12 @@ class File(uri: URI) {
         }
 
         return File(uri.path).readText()
+    }
+
+    fun open(): InputStream? {
+        if (uri.bundle)
+            return javaClass.classLoader.getResourceAsStream(uri.path)
+        return FileInputStream(uri.path)
     }
 
     fun mkdirs(): Boolean {
