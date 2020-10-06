@@ -81,7 +81,7 @@ object Loggers {
 
     suspend fun Start(cfg: Jsonobj) {
         if (!cfg.isArray) {
-            logger.fatal("server的配置不是数组")
+            logger.fatal("logger的配置不是数组")
             return
         }
 

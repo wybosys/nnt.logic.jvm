@@ -78,7 +78,6 @@ dependencies {
 
     // db
     implementation("org.mybatis:mybatis:3.5.5")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.3.4.RELEASE")
     implementation("mysql:mysql-connector-java:8.0.21")
     implementation("redis.clients:jedis:3.3.0")
     implementation("org.apache.hbase:hbase:2.3.2")

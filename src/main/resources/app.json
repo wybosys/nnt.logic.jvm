@@ -53,6 +53,16 @@
       ]
     }
   ],
+  "dbms": [
+    {
+      "id": "mysql",
+      "host": "localhost:3306",
+      "user": "root",
+      "password": "root",
+      "scheme": "nnt-logic",
+      "entry": "com.nnt.store.RMysql"
+    }
+  ],
   "logger": [
     {
       "id": "log4j",
