@@ -2,6 +2,7 @@ package com.nnt.logic.logger
 
 import com.nnt.logic.config.Attribute
 import com.nnt.logic.core.Jsonobj
+import com.nnt.logic.core.STATUS
 
 class Filter {
 
@@ -39,7 +40,7 @@ abstract class AbstractLogger {
 
     private lateinit var _filters: Set<String>
 
-    private fun isAllow(filter: String): Boolean {
+    fun isAllow(filter: String): Boolean {
         return _filters.contains(filter)
     }
 
@@ -50,5 +51,9 @@ abstract class AbstractLogger {
         return true
     }
 
-    abstract fun log(msg: String);
+    abstract fun log(msg: String, status: STATUS? = null)
+    abstract fun warn(msg: String, status: STATUS? = null)
+    abstract fun info(msg: String, status: STATUS? = null)
+    abstract fun fatal(msg: String, status: STATUS? = null)
+    abstract fun exception(msg: String, status: STATUS? = null)
 }

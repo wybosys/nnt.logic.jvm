@@ -52,5 +52,13 @@
         }
       ]
     }
+  ],
+  "logger": [
+    {
+      "id": "console",
+      "filter": "all",
+      "entry": "com.nnt.logic.logger.Console",
+      "enable": "local"
+    }
   ]
 }

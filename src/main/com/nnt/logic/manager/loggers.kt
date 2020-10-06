@@ -1,17 +1,111 @@
 package com.nnt.logic.manager
 
+import com.nnt.logic.config.NodeIsEnable
 import com.nnt.logic.core.Jsonobj
+import com.nnt.logic.core.logger
+import com.nnt.logic.logger.AbstractLogger
+import com.nnt.logic.logger.Filter
 
-class Loggers {
+enum class LOGTYPE {
+    LOG,
+    WARN,
+    INFO,
+    FATAL,
+    EXCEPTION
+}
 
-    companion object {
+private val loggers = mutableListOf<AbstractLogger>()
 
-        suspend fun Start(cfg: Jsonobj) {
+fun output(msg: String, filter: String, typ: LOGTYPE) {
+    loggers.forEach() {
+        if (!it.isAllow(filter))
+            return
+        when (typ) {
+            LOGTYPE.LOG -> {
+                it.log(msg)
+            }
+            LOGTYPE.INFO -> {
+                it.info(msg)
+            }
+            LOGTYPE.WARN -> {
+                it.warn(msg)
+            }
+            LOGTYPE.EXCEPTION -> {
+                it.exception(msg)
+            }
+            else -> {
+                it.fatal(msg)
+            }
+        }
+    }
+}
 
+object Loggers {
+
+    init {
+        logger.log = {
+            if (loggers.size > 0)
+                output(it, Filter.LOG, LOGTYPE.LOG)
+            else
+                println(it)
         }
 
-        suspend fun Stop() {
-
+        logger.warn = {
+            if (loggers.size > 0)
+                output(it, Filter.WARN, LOGTYPE.WARN)
+            else
+                println(it)
         }
+
+        logger.info = {
+            if (loggers.size > 0)
+                output(it, Filter.INFO, LOGTYPE.INFO)
+            else
+                println(it)
+        }
+
+        logger.fatal = {
+            if (loggers.size > 0)
+                output(it, Filter.FATAL, LOGTYPE.FATAL)
+            else
+                println(it)
+        }
+
+        logger.exception = {
+            if (loggers.size > 0)
+                output(it, Filter.EXCEPTION, LOGTYPE.EXCEPTION)
+            else
+                println(it)
+        }
+    }
+
+    suspend fun Start(cfg: Jsonobj) {
+        if (!cfg.isArray) {
+            logger.fatal("server的配置不是数组")
+            return
+        }
+
+        cfg.forEach() {
+            if (!NodeIsEnable(it))
+                return
+
+            val cfg_entry = it["entry"].asText()
+            val t = App.shared.instanceEntry(cfg_entry) as AbstractLogger?
+            if (t == null) {
+                println("${cfg_entry} 实例化失败")
+            }
+
+            val id = it["id"].asText()
+            if (t!!.config(it)) {
+                loggers.add(t)
+                println("输出log至 ${id}")
+            } else {
+                println("${id} 配置失败")
+            }
+        }
+    }
+
+    suspend fun Stop() {
+        loggers.clear()
     }
 }

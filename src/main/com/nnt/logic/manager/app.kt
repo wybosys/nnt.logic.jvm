@@ -55,10 +55,9 @@ open class App {
     // 查找指定类型
     fun findEntry(entry: String): Class<*>? {
         try {
-            val fnd = Class.forName(entry)
-            return fnd;
+            return Class.forName(entry)
         } catch (e: Throwable) {
-            print(e.message)
+            print(e)
         }
         return null
     }
