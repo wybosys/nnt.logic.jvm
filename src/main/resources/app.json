@@ -55,19 +55,15 @@
   ],
   "logger": [
     {
-      "id": "console",
-      "filter": "all",
-      "entry": "com.nnt.logger.Console",
-      "enable": "local"
-    },
-    {
       "id": "log4j",
       "filter": "all",
       "entry": "com.nnt.logger.Log4j",
       "dir": "cache",
       "name": "app",
+      "pattern": "[%d{ISO8601}{TIMEZONE}] %p: %m%n",
       "roll": {
-        "size": "1M"
+        "size": "100M",
+        "daily": false
       }
     }
   ]

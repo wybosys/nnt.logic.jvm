@@ -4,11 +4,16 @@ import com.nnt.config.Apollo
 import com.nnt.core.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import java.util.*
 
 open class App {
 
     init {
         _shared = this
+
+        // 设定默认时区为shanghai
+        System.setProperty("user.timezone", Config.TIMEZONE)
+        TimeZone.setDefault(TimeZone.getTimeZone(Config.TIMEZONE))
     }
 
     // 启动服务

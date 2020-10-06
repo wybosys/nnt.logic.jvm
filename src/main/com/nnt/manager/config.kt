@@ -60,6 +60,9 @@ class Config {
         // 最大下载文件的大小
         var FILESIZE_LIMIT = 10485760; // 10M
 
+        // 时区
+        var TIMEZONE = "Asia/Shanghai"
+
     }
 }
 

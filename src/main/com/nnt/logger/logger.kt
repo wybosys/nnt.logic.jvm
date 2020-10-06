@@ -38,15 +38,24 @@ class Filter {
 
 abstract class AbstractLogger {
 
+    var id = ""
+
     private lateinit var _filters: Set<String>
 
-    fun isAllow(filter: String): Boolean {
+    open fun isAllow(filter: String): Boolean {
         return _filters.contains(filter)
     }
 
-    fun config(cfg: Jsonobj): Boolean {
-        if (!cfg.has("filter"))
+    open fun config(cfg: Jsonobj): Boolean {
+        if (!cfg.has("id")) {
+            println("日志缺少id设置")
             return false
+        }
+        id = cfg["id"].asText()
+        if (!cfg.has("filter")) {
+            println("没有配置日志的filter选项")
+            return false
+        }
         _filters = Filter.Explode(cfg["filter"].asText())
         return true
     }

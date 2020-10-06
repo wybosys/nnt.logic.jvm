@@ -17,8 +17,13 @@ fun RegisterScheme(scheme: String, proc: (uri: URI) -> Unit) {
 
 class URI(uri: String) {
 
+    // 协议
     var scheme: String = ""
+
+    // 路径
     var path: String = ""
+
+    // 是否位于包中
     var bundle: Boolean = false
 
     init {

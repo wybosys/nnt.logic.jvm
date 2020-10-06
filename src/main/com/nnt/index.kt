@@ -13,6 +13,7 @@ class Index {
 
         @JvmStatic
         fun main(args: Array<String>) {
+            // 绑定启动参数
             App.args = args
 
             // 加载配置
