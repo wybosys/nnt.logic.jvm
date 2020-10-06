@@ -1,4 +1,4 @@
-package com.nnt.logic.loggers
+package com.nnt.logic.manager
 
 import com.nnt.logic.core.Jsonobj
 

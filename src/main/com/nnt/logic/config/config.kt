@@ -5,6 +5,19 @@ import com.nnt.logic.core.logger
 import com.nnt.logic.manager.App
 import com.nnt.logic.manager.Config
 
+class Attribute {
+    companion object {
+
+        fun ToString(v: List<String>): String {
+            return v.joinToString(",")
+        }
+
+        fun FromString(v: String): List<String> {
+            return v.split(',').map { it.trim() }
+        }
+    }
+}
+
 fun NodeIsEnable(node: Jsonobj): Boolean {
     if (node["enable"] == null)
         return true

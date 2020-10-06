@@ -1,4 +1,4 @@
-package com.nnt.logic.dbms
+package com.nnt.logic.manager
 
 import com.nnt.logic.core.Jsonobj
 
@@ -11,7 +11,7 @@ class Dbms {
         }
 
         suspend fun Stop() {
-            
+
         }
     }
 }
