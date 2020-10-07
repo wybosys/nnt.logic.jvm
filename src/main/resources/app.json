@@ -66,6 +66,12 @@
           "bundle://mybatis/sample.xml"
         ]
       }
+    },
+    {
+      "id": "kv",
+      "host": "localhost:6379",
+      "prefix": "nnt-logic-sample",
+      "entry": "com.nnt.store.KvRedis"
     }
   ],
   "logger": [

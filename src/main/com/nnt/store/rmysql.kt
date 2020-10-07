@@ -14,7 +14,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 import java.util.*
 
-const val DEFAULT_PORT = 3306
+private const val DEFAULT_PORT = 3306
 
 class RMysql : AbstractRdb() {
 
@@ -106,6 +106,7 @@ class RMysql : AbstractRdb() {
         }
 
         _factory = SqlSessionFactoryBuilder().build(conf)
+        logger.info("连接 ${id}@mysql")
     }
 
     override suspend fun close() {
