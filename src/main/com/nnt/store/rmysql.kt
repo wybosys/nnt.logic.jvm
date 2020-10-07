@@ -113,13 +113,14 @@ class RMysql : AbstractRdb() {
     }
 
     suspend fun execute(proc: suspend (session: SqlSession) -> Unit) {
+        val ses = _factory.openSession(false)
         try {
-            val ses = _factory.openSession(false)
             proc(ses)
             ses.commit()
-            ses.close()
         } catch (err: Throwable) {
             logger.exception(err.localizedMessage)
+        } finally {
+            ses.close()
         }
     }
 
