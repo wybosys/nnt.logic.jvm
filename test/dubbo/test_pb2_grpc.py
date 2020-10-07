@@ -27,6 +27,11 @@ class TestStub(object):
         request_serializer=google_dot_protobuf_dot_wrappers__pb2.StringValue.SerializeToString,
         response_deserializer=dao__pb2.Echoo.FromString,
         )
+    self.echoos = channel.unary_unary(
+        '/com.test.dubbo.Test/echoos',
+        request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        response_deserializer=dao__pb2.Echoos.FromString,
+        )
     self.clear_echoo = channel.unary_unary(
         '/com.test.dubbo.Test/clear_echoo',
         request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
@@ -52,6 +57,13 @@ class TestServicer(object):
 
   def echoo(self, request, context):
     """数据库添加一个echoo
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def echoos(self, request, context):
+    """列表
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -83,6 +95,11 @@ def add_TestServicer_to_server(servicer, server):
           servicer.echoo,
           request_deserializer=google_dot_protobuf_dot_wrappers__pb2.StringValue.FromString,
           response_serializer=dao__pb2.Echoo.SerializeToString,
+      ),
+      'echoos': grpc.unary_unary_rpc_method_handler(
+          servicer.echoos,
+          request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+          response_serializer=dao__pb2.Echoos.SerializeToString,
       ),
       'clear_echoo': grpc.unary_unary_rpc_method_handler(
           servicer.clear_echoo,

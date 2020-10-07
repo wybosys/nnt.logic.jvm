@@ -26,6 +26,12 @@ response.output = "modified"
 response = stub.update_echoo(response)
 print("修改成功" if response.value else "修改失败")
 
+# 查询
+response = stub.echoos(Empty())
+print("收到 %d 条数据" % len(response.item))
+for e in response.item:
+    print("%d %s" % (e.id, e.output))
+
 # 清空echoo
 response = stub.clear_echoo(Empty())
 print("清空 %d 条数据" % response.value)

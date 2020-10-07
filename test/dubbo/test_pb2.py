@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='dubbo/test.proto',
   package='com.test.dubbo',
   syntax='proto3',
-  serialized_pb=_b('\n\x10\x64ubbo/test.proto\x12\x0e\x63om.test.dubbo\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\tdao.proto\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t2\x83\x02\n\x04Test\x12<\n\x05hello\x12\x16.google.protobuf.Empty\x1a\x19.com.test.dubbo.TestReply\"\x00\x12\x38\n\x05\x65\x63hoo\x12\x1c.google.protobuf.StringValue\x1a\x0f.com.test.Echoo\"\x00\x12\x44\n\x0b\x63lear_echoo\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int32Value\"\x00\x12=\n\x0cupdate_echoo\x12\x0f.com.test.Echoo\x1a\x1a.google.protobuf.BoolValue\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x10\x64ubbo/test.proto\x12\x0e\x63om.test.dubbo\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\tdao.proto\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t2\xb9\x02\n\x04Test\x12<\n\x05hello\x12\x16.google.protobuf.Empty\x1a\x19.com.test.dubbo.TestReply\"\x00\x12\x38\n\x05\x65\x63hoo\x12\x1c.google.protobuf.StringValue\x1a\x0f.com.test.Echoo\"\x00\x12\x34\n\x06\x65\x63hoos\x12\x16.google.protobuf.Empty\x1a\x10.com.test.Echoos\"\x00\x12\x44\n\x0b\x63lear_echoo\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int32Value\"\x00\x12=\n\x0cupdate_echoo\x12\x0f.com.test.Echoo\x1a\x1a.google.protobuf.BoolValue\"\x00\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_protobuf_dot_wrappers__pb2.DESCRIPTOR,dao__pb2.DESCRIPTOR,])
 
@@ -78,7 +78,7 @@ _TEST = _descriptor.ServiceDescriptor(
   index=0,
   options=None,
   serialized_start=139,
-  serialized_end=398,
+  serialized_end=452,
   methods=[
   _descriptor.MethodDescriptor(
     name='hello',
@@ -99,9 +99,18 @@ _TEST = _descriptor.ServiceDescriptor(
     options=None,
   ),
   _descriptor.MethodDescriptor(
+    name='echoos',
+    full_name='com.test.dubbo.Test.echoos',
+    index=2,
+    containing_service=None,
+    input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
+    output_type=dao__pb2._ECHOOS,
+    options=None,
+  ),
+  _descriptor.MethodDescriptor(
     name='clear_echoo',
     full_name='com.test.dubbo.Test.clear_echoo',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=google_dot_protobuf_dot_wrappers__pb2._INT32VALUE,
@@ -110,7 +119,7 @@ _TEST = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='update_echoo',
     full_name='com.test.dubbo.Test.update_echoo',
-    index=3,
+    index=4,
     containing_service=None,
     input_type=dao__pb2._ECHOO,
     output_type=google_dot_protobuf_dot_wrappers__pb2._BOOLVALUE,

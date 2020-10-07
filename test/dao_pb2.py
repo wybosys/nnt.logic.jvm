@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='dao.proto',
   package='com.test',
   syntax='proto3',
-  serialized_pb=_b('\n\tdao.proto\x12\x08\x63om.test\"2\n\x05\x45\x63hoo\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05input\x18\x02 \x01(\t\x12\x0e\n\x06output\x18\x03 \x01(\tb\x06proto3')
+  serialized_pb=_b('\n\tdao.proto\x12\x08\x63om.test\"2\n\x05\x45\x63hoo\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05input\x18\x02 \x01(\t\x12\x0e\n\x06output\x18\x03 \x01(\t\"\'\n\x06\x45\x63hoos\x12\x1d\n\x04item\x18\x01 \x03(\x0b\x32\x0f.com.test.Echoob\x06proto3')
 )
 
 
@@ -69,7 +69,40 @@ _ECHOO = _descriptor.Descriptor(
   serialized_end=73,
 )
 
+
+_ECHOOS = _descriptor.Descriptor(
+  name='Echoos',
+  full_name='com.test.Echoos',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='item', full_name='com.test.Echoos.item', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=75,
+  serialized_end=114,
+)
+
+_ECHOOS.fields_by_name['item'].message_type = _ECHOO
 DESCRIPTOR.message_types_by_name['Echoo'] = _ECHOO
+DESCRIPTOR.message_types_by_name['Echoos'] = _ECHOOS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Echoo = _reflection.GeneratedProtocolMessageType('Echoo', (_message.Message,), dict(
@@ -78,6 +111,13 @@ Echoo = _reflection.GeneratedProtocolMessageType('Echoo', (_message.Message,), d
   # @@protoc_insertion_point(class_scope:com.test.Echoo)
   ))
 _sym_db.RegisterMessage(Echoo)
+
+Echoos = _reflection.GeneratedProtocolMessageType('Echoos', (_message.Message,), dict(
+  DESCRIPTOR = _ECHOOS,
+  __module__ = 'dao_pb2'
+  # @@protoc_insertion_point(class_scope:com.test.Echoos)
+  ))
+_sym_db.RegisterMessage(Echoos)
 
 
 # @@protoc_insertion_point(module_scope)

@@ -50,6 +50,29 @@ class Test : ITest, TestGrpc.TestImplBase() {
         responseObserver.onCompleted()
     }
 
+    override fun echoos(request: Empty, responseObserver: StreamObserver<Dao.Echoos>) {
+        logger.info("调用 grpc-echoos")
+        GlobalScope.launch {
+            val mysql = Dbms.Find("mysql") as RMysql
+            mysql.execute {
+                val map = it.getMapper(Sample::class.java)
+                val res = map.listEchoo()
+                val reply = Dao.Echoos.newBuilder()
+                res.forEach() {
+                    reply.addItem(
+                        Dao.Echoo.newBuilder()
+                            .setId(it.id)
+                            .setInput(it.input)
+                            .setOutput(it.output)
+                            .build()
+                    )
+                }
+                responseObserver.onNext(reply.build())
+                responseObserver.onCompleted()
+            }
+        }
+    }
+
     override fun echoo(request: StringValue, responseObserver: StreamObserver<Dao.Echoo>) {
         logger.info("调用 grpc-echoo")
 

@@ -8,3 +8,7 @@ message Echoo {
   string input = 2;
   string output = 3;
 }
+
+message Echoos {
+  repeated Echoo item = 1;
+}
