@@ -3,6 +3,7 @@ package com.test.dubbo
 import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
 import com.nnt.core.logger
+import com.nnt.core.toJson
 import com.nnt.manager.Dbms
 import com.nnt.store.RMysql
 import com.test.Dao
@@ -31,8 +32,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
 
     override fun hello(): String {
         logger.info("调用 rest-hello")
-
-        return """["HELLO"]"""
+        return toJson(mapOf("msg" to "HELLO"))
     }
 
     // grpc协议下必须实现该函数

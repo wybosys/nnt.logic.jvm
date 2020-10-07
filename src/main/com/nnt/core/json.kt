@@ -30,3 +30,13 @@ fun Merge(base: Jsonobj, r: Jsonobj?): Jsonobj {
     (base as ObjectNode).setAll<ObjectNode>(r as ObjectNode)
     return base
 }
+
+fun <T> toJson(obj: T): String {
+    val mapper = ObjectMapper()
+    return mapper.writeValueAsString(obj)
+}
+
+fun <T> toJsonObject(str: String, cls: Class<T>): T {
+    val mapper = ObjectMapper()
+    return mapper.readValue(str, cls)
+}
