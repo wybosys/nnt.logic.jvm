@@ -2,7 +2,10 @@ package com.nnt.store
 
 import com.nnt.core.Jsonobj
 import com.nnt.core.logger
-import org.neo4j.driver.*
+import org.neo4j.driver.AuthTokens
+import org.neo4j.driver.Driver
+import org.neo4j.driver.GraphDatabase
+import org.neo4j.driver.Transaction
 
 private const val DEFAULT_PORT = 7687
 
@@ -54,32 +57,37 @@ class Neo4J : AbstractGraphDb() {
 
     private lateinit var _driver: Driver
 
-    override suspend fun open() {
+    override fun open() {
         _driver = GraphDatabase.driver("bolt://${host}:${port}", AuthTokens.basic(user, pwd))
-        logger.info("连接 ${id}@neo4j")
+        if (execute {
+                val v = it.run("match (n) return count(*) as v").single().get("v").asInt()
+                logger.log("${id}@neo4j 数据库中存在 ${v} 个节点")
+            }) {
+            logger.info("连接 ${id}@neo4j")
+        } else {
+            logger.info("连接 ${id}@neo4j 失败")
+        }
     }
 
-    override suspend fun close() {
+    override fun close() {
         _driver.close()
     }
 
-    suspend fun execute(
+    fun execute(
         proc: (transaction: Transaction) -> Unit
     ): Boolean {
         var r = true
         try {
             val ses = _driver.session()
-            ses.writeTransaction(object : TransactionWork<Void?> {
-                override fun execute(tx: Transaction): Void? {
-                    try {
-                        proc(tx)
-                    } catch (err: Throwable) {
-                        logger.exception(err.localizedMessage)
-                        r = false
-                    }
-                    return null
+            ses.writeTransaction { tx ->
+                try {
+                    proc(tx)
+                } catch (err: Throwable) {
+                    logger.exception(err.localizedMessage)
+                    r = false
                 }
-            })
+                ""
+            }
         } catch (err: Throwable) {
             logger.exception(err.localizedMessage)
             r = false

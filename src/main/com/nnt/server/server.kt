@@ -16,10 +16,10 @@ abstract class Server {
     }
 
     // 启动服务
-    abstract suspend fun start()
+    abstract fun start()
 
     // 停止服务
-    abstract suspend fun stop()
+    abstract fun stop()
 
     // 回调
     protected fun onStart() {

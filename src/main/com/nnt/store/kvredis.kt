@@ -41,7 +41,7 @@ class KvRedis : AbstractKv() {
 
     private lateinit var _pool: JedisPool
 
-    override suspend fun open() {
+    override fun open() {
         val cfg = JedisPoolConfig()
         cfg.maxTotal = Runtime.getRuntime().availableProcessors() * 2
         _pool = JedisPool(cfg, host, port)
@@ -55,7 +55,7 @@ class KvRedis : AbstractKv() {
         }
     }
 
-    suspend fun execute(proc: suspend (redis: RedisClient) -> Unit): Boolean {
+    fun execute(proc: (redis: RedisClient) -> Unit): Boolean {
         var r = true
         try {
             val t = RedisClient(_pool.resource, this)
@@ -73,7 +73,7 @@ class KvRedis : AbstractKv() {
         return r
     }
 
-    override suspend fun close() {
+    override fun close() {
         _pool.close()
     }
 

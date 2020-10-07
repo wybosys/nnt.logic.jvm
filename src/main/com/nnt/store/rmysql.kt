@@ -69,7 +69,7 @@ class RMysql : AbstractRdb() {
 
     private lateinit var _factory: SqlSessionFactory
 
-    override suspend fun open() {
+    override fun open() {
         // 初始化数据源
         val fac = PooledDataSourceFactory()
         val props = Properties()
@@ -109,12 +109,12 @@ class RMysql : AbstractRdb() {
         logger.info("连接 ${id}@mysql")
     }
 
-    override suspend fun close() {
+    override fun close() {
         // pass
     }
 
-    suspend fun execute(
-        proc: suspend (session: SqlSession) -> Unit
+    fun execute(
+        proc: (session: SqlSession) -> Unit
     ) {
         val ses = _factory.openSession(false)
         try {

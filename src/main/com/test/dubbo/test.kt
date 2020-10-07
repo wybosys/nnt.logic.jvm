@@ -12,8 +12,6 @@ import com.test.Dao
 import com.test.Echoo
 import com.test.Sample
 import io.grpc.stub.StreamObserver
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import javax.ws.rs.Consumes
 import javax.ws.rs.GET
 import javax.ws.rs.Path
@@ -52,80 +50,75 @@ class Test : ITest, TestGrpc.TestImplBase() {
 
     override fun echoos(request: Empty, responseObserver: StreamObserver<Dao.Echoos>) {
         logger.info("调用 grpc-echoos")
-        GlobalScope.launch {
-            val mysql = Dbms.Find("mysql") as RMysql
-            mysql.execute {
-                val map = it.getMapper(Sample::class.java)
-                val res = map.listEchoo()
-                val reply = Dao.Echoos.newBuilder()
-                res.forEach() {
-                    reply.addItem(
-                        Dao.Echoo.newBuilder()
-                            .setId(it.id)
-                            .setInput(it.input)
-                            .setOutput(it.output)
-                            .build()
-                    )
-                }
-                responseObserver.onNext(reply.build())
-                responseObserver.onCompleted()
+
+        val mysql = Dbms.Find("mysql") as RMysql
+        mysql.execute {
+            val map = it.getMapper(Sample::class.java)
+            val res = map.listEchoo()
+            val reply = Dao.Echoos.newBuilder()
+            res.forEach() {
+                reply.addItem(
+                    Dao.Echoo.newBuilder()
+                        .setId(it.id)
+                        .setInput(it.input)
+                        .setOutput(it.output)
+                        .build()
+                )
             }
+            responseObserver.onNext(reply.build())
+            responseObserver.onCompleted()
         }
     }
 
     override fun echoo(request: StringValue, responseObserver: StreamObserver<Dao.Echoo>) {
         logger.info("调用 grpc-echoo")
 
-        GlobalScope.launch {
-            val mysql = Dbms.Find("mysql") as RMysql
-            mysql.execute {
-                val m = Echoo()
-                m.input = request.value
-                m.output = request.value
+        val mysql = Dbms.Find("mysql") as RMysql
+        mysql.execute {
+            val m = Echoo()
+            m.input = request.value
+            m.output = request.value
 
-                val map = it.getMapper(Sample::class.java)
-                map.echoo(m)
+            val map = it.getMapper(Sample::class.java)
+            map.echoo(m)
 
-                val reply = Dao.Echoo.newBuilder()
-                    .setId(m.id)
-                    .setInput(m.input)
-                    .setOutput(m.output)
-                    .build()
-                responseObserver.onNext(reply)
-                responseObserver.onCompleted()
-            }
+            val reply = Dao.Echoo.newBuilder()
+                .setId(m.id)
+                .setInput(m.input)
+                .setOutput(m.output)
+                .build()
+            responseObserver.onNext(reply)
+            responseObserver.onCompleted()
         }
     }
 
     override fun updateEchoo(request: Dao.Echoo, responseObserver: StreamObserver<BoolValue>) {
         logger.info("调用 grpc-update-echoo")
-        GlobalScope.launch {
-            val mysql = Dbms.Find("mysql") as RMysql
-            mysql.execute {
-                val map = it.getMapper(Sample::class.java)
-                val m = Echoo()
-                m.id = request.id
-                m.input = request.input
-                m.output = request.output
-                val rows = map.updateEchoo(m)
 
-                responseObserver.onNext(BoolValue.of(rows == 1))
-                responseObserver.onCompleted()
-            }
+        val mysql = Dbms.Find("mysql") as RMysql
+        mysql.execute {
+            val map = it.getMapper(Sample::class.java)
+            val m = Echoo()
+            m.id = request.id
+            m.input = request.input
+            m.output = request.output
+            val rows = map.updateEchoo(m)
+
+            responseObserver.onNext(BoolValue.of(rows == 1))
+            responseObserver.onCompleted()
         }
     }
 
     override fun clearEchoo(request: Empty, responseObserver: StreamObserver<Int32Value>) {
         logger.info("调用 grpc-clear-echoo")
-        GlobalScope.launch {
-            val mysql = Dbms.Find("mysql") as RMysql
-            mysql.execute {
-                val map = it.getMapper(Sample::class.java)
-                val rows = map.clearEchoo()
 
-                responseObserver.onNext(Int32Value.of(rows))
-                responseObserver.onCompleted()
-            }
+        val mysql = Dbms.Find("mysql") as RMysql
+        mysql.execute {
+            val map = it.getMapper(Sample::class.java)
+            val rows = map.clearEchoo()
+
+            responseObserver.onNext(Int32Value.of(rows))
+            responseObserver.onCompleted()
         }
     }
 

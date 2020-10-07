@@ -4,8 +4,6 @@ import com.nnt.config.NodeIsEnable
 import com.nnt.core.Jsonobj
 import com.nnt.core.logger
 import com.nnt.store.AbstractDbms
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 
 private val dbs = mutableMapOf<String, AbstractDbms>()
 
@@ -13,7 +11,7 @@ class Dbms {
 
     companion object {
 
-        suspend fun Start(cfg: Jsonobj) {
+        fun Start(cfg: Jsonobj) {
             if (!cfg.isArray) {
                 logger.fatal("dbms的配置不是数组")
                 return
@@ -31,20 +29,16 @@ class Dbms {
 
                 if (t!!.config(it)) {
                     dbs[t.id] = t
-                    GlobalScope.async {
-                        t.open()
-                    }.await()
+                    t.open()
                 } else {
                     println("${t.id} 配置失败")
                 }
             }
         }
 
-        suspend fun Stop() {
+        fun Stop() {
             for (e in dbs) {
-                GlobalScope.async {
-                    e.value.close()
-                }.await()
+                e.value.close()
             }
             dbs.clear()
         }

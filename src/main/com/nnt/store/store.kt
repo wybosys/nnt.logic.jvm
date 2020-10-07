@@ -18,13 +18,8 @@ abstract class AbstractDbms {
     }
 
     // 打开链接
-    abstract suspend fun open()
+    abstract fun open()
 
     // 关闭链接
-    abstract suspend fun close()
-
-    // 执行事务
-    suspend fun begin() {}
-    suspend fun complete() {}
-    suspend fun cancel() {}
+    abstract fun close()
 }

@@ -2,8 +2,6 @@ package com.nnt.manager
 
 import com.nnt.config.Apollo
 import com.nnt.core.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import java.util.*
 
 open class App {
@@ -17,36 +15,24 @@ open class App {
     }
 
     // 启动服务
-    suspend fun start() {
+    fun start() {
         val cfg = App.CurrentConfig!!
         if (cfg.has("logger")) {
-            GlobalScope.async {
-                Loggers.Start(cfg["logger"])
-            }.await()
+            Loggers.Start(cfg["logger"])
         }
         if (cfg.has("dbms")) {
-            GlobalScope.async {
-                Dbms.Start(cfg["dbms"])
-            }.await()
+            Dbms.Start(cfg["dbms"])
         }
         if (cfg.has("server")) {
-            GlobalScope.async {
-                Servers.Start(cfg["server"])
-            }.await()
+            Servers.Start(cfg["server"])
         }
     }
 
     // 停止服务
-    suspend fun stop() {
-        GlobalScope.async {
-            Loggers.Stop()
-        }.await()
-        GlobalScope.async {
-            Dbms.Stop()
-        }
-        GlobalScope.async {
-            Servers.Stop()
-        }.await()
+    fun stop() {
+        Loggers.Stop()
+        Dbms.Stop()
+        Servers.Stop()
     }
 
     // 实例化对象

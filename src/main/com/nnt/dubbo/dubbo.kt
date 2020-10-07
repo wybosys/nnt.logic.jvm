@@ -146,7 +146,7 @@ open class Dubbo : Server() {
         return true
     }
 
-    override suspend fun start() {
+    override fun start() {
         val app = ApplicationConfig()
         app.name = _name
 
@@ -202,7 +202,7 @@ open class Dubbo : Server() {
         logger.info("启动 ${id}@rest")
     }
 
-    override suspend fun stop() {
+    override fun stop() {
         for (e in _services) {
             e.value.svccfg.unexport()
         }

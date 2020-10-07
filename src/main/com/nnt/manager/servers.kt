@@ -4,8 +4,6 @@ import com.nnt.config.NodeIsEnable
 import com.nnt.core.Jsonobj
 import com.nnt.core.logger
 import com.nnt.server.Server
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 
 class Servers {
 
@@ -13,7 +11,7 @@ class Servers {
 
         private val _servers = mutableMapOf<String, Server>()
 
-        suspend fun Start(cfg: Jsonobj) {
+        fun Start(cfg: Jsonobj) {
             if (!cfg.isArray) {
                 logger.fatal("server的配置不是数组")
                 return
@@ -31,20 +29,16 @@ class Servers {
 
                 if (t!!.config(it)) {
                     _servers[t.id] = t
-                    GlobalScope.async {
-                        t.start()
-                    }.await()
+                    t.start()
                 } else {
                     println("${t.id} 配置失败")
                 }
             }
         }
 
-        suspend fun Stop() {
+        fun Stop() {
             for (e in _servers) {
-                GlobalScope.async {
-                    e.value.stop()
-                }.await()
+                e.value.stop()
             }
             _servers.clear()
         }
