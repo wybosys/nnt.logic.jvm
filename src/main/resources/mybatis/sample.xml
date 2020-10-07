@@ -10,4 +10,15 @@
     <insert id="echoo" parameterType="com.test.Echoo" useGeneratedKeys="true" keyProperty="id">
         insert into echoo (id, input, output) values (null, #{input}, #{output})
     </insert>
+    <delete id="clearEchoo">
+        delete from echoo
+    </delete>
+    <update id="updateEchoo" parameterType="com.test.Echoo">
+        update echoo
+        <trim prefix="set" suffixOverrides=",">
+            <if test="input!=null">input=#{input},</if>
+            <if test="output!=null">output=#{output},</if>
+        </trim>
+        where id=#{id}
+    </update>
 </mapper>

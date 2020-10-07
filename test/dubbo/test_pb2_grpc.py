@@ -27,6 +27,16 @@ class TestStub(object):
         request_serializer=google_dot_protobuf_dot_wrappers__pb2.StringValue.SerializeToString,
         response_deserializer=dao__pb2.Echoo.FromString,
         )
+    self.clear_echoo = channel.unary_unary(
+        '/com.test.dubbo.Test/clear_echoo',
+        request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        response_deserializer=google_dot_protobuf_dot_wrappers__pb2.Int32Value.FromString,
+        )
+    self.update_echoo = channel.unary_unary(
+        '/com.test.dubbo.Test/update_echoo',
+        request_serializer=dao__pb2.Echoo.SerializeToString,
+        response_deserializer=google_dot_protobuf_dot_wrappers__pb2.BoolValue.FromString,
+        )
 
 
 class TestServicer(object):
@@ -41,7 +51,21 @@ class TestServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def echoo(self, request, context):
-    """测试数据库
+    """数据库添加一个echoo
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def clear_echoo(self, request, context):
+    """清空echoo
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def update_echoo(self, request, context):
+    """更新
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -59,6 +83,16 @@ def add_TestServicer_to_server(servicer, server):
           servicer.echoo,
           request_deserializer=google_dot_protobuf_dot_wrappers__pb2.StringValue.FromString,
           response_serializer=dao__pb2.Echoo.SerializeToString,
+      ),
+      'clear_echoo': grpc.unary_unary_rpc_method_handler(
+          servicer.clear_echoo,
+          request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+          response_serializer=google_dot_protobuf_dot_wrappers__pb2.Int32Value.SerializeToString,
+      ),
+      'update_echoo': grpc.unary_unary_rpc_method_handler(
+          servicer.update_echoo,
+          request_deserializer=dao__pb2.Echoo.FromString,
+          response_serializer=google_dot_protobuf_dot_wrappers__pb2.BoolValue.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

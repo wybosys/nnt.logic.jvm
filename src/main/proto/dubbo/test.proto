@@ -11,8 +11,14 @@ service Test {
   // 返回欢迎
   rpc hello(google.protobuf.Empty) returns (TestReply) {}
 
-  // 测试数据库
+  // 数据库添加一个echoo
   rpc echoo(google.protobuf.StringValue) returns (com.test.Echoo) {}
+
+  // 清空echoo
+  rpc clear_echoo(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+
+  // 更新
+  rpc update_echoo(com.test.Echoo) returns (google.protobuf.BoolValue) {}
 }
 
 message TestReply {

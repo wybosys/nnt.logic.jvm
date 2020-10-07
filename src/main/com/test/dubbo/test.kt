@@ -1,6 +1,8 @@
 package com.test.dubbo
 
+import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
+import com.google.protobuf.Int32Value
 import com.google.protobuf.StringValue
 import com.nnt.core.logger
 import com.nnt.core.toJson
@@ -53,7 +55,6 @@ class Test : ITest, TestGrpc.TestImplBase() {
 
         GlobalScope.launch {
             val mysql = Dbms.Find("mysql") as RMysql
-
             mysql.execute {
                 val m = Echoo()
                 m.input = request.value
@@ -72,4 +73,37 @@ class Test : ITest, TestGrpc.TestImplBase() {
             }
         }
     }
+
+    override fun updateEchoo(request: Dao.Echoo, responseObserver: StreamObserver<BoolValue>) {
+        logger.info("调用 grpc-update-echoo")
+        GlobalScope.launch {
+            val mysql = Dbms.Find("mysql") as RMysql
+            mysql.execute {
+                val map = it.getMapper(Sample::class.java)
+                val m = Echoo()
+                m.id = request.id
+                m.input = request.input
+                m.output = request.output
+                val rows = map.updateEchoo(m)
+
+                responseObserver.onNext(BoolValue.of(rows == 1))
+                responseObserver.onCompleted()
+            }
+        }
+    }
+
+    override fun clearEchoo(request: Empty, responseObserver: StreamObserver<Int32Value>) {
+        logger.info("调用 grpc-clear-echoo")
+        GlobalScope.launch {
+            val mysql = Dbms.Find("mysql") as RMysql
+            mysql.execute {
+                val map = it.getMapper(Sample::class.java)
+                val rows = map.clearEchoo()
+
+                responseObserver.onNext(Int32Value.of(rows))
+                responseObserver.onCompleted()
+            }
+        }
+    }
+
 }
