@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import grpc
+import asyncio
 from dubbo.test_pb2_grpc import TestStub
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import StringValue
@@ -12,26 +13,37 @@ host = "localhost:8092"
 channel = grpc.insecure_channel(host)
 stub = TestStub(channel)
 
-# 测试hello
-response = stub.hello(Empty())
-print("收到数据 %s" % response.message)
+async def test(idx):
+    print("test %d" % idx)
 
-# 测试echoo
-response = stub.echoo(StringValue(value="test echoo"))
-print("收到数据 %d %s" % (response.id, response.output))
+    # 测试hello
+    response = stub.hello(Empty())
+    print("收到数据 %s" % response.message)
 
-# 修改
-# response.id = 5555
-response.output = "modified"
-response = stub.update_echoo(response)
-print("修改成功" if response.value else "修改失败")
+    # 测试echoo
+    response = stub.echoo(StringValue(value="test echoo"))
+    print("收到数据 %d %s" % (response.id, response.output))
 
-# 查询
-response = stub.echoos(Empty())
-print("收到 %d 条数据" % len(response.item))
-for e in response.item:
-    print("%d %s" % (e.id, e.output))
+    # 修改
+    # response.id = 5555
+    response.output = "modified"
+    response = stub.update_echoo(response)
+    print("修改成功" if response.value else "修改失败")
 
-# 清空echoo
-response = stub.clear_echoo(Empty())
-print("清空 %d 条数据" % response.value)
+    # 查询
+    response = stub.echoos(Empty())
+    print("收到 %d 条数据" % len(response.item))
+    for e in response.item:
+        print("%d %s" % (e.id, e.output))
+
+    # 清空echoo
+    response = stub.clear_echoo(Empty())
+    print("清空 %d 条数据" % response.value)
+
+
+async def test_co():
+    await asyncio.wait([test(i) for i in range(100)])
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(test_co())
+loop.close()
