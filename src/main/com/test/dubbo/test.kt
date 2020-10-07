@@ -1,5 +1,6 @@
 package com.test.dubbo
 
+import com.google.protobuf.Empty
 import com.nnt.core.logger
 import com.nnt.manager.Dbms
 import com.nnt.store.RMysql
@@ -49,7 +50,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
         super.setProxiedImpl(impl)
     }
 
-    override fun hello(request: TestReq, responseObserver: StreamObserver<TestReply>) {
+    override fun hello(request: Empty, responseObserver: StreamObserver<TestReply>) {
         logger.info("调用 grpc-hello")
 
         GlobalScope.launch {

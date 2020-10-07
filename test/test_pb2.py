@@ -13,40 +13,18 @@ from google.protobuf import descriptor_pb2
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='test.proto',
   package='test',
   syntax='proto3',
-  serialized_pb=_b('\n\ntest.proto\x12\x04test\"\t\n\x07TestReq\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t21\n\x04Test\x12)\n\x05hello\x12\r.test.TestReq\x1a\x0f.test.TestReply\"\x00\x42\x13\n\x08\x63om.testB\x05ProtoP\x01\x62\x06proto3')
-)
+  serialized_pb=_b('\n\ntest.proto\x12\x04test\x1a\x1bgoogle/protobuf/empty.proto\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t2:\n\x04Test\x12\x32\n\x05hello\x12\x16.google.protobuf.Empty\x1a\x0f.test.TestReply\"\x00\x42\x19\n\x0e\x63om.test.dubboB\x05ProtoP\x01\x62\x06proto3')
+  ,
+  dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
 
-
-
-_TESTREQ = _descriptor.Descriptor(
-  name='TestReq',
-  full_name='test.TestReq',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=20,
-  serialized_end=29,
-)
 
 
 _TESTREPLY = _descriptor.Descriptor(
@@ -75,20 +53,12 @@ _TESTREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=31,
-  serialized_end=59,
+  serialized_start=49,
+  serialized_end=77,
 )
 
-DESCRIPTOR.message_types_by_name['TestReq'] = _TESTREQ
 DESCRIPTOR.message_types_by_name['TestReply'] = _TESTREPLY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
-
-TestReq = _reflection.GeneratedProtocolMessageType('TestReq', (_message.Message,), dict(
-  DESCRIPTOR = _TESTREQ,
-  __module__ = 'test_pb2'
-  # @@protoc_insertion_point(class_scope:test.TestReq)
-  ))
-_sym_db.RegisterMessage(TestReq)
 
 TestReply = _reflection.GeneratedProtocolMessageType('TestReply', (_message.Message,), dict(
   DESCRIPTOR = _TESTREPLY,
@@ -99,7 +69,7 @@ _sym_db.RegisterMessage(TestReply)
 
 
 DESCRIPTOR.has_options = True
-DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b('\n\010com.testB\005ProtoP\001'))
+DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b('\n\016com.test.dubboB\005ProtoP\001'))
 
 _TEST = _descriptor.ServiceDescriptor(
   name='Test',
@@ -107,15 +77,15 @@ _TEST = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=61,
-  serialized_end=110,
+  serialized_start=79,
+  serialized_end=137,
   methods=[
   _descriptor.MethodDescriptor(
     name='hello',
     full_name='test.Test.hello',
     index=0,
     containing_service=None,
-    input_type=_TESTREQ,
+    input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=_TESTREPLY,
     options=None,
   ),

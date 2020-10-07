@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "google/protobuf/empty.proto";
 
 option java_package = "com.test.dubbo";
 option java_outer_classname = "Proto";
@@ -6,12 +7,9 @@ option java_multiple_files = true;
 
 package test;
 
+// 测试hello的协议
 service Test {
-  rpc hello(TestReq) returns (TestReply) {}
-}
-
-message TestReq {
-
+  rpc hello(google.protobuf.Empty) returns (TestReply) {}
 }
 
 message TestReply {
