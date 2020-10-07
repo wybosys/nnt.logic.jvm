@@ -113,7 +113,9 @@ class RMysql : AbstractRdb() {
         // pass
     }
 
-    suspend fun execute(proc: suspend (session: SqlSession) -> Unit) {
+    suspend fun execute(
+        proc: suspend (session: SqlSession) -> Unit
+    ) {
         val ses = _factory.openSession(false)
         try {
             proc(ses)

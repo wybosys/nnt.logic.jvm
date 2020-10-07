@@ -72,6 +72,13 @@
       "host": "localhost:6379",
       "prefix": "nnt-logic-sample",
       "entry": "com.nnt.store.KvRedis"
+    },
+    {
+      "id": "neo",
+      "host": "localhost:7687",
+      "user": "root",
+      "pwd": "root",
+      "entry": "com.nnt.store.Neo4J"
     }
   ],
   "logger": [

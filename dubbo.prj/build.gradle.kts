@@ -72,7 +72,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt")
 
     // logic
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.9.9.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.0")
     implementation("com.ctrip.framework.apollo:apollo-client:1.7.0")
 
     // db
@@ -80,7 +80,7 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.21")
     implementation("redis.clients:jedis:3.3.0")
     implementation("org.apache.hbase:hbase:2.3.2")
-    implementation("org.neo4j:neo4j:4.1.2")
+    implementation("org.neo4j.driver:neo4j-java-driver:4.1.1")
     implementation("org.apache.phoenix:phoenix:4.15.0-HBase-1.4")
 
     // grpc
