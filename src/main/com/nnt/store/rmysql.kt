@@ -145,6 +145,7 @@ class RMysql : AbstractRdb() {
         // pass
     }
 
+    // 使用mybatis的mapper操作orm数据
     fun execute(
         proc: (session: SqlSession) -> Unit
     ): Boolean {
@@ -163,6 +164,7 @@ class RMysql : AbstractRdb() {
         return r
     }
 
+    // 直接执行sql语句返回原始数据类型
     fun execute(
         proc: (tpl: JdbcTemplate, conn: Connection) -> Unit
     ): Boolean {
