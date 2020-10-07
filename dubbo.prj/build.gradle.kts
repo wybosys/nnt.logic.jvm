@@ -2,6 +2,7 @@ import com.google.protobuf.gradle.*
 
 plugins {
     java
+    idea
     kotlin("jvm") version "1.4.10"
     kotlin("kapt") version "1.4.10"
     id("com.google.protobuf") version "0.8.13"
@@ -35,7 +36,6 @@ repositories {
 sourceSets {
     main {
         proto {
-            include("../src/main/proto")
             srcDir("../src/main/proto")
         }
 
