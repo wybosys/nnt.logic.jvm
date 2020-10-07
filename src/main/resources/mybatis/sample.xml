@@ -3,8 +3,8 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.test.dubbo.Sample">
-    <select id="listEchoo" resultType="com.test.dubbo.Echoo">
+<mapper namespace="com.test.Sample">
+    <select id="listEchoo" resultType="com.test.Echoo">
         select id,input,output from echoo
     </select>
 </mapper>

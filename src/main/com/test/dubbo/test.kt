@@ -4,6 +4,7 @@ import com.google.protobuf.Empty
 import com.nnt.core.logger
 import com.nnt.manager.Dbms
 import com.nnt.store.RMysql
+import com.test.Sample
 import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -12,20 +13,6 @@ import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
-
-interface Sample {
-    fun listEchoo(): List<Echoo>
-}
-
-class Echoo {
-    var id: Int = 0
-    var input: String = ""
-    var output: String = ""
-
-    override fun toString(): String {
-        return "${id} ${input} ${output}"
-    }
-}
 
 @Path("test")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -50,7 +37,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
         super.setProxiedImpl(impl)
     }
 
-    override fun hello(request: Empty, responseObserver: StreamObserver<TestReply>) {
+    override fun hello(request: Empty, responseObserver: StreamObserver<TestOuterClass.TestReply>) {
         logger.info("调用 grpc-hello")
 
         GlobalScope.launch {
@@ -61,7 +48,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
                 println(res)
             }
 
-            val reply = TestReply.newBuilder().setMessage("hello grpc").build()
+            val reply = TestOuterClass.TestReply.newBuilder().setMessage("hello grpc").build()
             responseObserver.onNext(reply)
             responseObserver.onCompleted()
         }

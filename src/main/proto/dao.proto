@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package com.test;
+
+// 测试访问数据库
+message Echoo {
+  int32 id = 1;
+  string input = 2;
+  string output = 3;
+}

@@ -35,7 +35,7 @@ repositories {
 sourceSets {
     main {
         proto {
-            srcDir("../src/main/proto/dubbo")
+            srcDir("../src/main/proto")
         }
 
         kotlin {

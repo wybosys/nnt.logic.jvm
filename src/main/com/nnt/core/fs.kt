@@ -6,11 +6,7 @@ import java.io.File
 class File(uri: URI) {
 
     val uri: URI = uri
-
-    fun walk(direction: FileWalkDirection = FileWalkDirection.TOP_DOWN): FileTreeWalk {
-        return File(uri.path).walk(direction)
-    }
-
+    
     fun exists(): Boolean {
         if (uri.bundle) {
             return javaClass.getResource(uri.path) == null
