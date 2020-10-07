@@ -2,6 +2,7 @@ package com.test
 
 interface Sample {
     fun listEchoo(): List<Echoo>
+    fun echoo(m: Echoo)
 }
 
 class Echoo {

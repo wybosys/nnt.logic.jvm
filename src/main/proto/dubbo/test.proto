@@ -1,11 +1,18 @@
 syntax = "proto3";
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "dao.proto";
 
 package com.test.dubbo;
 
 // 测试hello的协议
 service Test {
+
+  // 返回欢迎
   rpc hello(google.protobuf.Empty) returns (TestReply) {}
+
+  // 测试数据库
+  rpc echoo(google.protobuf.StringValue) returns (Echoo) {}
 }
 
 message TestReply {

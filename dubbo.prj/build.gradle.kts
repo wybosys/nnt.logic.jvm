@@ -35,6 +35,7 @@ repositories {
 sourceSets {
     main {
         proto {
+            include("../src/main/proto")
             srcDir("../src/main/proto")
         }
 

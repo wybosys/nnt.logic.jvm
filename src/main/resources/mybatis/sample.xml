@@ -7,4 +7,7 @@
     <select id="listEchoo" resultType="com.test.Echoo">
         select id,input,output from echoo
     </select>
+    <insert id="echoo" parameterType="com.test.Echoo" useGeneratedKeys="true" keyProperty="id">
+        insert into echoo (id, input, output) values (null, #{input}, #{output})
+    </insert>
 </mapper>
