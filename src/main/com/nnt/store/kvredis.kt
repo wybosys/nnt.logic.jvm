@@ -2,7 +2,6 @@ package com.nnt.store
 
 import com.nnt.core.Jsonobj
 import com.nnt.core.logger
-import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 
@@ -56,10 +55,10 @@ class KvRedis : AbstractKv() {
         }
     }
 
-    suspend fun execute(proc: suspend (redis: Jedis) -> Unit): Boolean {
+    suspend fun execute(proc: suspend (redis: RedisClient) -> Unit): Boolean {
         var r = true
         try {
-            val t = _pool.resource
+            val t = RedisClient(_pool.resource, this)
             try {
                 proc(t)
             } catch (err: Throwable) {
