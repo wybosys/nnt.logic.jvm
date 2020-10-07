@@ -1,5 +1,6 @@
 package com.nnt.store
 
+import com.alibaba.druid.pool.DruidDataSourceFactory
 import com.nnt.core.File
 import com.nnt.core.Jsonobj
 import com.nnt.core.URI
@@ -12,7 +13,11 @@ import org.apache.ibatis.session.SqlSession
 import org.apache.ibatis.session.SqlSessionFactory
 import org.apache.ibatis.session.SqlSessionFactoryBuilder
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.datasource.SingleConnectionDataSource
+import java.sql.Connection
 import java.util.*
+import javax.sql.DataSource
 
 private const val DEFAULT_PORT = 3306
 
@@ -67,9 +72,37 @@ class RMysql : AbstractRdb() {
         return true
     }
 
-    private lateinit var _factory: SqlSessionFactory
+    private lateinit var _mapfac: SqlSessionFactory
+    private lateinit var _dsfac: DataSource
 
     override fun open() {
+        if (open_jdbc()) {
+            open_mapper()
+            logger.info("连接 ${id}@mysql")
+        } else {
+            logger.info("连接 ${id}@mysql 失败")
+        }
+    }
+
+    // jdbc 直连
+    private fun open_jdbc(): Boolean {
+        val props = Properties()
+        props.setProperty("driverClassName", "com.mysql.jdbc.Driver")
+        props.setProperty("url", "jdbc:mysql://${host}:${port}/${scheme}?characterEncoding=UTF-8")
+        if (!user.isEmpty()) {
+            props.setProperty("username", user)
+            if (!pwd.isEmpty())
+                props.setProperty("password", pwd)
+        }
+        _dsfac = DruidDataSourceFactory.createDataSource(props)
+        return execute() { tpl, _ ->
+            val res = tpl.query("show tables") { rs, _ -> rs.getString(1) }
+            logger.log("${id}@mysql 数据库中存在 ${res.size} 张表")
+        }
+    }
+
+    // 支持mybatis的mapper模式
+    private fun open_mapper() {
         // 初始化数据源
         val fac = PooledDataSourceFactory()
         val props = Properties()
@@ -105,8 +138,7 @@ class RMysql : AbstractRdb() {
             }
         }
 
-        _factory = SqlSessionFactoryBuilder().build(conf)
-        logger.info("连接 ${id}@mysql")
+        _mapfac = SqlSessionFactoryBuilder().build(conf)
     }
 
     override fun close() {
@@ -115,16 +147,35 @@ class RMysql : AbstractRdb() {
 
     fun execute(
         proc: (session: SqlSession) -> Unit
-    ) {
-        val ses = _factory.openSession(false)
+    ): Boolean {
+        var r = true
+        var ses: SqlSession? = null
         try {
+            ses = _mapfac.openSession(false)
             proc(ses)
             ses.commit()
         } catch (err: Throwable) {
             logger.exception(err.localizedMessage)
+            r = false
         } finally {
-            ses.close()
+            ses?.close()
         }
+        return r
+    }
+
+    fun execute(
+        proc: (tpl: JdbcTemplate, conn: Connection) -> Unit
+    ): Boolean {
+        var r = true
+        try {
+            val conn = _dsfac.connection
+            val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
+            proc(tpl, conn)
+        } catch (err: Throwable) {
+            logger.exception(err.localizedMessage)
+            r = false
+        }
+        return r
     }
 
 }

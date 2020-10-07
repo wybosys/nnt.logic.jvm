@@ -77,6 +77,7 @@ dependencies {
 
     // db
     implementation("org.mybatis:mybatis:3.5.5")
+    implementation("com.alibaba:druid:1.1.24")
     implementation("mysql:mysql-connector-java:8.0.21")
     implementation("redis.clients:jedis:3.3.0")
     implementation("org.apache.hbase:hbase:2.3.2")
@@ -94,6 +95,7 @@ dependencies {
 
     // dubbo-spring
     implementation("org.springframework:spring-remoting:2.0.8")
+    implementation("org.springframework:spring-jdbc:4.3.8.RELEASE")
 
     // dubbo-rest
     implementation("io.netty:netty-all:4.1.9.Final")

@@ -52,8 +52,8 @@ class Test : ITest, TestGrpc.TestImplBase() {
         logger.info("调用 grpc-echoos")
 
         val mysql = Dbms.Find("mysql") as RMysql
-        mysql.execute {
-            val map = it.getMapper(Sample::class.java)
+        mysql.execute { ses ->
+            val map = ses.getMapper(Sample::class.java)
             val res = map.listEchoo()
             val reply = Dao.Echoos.newBuilder()
             res.forEach() {
@@ -74,12 +74,12 @@ class Test : ITest, TestGrpc.TestImplBase() {
         logger.info("调用 grpc-echoo")
 
         val mysql = Dbms.Find("mysql") as RMysql
-        mysql.execute {
+        mysql.execute { ses ->
             val m = Echoo()
             m.input = request.value
             m.output = request.value
 
-            val map = it.getMapper(Sample::class.java)
+            val map = ses.getMapper(Sample::class.java)
             map.echoo(m)
 
             val reply = Dao.Echoo.newBuilder()
@@ -96,8 +96,8 @@ class Test : ITest, TestGrpc.TestImplBase() {
         logger.info("调用 grpc-update-echoo")
 
         val mysql = Dbms.Find("mysql") as RMysql
-        mysql.execute {
-            val map = it.getMapper(Sample::class.java)
+        mysql.execute { ses ->
+            val map = ses.getMapper(Sample::class.java)
             val m = Echoo()
             m.id = request.id
             m.input = request.input
@@ -113,8 +113,8 @@ class Test : ITest, TestGrpc.TestImplBase() {
         logger.info("调用 grpc-clear-echoo")
 
         val mysql = Dbms.Find("mysql") as RMysql
-        mysql.execute {
-            val map = it.getMapper(Sample::class.java)
+        mysql.execute { ses ->
+            val map = ses.getMapper(Sample::class.java)
             val rows = map.clearEchoo()
 
             responseObserver.onNext(Int32Value.of(rows))
