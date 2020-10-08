@@ -79,6 +79,11 @@
       "user": "root",
       "pwd": "root",
       "entry": "com.nnt.store.Neo4J"
+    },
+    {
+      "id": "hbase",
+      "zk": "localhost:2181",
+      "entry": "com.nnt.store.HBase"
     }
   ],
   "logger": [

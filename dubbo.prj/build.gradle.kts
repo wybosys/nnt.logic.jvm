@@ -80,7 +80,7 @@ dependencies {
     implementation("com.alibaba:druid:1.1.24")
     implementation("mysql:mysql-connector-java:8.0.21")
     implementation("redis.clients:jedis:3.3.0")
-    implementation("org.apache.hbase:hbase:2.3.2")
+    implementation("com.alibaba.hbase:alihbase-client:2.2.3") { exclude("org.apache.zookeeper", "zookeeper") }
     implementation("org.neo4j.driver:neo4j-java-driver:4.1.1")
     implementation("org.apache.phoenix:phoenix:4.15.0-HBase-1.4")
 

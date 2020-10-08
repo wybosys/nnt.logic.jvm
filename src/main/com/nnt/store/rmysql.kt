@@ -33,22 +33,25 @@ class RMysql : AbstractRdb() {
     override fun config(cfg: Jsonobj): Boolean {
         if (!super.config(cfg))
             return false
+
         if (cfg.has("user"))
             user = cfg["user"].asText()
         if (cfg.has("pwd"))
             pwd = cfg["pwd"].asText()
+
         if (!cfg.has("scheme")) {
             logger.fatal("${id} 没有配置数据表")
             return false
         }
         scheme = cfg["scheme"].asText()
+
         if (!cfg.has("host")) {
             logger.fatal("${id} 没有配置数据库地址")
             return false
         }
         val th = cfg["host"].asText()
         if (th.startsWith("unix://")) {
-            logger.fatal("${id} java不支持使用管道连接mysql")
+            logger.fatal("${id} java不支持使用管道连接")
             return false
         } else {
             val sp = th.split(":")
@@ -87,7 +90,7 @@ class RMysql : AbstractRdb() {
     // jdbc 直连
     private fun open_jdbc(): Boolean {
         val props = Properties()
-        props.setProperty("driverClassName", "com.mysql.jdbc.Driver")
+        props.setProperty("driverClassName", "com.mysql.cj.jdbc.Driver")
         props.setProperty("url", "jdbc:mysql://${host}:${port}/${scheme}?characterEncoding=UTF-8")
         if (!user.isEmpty()) {
             props.setProperty("username", user)
