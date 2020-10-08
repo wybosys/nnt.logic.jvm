@@ -29,9 +29,4 @@ class Phoenix : Mybatis() {
         url = "jdbc:phoenix:${zkhost}"
         return true
     }
-
-    override fun verify(): Boolean {
-        logger.fatal("当前phoneix-client依赖protobuf2而且无法更换为protobuf3，造成无法在logic中使用phoneix")
-        return false
-    }
 }
