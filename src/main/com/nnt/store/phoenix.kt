@@ -31,9 +31,7 @@ class Phoenix : Mybatis() {
     }
 
     override fun verify(): Boolean {
-        return execute { tpl, _ ->
-            val x = tpl.queryForList("select * from test")
-            println(x)
-        }
+        logger.fatal("当前phoneix-client依赖protobuf2而且无法更换为protobuf3，造成无法在logic中使用phoneix")
+        return false
     }
 }

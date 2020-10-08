@@ -80,9 +80,9 @@ dependencies {
     implementation("com.alibaba:druid:1.1.24")
     implementation("mysql:mysql-connector-java:8.0.21")
     implementation("redis.clients:jedis:3.3.0")
-    implementation("org.apache.hbase:hbase-client:1.4.13")
     implementation("org.neo4j.driver:neo4j-java-driver:4.1.1")
-    implementation("org.apache.phoenix:phoenix-core:4.14.3-HBase-1.4")
+    implementation("org.apache.hbase:hbase-client:1.4.13")
+    implementation("org.apache.phoenix:phoenix-core:4.15.0-HBase-1.4")
 
     // grpc
     implementation("com.google.protobuf:protobuf-java:3.12.0")
