@@ -1,5 +1,6 @@
 package com.nnt.store
 
+import com.alibaba.druid.pool.DruidDataSourceFactory
 import com.nnt.core.File
 import com.nnt.core.Jsonobj
 import com.nnt.core.URI
@@ -12,9 +13,13 @@ import org.apache.ibatis.session.SqlSession
 import org.apache.ibatis.session.SqlSessionFactory
 import org.apache.ibatis.session.SqlSessionFactoryBuilder
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.datasource.SingleConnectionDataSource
+import java.sql.Connection
 import java.util.*
+import javax.sql.DataSource
 
-class Mybatis : AbstractRdb() {
+open class Mybatis : AbstractRdb() {
 
     var url: String = ""
     var user: String = ""
@@ -55,8 +60,36 @@ class Mybatis : AbstractRdb() {
     }
 
     private lateinit var _mapfac: SqlSessionFactory
-    
+    private lateinit var _dsfac: DataSource
+
     override fun open() {
+        open_jdbc()
+        if (verify()) {
+            open_mapper()
+            logger.info("连接 ${id}@mybatis")
+        } else {
+            logger.info("连接 ${id}@mybatis 失败")
+        }
+    }
+
+    // 验证是否打开
+    protected open fun verify(): Boolean {
+        return true
+    }
+
+    private fun open_jdbc() {
+        val props = Properties()
+        props.setProperty("driverClassName", driver)
+        props.setProperty("url", url)
+        if (!user.isEmpty()) {
+            props.setProperty("username", user)
+            if (!pwd.isEmpty())
+                props.setProperty("password", pwd)
+        }
+        _dsfac = DruidDataSourceFactory.createDataSource(props)
+    }
+
+    private fun open_mapper() {
         // 初始化数据源
         val fac = PooledDataSourceFactory()
         val props = Properties()
@@ -93,7 +126,6 @@ class Mybatis : AbstractRdb() {
         }
 
         _mapfac = SqlSessionFactoryBuilder().build(conf)
-        logger.info("打开 ${id}@mybatis")
     }
 
     override fun close() {
@@ -115,6 +147,25 @@ class Mybatis : AbstractRdb() {
             r = false
         } finally {
             ses?.close()
+        }
+        return r
+    }
+
+    // 直接执行sql语句返回原始数据类型
+    fun execute(
+        proc: (tpl: JdbcTemplate, conn: Connection) -> Unit
+    ): Boolean {
+        var r = true
+        var conn: Connection? = null
+        try {
+            conn = _dsfac.connection
+            val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
+            proc(tpl, conn)
+        } catch (err: Throwable) {
+            logger.exception(err.localizedMessage)
+            r = false
+        } finally {
+            conn?.close()
         }
         return r
     }

@@ -84,6 +84,11 @@
       "id": "hbase",
       "zk": "localhost:2181",
       "entry": "com.nnt.store.HBase"
+    },
+    {
+      "id": "phoenix",
+      "zk": "localhost:2181",
+      "entry": "com.nnt.store.Phoenix"
     }
   ],
   "logger": [
