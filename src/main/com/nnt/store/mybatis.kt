@@ -77,15 +77,25 @@ open class Mybatis : AbstractRdb() {
         return true
     }
 
-    private fun open_jdbc() {
+    protected open fun propertiesForJdbc(): Properties {
         val props = Properties()
-        props.setProperty("driverClassName", driver)
         props.setProperty("url", url)
+
+        // 有些特殊情况下，不使用driverClassName设置jdbc的driver
+        if (!driver.isEmpty())
+            props.setProperty("driverClassName", driver)
+
         if (!user.isEmpty()) {
             props.setProperty("username", user)
             if (!pwd.isEmpty())
                 props.setProperty("password", pwd)
         }
+
+        return props
+    }
+
+    private fun open_jdbc() {
+        val props = propertiesForJdbc()
         _dsfac = DruidDataSourceFactory.createDataSource(props)
     }
 

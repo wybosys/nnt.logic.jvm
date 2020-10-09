@@ -58,7 +58,7 @@ class Neo4J : AbstractGraphDb() {
     private lateinit var _driver: Driver
 
     override fun open() {
-        _driver = GraphDatabase.driver("bolt://${host}:${port}", AuthTokens.basic(user, pwd))
+        _driver = GraphDatabase.driver("neo4j://${host}:${port}", AuthTokens.basic(user, pwd))
 
         if (execute {
                 val v = it.run("match (n) return count(*) as v").single().get("v").asInt()

@@ -76,7 +76,7 @@
     {
       "id": "neo",
       "host": "localhost:7687",
-      "user": "root",
+      "user": "neo4j",
       "pwd": "root",
       "entry": "com.nnt.store.Neo4J"
     },
@@ -87,7 +87,7 @@
     },
     {
       "id": "phoenix",
-      "zk": "localhost:2181",
+      "thin": "localhost:8765",
       "entry": "com.nnt.store.Phoenix"
     }
   ],

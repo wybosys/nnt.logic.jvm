@@ -81,8 +81,8 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.21")
     implementation("redis.clients:jedis:3.3.0")
     implementation("org.neo4j.driver:neo4j-java-driver:4.1.1")
-    implementation("org.apache.hbase:hbase-client:1.4.13")
-    implementation("org.apache.phoenix:phoenix-core:4.15.0-HBase-1.4")
+    implementation("org.apache.hbase:hbase-client:2.2.6")
+    implementation("org.apache.phoenix:phoenix-queryserver-client:5.0.0-HBase-2.0")
 
     // grpc
     implementation("com.google.protobuf:protobuf-java:3.12.0")
