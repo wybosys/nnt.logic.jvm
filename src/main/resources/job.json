@@ -6,53 +6,8 @@
     "cache": "cache",
     "https": false,
     "deskey": "joi>:90",
-    "cluster": 1,
-    "apollo": {
-      "host": "http://apollo-config-server:8080",
-      "appid": "test",
-      "key": "nnt.logic.jvm"
-    }
+    "cluster": 1
   },
-  "server": [
-    {
-      "id": "sample",
-      "entry": "com.nnt.dubbo.Dubbo",
-      "protocol": [
-        {
-          "type": "dubbo",
-          "port": 8090,
-          "service": [
-            "test"
-          ]
-        },
-        {
-          "type": "rest",
-          "port": 8091,
-          "service": [
-            "test"
-          ]
-        },
-        {
-          "type": "grpc",
-          "port": 8092,
-          "service": [
-            "test"
-          ]
-        }
-      ],
-      "registry": {
-        "type": "zookeeper",
-        "host": "localhost:2181"
-      },
-      "service": [
-        {
-          "id": "test",
-          "impl": "com.test.dubbo.Test",
-          "iface": "com.test.dubbo.ITest"
-        }
-      ]
-    }
-  ],
   "dbms": [
     {
       "id": "mysql",
@@ -92,6 +47,11 @@
     }
   ],
   "logger": [
+    {
+      "id": "console",
+      "filter": "all",
+      "entry": "com.nnt.logger.Console"
+    },
     {
       "id": "log4j",
       "filter": "all",

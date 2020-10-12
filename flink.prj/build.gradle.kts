@@ -74,6 +74,9 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java-util:3.12.0")
     implementation("io.grpc:grpc-all:1.32.1")
 
+    // dubbo
+    implementation("org.apache.zookeeper:zookeeper:3.4.13") { isForce = true }
+
     // dubbo-spring
     implementation("org.springframework:spring-jdbc:4.3.8.RELEASE")
 
