@@ -44,7 +44,8 @@ def test():
         CreateTopic(TOPIC)
     id = 0
     while True:
-        msg = json.dumps({id: id, "data": "TEST"})
+        msg = json.dumps({"id": id, "data": "TEST"})
+        id += 1
         Send(TOPIC, msg)
         time.sleep(1)
 
