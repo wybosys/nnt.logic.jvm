@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "config": {
+    "sidexpire": 86400,
+    "cidexpire": 600,
+    "cache": "cache",
+    "https": false,
+    "deskey": "joi>:90",
+    "cluster": 1,
+    "apollo": {
+      "host": "http://apollo-config-server:8080",
+      "appid": "test",
+      "key": "nnt.logic.jvm"
+    }
+  },
+  "server": [
+    {
+      "id": "sample",
+      "entry": "com.nnt.dubbo.Dubbo",
+      "protocol": [
+        {
+          "type": "dubbo",
+          "port": 8090,
+          "service": [
+            "test"
+          ]
+        },
+        {
+          "type": "rest",
+          "port": 8091,
+          "service": [
+            "test"
+          ]
+        },
+        {
+          "type": "grpc",
+          "port": 8092,
+          "service": [
+            "test"
+          ]
+        }
+      ],
+      "registry": {
+        "type": "zookeeper",
+        "host": "localhost:2181"
+      },
+      "service": [
+        {
+          "id": "test",
+          "impl": "com.test.dubbo.Test",
+          "iface": "com.test.dubbo.ITest"
+        }
+      ]
+    }
+  ],
+  "dbms": [
+    {
+      "id": "mysql",
+      "host": "localhost:3306",
+      "user": "root",
+      "pwd": "root",
+      "scheme": "nnt-logic",
+      "entry": "com.nnt.store.RMysql",
+      "mybatis": {
+        "map": [
+          "bundle://mybatis/sample.xml"
+        ]
+      }
+    },
+    {
+      "id": "kv",
+      "host": "localhost:6379",
+      "prefix": "nnt-logic-sample",
+      "entry": "com.nnt.store.KvRedis"
+    },
+    {
+      "id": "neo",
+      "host": "localhost:7687",
+      "user": "neo4j",
+      "pwd": "root",
+      "entry": "com.nnt.store.Neo4J"
+    },
+    {
+      "id": "hbase",
+      "zk": "localhost:2181",
+      "entry": "com.nnt.store.HBase"
+    },
+    {
+      "id": "phoenix",
+      "thin": "localhost:8765",
+      "entry": "com.nnt.store.Phoenix"
+    }
+  ],
+  "logger": [
+    {
+      "id": "log4j",
+      "filter": "all",
+      "entry": "com.nnt.logger.Log4j",
+      "dir": "cache",
+      "name": "app",
+      "pattern": "[%d{ISO8601}{TIMEZONE}] %p: %m%n",
+      "roll": {
+        "size": "100M",
+        "daily": false
+      }
+    }
+  ]
+}

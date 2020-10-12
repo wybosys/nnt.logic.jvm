@@ -26,6 +26,9 @@ open class App {
         if (cfg.has("server")) {
             Servers.Start(cfg["server"])
         }
+        if (cfg.has("task")) {
+            Tasks.Start(cfg["task"])
+        }
     }
 
     // 停止服务
@@ -33,6 +36,7 @@ open class App {
         Loggers.Stop()
         Dbms.Stop()
         Servers.Stop()
+        Tasks.Stop()
     }
 
     // 实例化对象
@@ -73,7 +77,7 @@ open class App {
         var CurrentConfig: Jsonobj? = null
 
         // 加载程序配置
-        fun LoadConfig(appcfg: URI = URI("bundle://app.json"), devcfg: URI = URI("bundle://devops.json")): Jsonobj? {
+        fun LoadConfig(appcfg: URI, devcfg: URI): Jsonobj? {
             // 读取配置信息
             if (!File(appcfg).exists()) {
                 println("读取配置文件失败 ${appcfg}");
