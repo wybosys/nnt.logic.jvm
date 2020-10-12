@@ -1,5 +1,10 @@
 package com.nnt.flink
 
-open class Task {
-    
+import com.nnt.task.Task
+
+open class Task : Task() {
+
+    override fun start() {
+        super.start()
+    }
 }

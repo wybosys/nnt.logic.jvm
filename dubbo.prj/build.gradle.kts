@@ -42,6 +42,9 @@ sourceSets {
         kotlin {
             java {
                 srcDir("../src/main")
+
+                exclude("com/nnt/flink")
+                exclude("com/test/flink")
             }
         }
 
