@@ -46,6 +46,12 @@
       "entry": "com.nnt.store.Phoenix"
     }
   ],
+  "task": [
+    {
+      "id": "test",
+      "entry": "com.test.flink.Test"
+    }
+  ],
   "logger": [
     {
       "id": "console",

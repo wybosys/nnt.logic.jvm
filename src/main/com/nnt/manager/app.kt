@@ -52,7 +52,7 @@ open class App {
         try {
             return Class.forName(entry)
         } catch (e: Throwable) {
-            print(e)
+            println(e)
         }
         return null
     }
