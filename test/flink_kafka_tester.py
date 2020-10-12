@@ -8,7 +8,7 @@ import json
 import time
 
 TOPIC = "nnt-logic-test"
-HOST = "localhost:9092"
+HOST = "localhost:9092,localhost:9093,localhost:9094"
 
 cli = kafka.KafkaConsumer(
     TOPIC,
