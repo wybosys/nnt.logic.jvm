@@ -47,8 +47,11 @@ class Phoenix : Mybatis() {
     }
 
     override fun verify(): Boolean {
-        return execute { _, _ ->
-            // pass
+        return execute { tpl, _ ->
+            val cnt = tpl.queryForObject(
+                "select count(*) as cnt from xaas_test", Int::class.java
+            )
+            logger.log("hbase测试数据库共有 ${cnt} 条记录")
         }
     }
 

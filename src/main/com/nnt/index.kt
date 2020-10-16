@@ -15,9 +15,9 @@ class Index {
             App.args = args
 
             // 配置文件路径
-            val appcfg = URI("bundle://job.json")
+            val appcfg = URI("bundle://app.json")
             val devcfg = URI("bundle://devops.json")
-            
+
             // 加载配置
             App.LoadConfig(appcfg, devcfg)
 
