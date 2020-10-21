@@ -37,6 +37,10 @@ sourceSets {
                 exclude("com/test/dubbo")
             }
         }
+
+        resources {
+            srcDir("../src/main/resources")
+        }
     }
 
     test {
@@ -97,4 +101,8 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.jar {
+
 }
