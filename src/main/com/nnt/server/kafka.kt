@@ -114,8 +114,15 @@ class KafkaMqClient(srv: Kafka) : MqClient {
             GlobalScope.launch {
                 while (true) {
                     val rcds = _consumer!!.poll(Duration.ofSeconds(1))
-                    rcds.forEach {
-                        cb(it.value(), topic)
+                    if (!rcds.isEmpty) {
+                        rcds.forEach {
+                            try {
+                                cb(it.value(), topic)
+                            } catch (err: Throwable) {
+                                logger.exception(err.localizedMessage)
+                            }
+                        }
+                        _consumer!!.commitSync()
                     }
                 }
             }
