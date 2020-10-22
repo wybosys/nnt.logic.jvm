@@ -8,6 +8,13 @@
     "deskey": "joi>:90",
     "cluster": 1
   },
+  "server": [
+    {
+      "id": "kafka",
+      "entry": "com.nnt.server.Kafka",
+      "zk": "xaas-kafka:9092,xaas-kafka:9093,xaas-kafka:9094"
+    }
+  ],
   "dbms": [
     {
       "id": "mysql",
