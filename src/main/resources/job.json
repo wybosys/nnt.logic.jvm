@@ -12,7 +12,8 @@
     {
       "id": "kafka",
       "entry": "com.nnt.server.Kafka",
-      "zk": "xaas-kafka:9092,xaas-kafka:9093,xaas-kafka:9094"
+      "zk": "xaas-kafka:9092,xaas-kafka:9093,xaas-kafka:9094",
+      "group": "test"
     }
   ],
   "dbms": [

@@ -2,7 +2,7 @@ package com.nnt.server
 
 import com.nnt.core.Jsonobj
 
-abstract class Server {
+abstract class AbstractServer {
 
     // 服务器的配置id
     var id: String = ""
