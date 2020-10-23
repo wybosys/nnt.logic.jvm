@@ -61,7 +61,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
                     Dao.Echoo.newBuilder()
                         .setId(it.id)
                         .setInput(it.input)
-                        .setOutput(it.output)
+                        .setOutput(it.input)
                         .build()
                 )
             }

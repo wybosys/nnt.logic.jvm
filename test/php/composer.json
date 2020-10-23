@@ -1,0 +1,13 @@
+{
+  "name": "logic/php",
+  "autoload": {
+    "psr-4": {
+      "Com\\": "Com",
+      "GPBMetadata\\": "GPBMetadata"
+    }
+  },
+  "require": {
+    "grpc/grpc": "^1.30",
+    "google/protobuf": "v3.13.0.1"
+  }
+}
