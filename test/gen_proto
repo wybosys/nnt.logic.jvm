@@ -41,7 +41,8 @@ def listall(dir, allows, denys):
 PROTOS = listall(PROTO_DIR, PROTO_ALLOW, PROTO_DENY)
 # print(PROTOS)
 
-# 构造生成给你脚本
+# 构造生成的脚本
+CMDS = []
 CMD_PYTHON = [
     "protoc --proto_path="+PROTO_DIR,
     "--plugin=protoc-gen-grpc=/usr/bin/grpc_python_plugin",
@@ -49,5 +50,18 @@ CMD_PYTHON = [
     ' '.join(PROTOS)
 ]
 cmd = ' '.join(CMD_PYTHON)
-#print(cmd)
-os.system(cmd)
+CMDS.append(cmd)
+
+CMD_PHP = [
+    "protoc --proto_path="+PROTO_DIR,
+    "--plugin=protoc-gen-grpc=/usr/bin/grpc_php_plugin",
+    "--php_out=php --grpc_out=php",
+    ' '.join(PROTOS)
+]
+cmd = ' '.join(CMD_PHP)
+CMDS.append(cmd)
+
+# 生成
+for cmd in CMDS:
+    # print(cmd)
+    os.system(cmd)
