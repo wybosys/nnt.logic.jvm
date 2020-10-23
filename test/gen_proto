@@ -1,5 +1,53 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-python3 -m grpc_tools.protoc --python_out=py --grpc_python_out=py -I../src/main/proto dubbo/test.proto dao.proto
+import os
+import re
 
-#protoc --proto_path=../src/main/proto --python_out=. dubbo/test.proto
+# 使用python生成
+# python3 -m grpc_tools.protoc --python_out=py --grpc_python_out=py -I../src/main/proto dubbo/test.proto dao.proto
+
+# 使用protoc生成
+# protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc= /usr/bin/grpc_python_plugin --python_out=py --grpc_out = py dubbo/test.proto dao.proto
+
+# 保存所有proto的目录
+PROTO_DIR = "../src/main/proto"
+PROTO_ALLOW = [re.compile("\.proto$")]
+PROTO_DENY = [re.compile("^[~#]")]
+
+
+def checkpat(inp, pats):
+    for pat in pats:
+        if pat.findall(inp):
+            return True
+    return False
+
+
+def listall(dir, allows, denys):
+    ret = []
+    """扫描所有文件"""
+    for each in os.listdir(dir):
+        tgt = "%s/%s" % (dir, each)
+        if os.path.isfile(tgt):
+            if not checkpat(each, allows):
+                continue
+            if checkpat(each, denys):
+                continue
+            ret.append(tgt)
+        else:
+            ret += listall(tgt, allows, denys)
+    return ret
+
+
+PROTOS = listall(PROTO_DIR, PROTO_ALLOW, PROTO_DENY)
+# print(PROTOS)
+
+# 构造生成给你脚本
+CMD_PYTHON = [
+    "protoc --proto_path="+PROTO_DIR,
+    "--plugin=protoc-gen-grpc=/usr/bin/grpc_python_plugin",
+    "--python_out=py --grpc_out=py",
+    ' '.join(PROTOS)
+]
+cmd = ' '.join(CMD_PYTHON)
+#print(cmd)
+os.system(cmd)

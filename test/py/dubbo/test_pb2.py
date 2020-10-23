@@ -7,7 +7,6 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
-from google.protobuf import descriptor_pb2
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
@@ -22,6 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='dubbo/test.proto',
   package='com.test.dubbo',
   syntax='proto3',
+  serialized_options=None,
   serialized_pb=_b('\n\x10\x64ubbo/test.proto\x12\x0e\x63om.test.dubbo\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\tdao.proto\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t2\xb9\x02\n\x04Test\x12<\n\x05hello\x12\x16.google.protobuf.Empty\x1a\x19.com.test.dubbo.TestReply\"\x00\x12\x38\n\x05\x65\x63hoo\x12\x1c.google.protobuf.StringValue\x1a\x0f.com.test.Echoo\"\x00\x12\x34\n\x06\x65\x63hoos\x12\x16.google.protobuf.Empty\x1a\x10.com.test.Echoos\"\x00\x12\x44\n\x0b\x63lear_echoo\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int32Value\"\x00\x12=\n\x0cupdate_echoo\x12\x0f.com.test.Echoo\x1a\x1a.google.protobuf.BoolValue\"\x00\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_protobuf_dot_wrappers__pb2.DESCRIPTOR,dao__pb2.DESCRIPTOR,])
@@ -42,14 +42,14 @@ _TESTREPLY = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  options=None,
+  serialized_options=None,
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
@@ -76,7 +76,7 @@ _TEST = _descriptor.ServiceDescriptor(
   full_name='com.test.dubbo.Test',
   file=DESCRIPTOR,
   index=0,
-  options=None,
+  serialized_options=None,
   serialized_start=139,
   serialized_end=452,
   methods=[
@@ -87,7 +87,7 @@ _TEST = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=_TESTREPLY,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='echoo',
@@ -96,7 +96,7 @@ _TEST = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=google_dot_protobuf_dot_wrappers__pb2._STRINGVALUE,
     output_type=dao__pb2._ECHOO,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='echoos',
@@ -105,7 +105,7 @@ _TEST = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=dao__pb2._ECHOOS,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='clear_echoo',
@@ -114,7 +114,7 @@ _TEST = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=google_dot_protobuf_dot_wrappers__pb2._INT32VALUE,
-    options=None,
+    serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
     name='update_echoo',
@@ -123,7 +123,7 @@ _TEST = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=dao__pb2._ECHOO,
     output_type=google_dot_protobuf_dot_wrappers__pb2._BOOLVALUE,
-    options=None,
+    serialized_options=None,
   ),
 ])
 _sym_db.RegisterServiceDescriptor(_TEST)
