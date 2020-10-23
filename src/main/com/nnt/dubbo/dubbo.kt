@@ -3,7 +3,7 @@ package com.nnt.dubbo
 import com.nnt.core.Jsonobj
 import com.nnt.core.logger
 import com.nnt.manager.App
-import com.nnt.server.Server
+import com.nnt.server.AbstractServer
 import org.apache.dubbo.config.ApplicationConfig
 import org.apache.dubbo.config.ProtocolConfig
 import org.apache.dubbo.config.RegistryConfig
@@ -27,7 +27,7 @@ private class DubboService {
     lateinit var svccfg: ServiceConfig
 }
 
-open class Dubbo : Server() {
+open class Dubbo : AbstractServer() {
 
     private lateinit var _name: String
     private lateinit var _registry: DubboRegistryCfg

@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-python3 -m grpc_tools.protoc --python_out=. --grpc_python_out=. -I../src/main/proto dubbo/test.proto dao.proto
+
+python3 -m grpc_tools.protoc --python_out=py --grpc_python_out=py -I../src/main/proto dubbo/test.proto dao.proto
+
+#protoc --proto_path=../src/main/proto --python_out=. dubbo/test.proto
