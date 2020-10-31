@@ -77,4 +77,31 @@ class KvRedis : AbstractKv() {
         _pool.close()
     }
 
+    open fun acquire(): RedisSession {
+        val cli = RedisClient(_pool.resource, this)
+        return RedisSession(cli)
+    }
+}
+
+// redis业务对象
+open class RedisSession(redis: RedisClient) : RedisClientOperations by redis {
+
+    private val _redis = redis
+    private var _closed = false
+
+    override fun close() {
+        if (_closed) {
+            _redis.close()
+            _closed = true
+        }
+    }
+
+    fun commit() {
+        // pass
+    }
+
+    protected fun finalize() {
+        close()
+    }
+
 }

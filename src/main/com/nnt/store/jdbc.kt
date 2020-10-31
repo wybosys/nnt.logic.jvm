@@ -3,6 +3,7 @@ package com.nnt.store
 import com.alibaba.druid.pool.DruidDataSourceFactory
 import com.nnt.core.Jsonobj
 import com.nnt.core.logger
+import org.springframework.jdbc.core.JdbcOperations
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
 import java.sql.Connection
@@ -59,6 +60,12 @@ class Jdbc : AbstractDbms() {
         // pass
     }
 
+    fun acquire(): JdbcSession {
+        val conn = _dsfac.connection
+        val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
+        return JdbcSession(conn, tpl)
+    }
+
     // 直接执行sql语句返回原始数据类型
     fun execute(
         proc: (tpl: JdbcTemplate, conn: Connection) -> Unit
@@ -78,4 +85,26 @@ class Jdbc : AbstractDbms() {
         return r
     }
 
+}
+
+// jdbc业务对象
+open class JdbcSession(conn: Connection, tpl: JdbcTemplate) : JdbcOperations by tpl {
+
+    private val _conn = conn
+    private var _closed = false
+
+    open fun close() {
+        if (_closed) {
+            _conn.close()
+            _closed = true
+        }
+    }
+
+    open fun commit() {
+        // pass
+    }
+
+    protected fun finalize() {
+        close()
+    }
 }

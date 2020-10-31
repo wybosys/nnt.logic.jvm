@@ -59,8 +59,8 @@ open class Mybatis : AbstractRdb() {
         return true
     }
 
-    private lateinit var _mapfac: SqlSessionFactory
-    private lateinit var _dsfac: DataSource
+    protected lateinit var _mapfac: SqlSessionFactory
+    protected lateinit var _dsfac: DataSource
 
     override fun open() {
         open_jdbc()
@@ -90,6 +90,11 @@ open class Mybatis : AbstractRdb() {
             if (!pwd.isEmpty())
                 props.setProperty("password", pwd)
         }
+
+        // 设置连接数
+        props.setProperty("initialSize", "0")
+        props.setProperty("minIdle", "0")
+        props.setProperty("maxActive", "512")
 
         return props
     }
@@ -180,4 +185,32 @@ open class Mybatis : AbstractRdb() {
         return r
     }
 
+    open fun acquireJdbc(): JdbcSession {
+        val conn = _dsfac.connection
+        val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
+        return JdbcSession(conn, tpl)
+    }
+
+    open fun acquireSql(): MybatisSession {
+        val ses = _mapfac.openSession(false)
+        return MybatisSession(ses)
+    }
+}
+
+// mybatis业务对象
+class MybatisSession(sql: SqlSession) : SqlSession by sql {
+
+    private val _sql = sql
+    private var _closed = false
+
+    override fun close() {
+        if (_closed) {
+            _sql.close()
+            _closed = true
+        }
+    }
+
+    protected fun finalize() {
+        close()
+    }
 }

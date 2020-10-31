@@ -3,6 +3,9 @@ package com.nnt.store
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.nnt.core.Jsonobj
 import com.nnt.core.logger
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.datasource.SingleConnectionDataSource
+import java.sql.Connection
 import java.util.*
 
 // phoenix queryserver 默认端口
@@ -41,7 +44,7 @@ class Phoenix : Mybatis() {
             port = sp[1].toInt()
         }
 
-        url = "jdbc:phoenix:thin:url=http://${host}:${port};serialization=PROTOBUF;"
+        url = "jdbc:phoenix:thin:url=http://${host}:${port};serialization=PROTOBUF;timeZone=Asia/Shanghai;"
 
         return true
     }
@@ -60,5 +63,54 @@ class Phoenix : Mybatis() {
         // phoenix 不支持连接情况检测
         props.setProperty("testWhileIdle", "false")
         return props
+    }
+
+    override fun acquireJdbc(): JdbcSession {
+        val conn = _dsfac.connection
+        val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
+        return PhoenixJdbcSession(conn, tpl)
+    }
+}
+
+// phoenix 5.x 中时间对象需要额外处理，传入time，传出Long，否则会有timezone
+// https://developer.aliyun.com/article/684390
+
+class PhoenixJdbcSession(conn: Connection, tpl: JdbcTemplate) : JdbcSession(conn, tpl) {
+
+    override fun <T : Any> queryForObject(sql: String, requiredType: Class<T>, vararg args: Any?): T {
+        if (requiredType == Date::class.java) {
+            val r = super.queryForObject(sql, Long::class.java, *args)
+            return Date(r.toLong()) as T
+        }
+        return super.queryForObject(sql, requiredType, *args)
+    }
+
+    override fun <T : Any> queryForObject(sql: String, requiredType: Class<T>): T {
+        if (requiredType == Date::class.java) {
+            val r = super.queryForObject(sql, Long::class.java)
+            return Date(r.toLong()) as T
+        }
+        return super.queryForObject(sql, requiredType)
+    }
+
+    override fun <T : Any> queryForObject(
+        sql: String,
+        args: Array<out Any>,
+        argTypes: IntArray,
+        requiredType: Class<T>
+    ): T {
+        if (requiredType == Date::class.java) {
+            val r = super.queryForObject(sql, args, argTypes, Long::class.java)
+            return Date(r.toLong()) as T
+        }
+        return super.queryForObject(sql, args, argTypes, requiredType)
+    }
+
+    override fun <T : Any> queryForObject(sql: String, args: Array<out Any>, requiredType: Class<T>): T {
+        if (requiredType == Date::class.java) {
+            val r = super.queryForObject(sql, args, Long::class.java)
+            return Date(r.toLong()) as T
+        }
+        return super.queryForObject(sql, args, requiredType)
     }
 }

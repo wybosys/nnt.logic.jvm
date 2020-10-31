@@ -66,6 +66,23 @@ class Kafka : Mq() {
         return KafkaMqClient(this)
     }
 
+    fun propertiesForConsumer(): Properties {
+        val props = Properties()
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, zk)
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, group)
+        return props
+    }
+
+    fun propertiesForProducer(): Properties {
+        val props = Properties()
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, zk)
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
+        return props
+    }
+
 }
 
 class KafkaMqClient(srv: Kafka) : MqClient {
@@ -96,15 +113,20 @@ class KafkaMqClient(srv: Kafka) : MqClient {
         }
     }
 
+    fun propertiesForConsumer(): Properties {
+        val props = _srv.propertiesForConsumer()
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, _group)
+        return props
+    }
+
+    fun propertiesForProducer(): Properties {
+        return _srv.propertiesForProducer()
+    }
+
     override fun subscribe(cb: (msg: String, chann: String) -> Unit) {
         synchronized(this) {
             if (_consumer == null) {
-                val props = Properties()
-                props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, _srv.zk)
-                props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
-                props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
-                props.put(ConsumerConfig.GROUP_ID_CONFIG, _group)
-
+                val props = propertiesForConsumer()
                 _consumer = KafkaConsumer<String, String>(props)
             }
 
@@ -132,11 +154,7 @@ class KafkaMqClient(srv: Kafka) : MqClient {
     override fun produce(msg: String) {
         synchronized(this) {
             if (_producer == null) {
-                val props = Properties()
-                props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, _srv.zk)
-                props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
-                props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
-
+                val props = propertiesForProducer()
                 _producer = KafkaProducer<String, String>(props)
             }
 
