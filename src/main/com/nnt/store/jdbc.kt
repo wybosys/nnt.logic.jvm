@@ -10,7 +10,7 @@ import java.sql.Connection
 import java.util.*
 import javax.sql.DataSource
 
-class Jdbc : AbstractDbms() {
+open class Jdbc : AbstractDbms() {
 
     var url: String = ""
     var user: String = ""
@@ -42,8 +42,8 @@ class Jdbc : AbstractDbms() {
     }
 
     private lateinit var _dsfac: DataSource
-
-    override fun open() {
+    
+    protected open fun propertiesForJdbc(): Properties {
         val props = Properties()
         props.setProperty("driverClassName", driver)
         props.setProperty("url", url)
@@ -52,6 +52,17 @@ class Jdbc : AbstractDbms() {
             if (!pwd.isEmpty())
                 props.setProperty("password", pwd)
         }
+
+        // 设置连接数
+        props.setProperty("initialSize", "0")
+        props.setProperty("minIdle", "0")
+        props.setProperty("maxActive", "512")
+
+        return props
+    }
+
+    override fun open() {
+        val props = propertiesForJdbc()
         _dsfac = DruidDataSourceFactory.createDataSource(props)
         logger.info("打开 ${id}@jdbc")
     }
