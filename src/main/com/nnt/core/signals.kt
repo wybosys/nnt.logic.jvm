@@ -313,11 +313,16 @@ open class Object {
                 synchronized(this) {
                     if (_signals == null) {
                         _signals = Signals(this)
+                        _initSignals()
                     }
                 }
             }
             return _signals!!
         }
+
+    protected open fun _initSignals() {
+        // pass
+    }
 }
 
 // 定义常用信号
@@ -335,3 +340,4 @@ val kSignalNew = "::nnt::new"
 val kSignalYes = "::nnt:yes"
 val kSignalNo = "::nnt::no"
 val kSignalCancel = "::nnt::cancel"
+val kSignalAction = "::nnt::action"
