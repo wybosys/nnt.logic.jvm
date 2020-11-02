@@ -59,7 +59,7 @@ private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() 
         val srv = env.createHttpServer(opts)
         val router = Router.router(env).apply {
             get("/").handler(Handler {
-
+                
             })
         }
 
