@@ -77,7 +77,7 @@ class Phoenix : Mybatis() {
 
 class PhoenixJdbcSession(conn: Connection, tpl: JdbcTemplate) : JdbcSession(conn, tpl) {
 
-    override fun <T : Any> queryForObject(sql: String, requiredType: Class<T>, vararg args: Any?): T {
+    override fun <T> queryForObject(sql: String, requiredType: Class<T>, vararg args: Any): T {
         if (requiredType == Date::class.java) {
             val r = super.queryForObject(sql, Long::class.java, *args)
 
@@ -87,7 +87,7 @@ class PhoenixJdbcSession(conn: Connection, tpl: JdbcTemplate) : JdbcSession(conn
         return super.queryForObject(sql, requiredType, *args)
     }
 
-    override fun <T : Any> queryForObject(sql: String, requiredType: Class<T>): T {
+    override fun <T> queryForObject(sql: String, requiredType: Class<T>): T {
         if (requiredType == Date::class.java) {
             val r = super.queryForObject(sql, Long::class.java)
 
@@ -97,9 +97,9 @@ class PhoenixJdbcSession(conn: Connection, tpl: JdbcTemplate) : JdbcSession(conn
         return super.queryForObject(sql, requiredType)
     }
 
-    override fun <T : Any> queryForObject(
+    override fun <T> queryForObject(
         sql: String,
-        args: Array<out Any>,
+        args: Array<Any>,
         argTypes: IntArray,
         requiredType: Class<T>
     ): T {
@@ -112,7 +112,7 @@ class PhoenixJdbcSession(conn: Connection, tpl: JdbcTemplate) : JdbcSession(conn
         return super.queryForObject(sql, args, argTypes, requiredType)
     }
 
-    override fun <T : Any> queryForObject(sql: String, args: Array<out Any>, requiredType: Class<T>): T {
+    override fun <T> queryForObject(sql: String, args: Array<Any>, requiredType: Class<T>): T {
         if (requiredType == Date::class.java) {
             val r = super.queryForObject(sql, args, Long::class.java)
 
