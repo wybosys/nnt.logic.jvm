@@ -1,1 +1,1 @@
-rootProject.name = "logic"
+rootProject.name = "logic-app"
