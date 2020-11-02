@@ -39,17 +39,6 @@
             "test"
           ]
         }
-      ],
-      "registry": {
-        "type": "zookeeper",
-        "host": "localhost:2181"
-      },
-      "service": [
-        {
-          "id": "test",
-          "impl": "com.test.dubbo.Test",
-          "iface": "com.test.dubbo.ITest"
-        }
       ]
     }
   ],
