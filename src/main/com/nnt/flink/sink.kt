@@ -15,7 +15,7 @@ abstract class SafeSinkFunction<T> : RichSinkFunction<T>() {
     }
 
     override fun invoke(value: T) {
-        super.invoke(value)
+        // super.invoke(value)
         sink(value)
     }
 
