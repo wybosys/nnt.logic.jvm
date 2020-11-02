@@ -181,8 +181,14 @@ class DateTime {
             val ts = System.currentTimeMillis()
             return ts / 1000
         }
+
+        fun Pass(): Timestamp {
+            return DateTime.Current() - __time_started
+        }
     }
 }
+
+private var __time_started = DateTime.Current()
 
 suspend fun Retry(cond: () -> Boolean, proc: () -> Unit, interval: Seconds = 1f, delta: Seconds = 2f) {
     if (!cond()) {

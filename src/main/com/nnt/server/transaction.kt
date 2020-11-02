@@ -1,5 +1,6 @@
 package com.nnt.server
 
+import com.nnt.core.DelayHandler
 import com.nnt.core.IRouter
 import com.nnt.core.STATUS
 import com.nnt.core.Seconds
@@ -143,7 +144,8 @@ abstract class Transaction {
 
     // 验证
     open fun needAuth(): Boolean {
-        return IsNeedAuth(model)
+        // return IsNeedAuth(model)
+        return true
     }
 
     // 是否已经授权
@@ -194,16 +196,18 @@ abstract class Transaction {
     }
 
     // 超时定时器
-    private var _timeout: DelayHandler
+    private lateinit var _timeout: DelayHandler
 
     // 运行在console中
     var console: Boolean = false
 
     // 带上此次请求事务的参数实例化一个模型
     // 通常业务层中会对params增加一些数据，来满足trans对auth、context的需求，如果直接new对象的化，就没办法加入这些数据
+    /*
     open fun <T> instance(cls: Class<T>): T {
 
     }
+     */
 
     // 环境信息
     val info = TransactionInfo()
