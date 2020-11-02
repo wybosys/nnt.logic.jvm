@@ -7,7 +7,7 @@ import redis.clients.jedis.JedisPoolConfig
 
 private const val DEFAULT_PORT = 6379
 
-class KvRedis : AbstractKv() {
+open class KvRedis : AbstractKv() {
 
     var host: String = ""
     var port: Int = DEFAULT_PORT
