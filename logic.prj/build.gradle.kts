@@ -3,7 +3,6 @@ plugins {
     idea
     kotlin("jvm") version "1.4.10"
     kotlin("kapt") version "1.4.10"
-    id("com.github.johnrengelman.shadow") version "6.1.0"
 }
 
 java {
@@ -20,7 +19,6 @@ buildscript {
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10")
-        classpath("com.github.jengelman.gradle.plugins:shadow:6.1.0")
     }
 }
 
@@ -37,6 +35,9 @@ sourceSets {
 
                 exclude("com/nnt/dubbo")
                 exclude("com/test/dubbo")
+
+                exclude("com/nnt/flink")
+                exclude("com/test/flink")
             }
         }
 
@@ -73,27 +74,10 @@ dependencies {
     implementation("org.neo4j.driver:neo4j-java-driver:4.1.1")
     implementation("org.apache.hbase:hbase-client:2.2.6")
     implementation("org.apache.phoenix:phoenix-queryserver-client:5.0.0-HBase-2.0")
-    implementation("org.elasticsearch.client:elasticsearch-rest-high-level-client:7.9.2")
     implementation("org.springframework:spring-jdbc:4.3.8.RELEASE")
 
-    // grpc
-    implementation("com.google.protobuf:protobuf-java:3.12.0")
-    implementation("com.google.protobuf:protobuf-java-util:3.12.0")
-    implementation("io.grpc:grpc-all:1.32.1")
-
-    // dubbo
-    implementation("org.apache.zookeeper:zookeeper:3.4.13") { isForce = true }
-
-    // flink
-    implementation("org.apache.flink:flink-java:1.11.2")
-    implementation("org.apache.flink:flink-streaming-java_2.11:1.11.2")
-    implementation("org.apache.flink:flink-clients_2.11:1.11.2")
-    implementation("org.apache.bahir:flink-connector-redis_2.11:1.0")
-    implementation("org.apache.flink:flink-connector-kafka_2.11:1.11.2")
-    implementation("org.apache.flink:flink-connector-filesystem_2.11:1.11.2")
-    implementation("org.apache.flink:flink-connector-jdbc_2.11:1.11.2")
-    implementation("org.apache.flink:flink-connector-hbase_2.11:1.11.2")
-    implementation("org.apache.flink:flink-connector-elasticsearch-base_2.11:1.11.2")
+    // mq
+    implementation("org.apache.kafka:kafka-clients:2.6.0")
 
     // test
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
@@ -101,19 +85,4 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.jar {
-    manifest {
-        attributes(
-            mapOf(
-                "Manifest-Version" to 1.0,
-                "Main-Class" to "com.nnt.Job"
-            )
-        )
-    }
-}
-
-tasks.shadowJar {
-    isZip64 = true
 }
