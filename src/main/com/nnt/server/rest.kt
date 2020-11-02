@@ -43,7 +43,9 @@ open class Rest : AbstractServer() {
     }
 
     override fun stop() {
-        _svc.stop()
+        // 启动后，svc会具有形如uuid的did
+        // println(_svc.deploymentID())
+        _env.undeploy(_svc.deploymentID())
     }
 
 }
@@ -57,7 +59,7 @@ private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() 
         val srv = env.createHttpServer(opts)
         val router = Router.router(env).apply {
             get("/").handler(Handler {
-                
+
             })
         }
 
