@@ -6,40 +6,12 @@
     "cache": "cache",
     "https": false,
     "deskey": "joi>:90",
-    "cluster": 1,
-    "apollo": {
-      "host": "http://apollo-config-server:8080",
-      "appid": "test",
-      "key": "nnt.logic.jvm"
-    }
+    "cluster": 1
   },
   "server": [
     {
       "id": "sample",
-      "entry": "com.nnt.dubbo.Dubbo",
-      "protocol": [
-        {
-          "type": "dubbo",
-          "port": 8090,
-          "service": [
-            "test"
-          ]
-        },
-        {
-          "type": "rest",
-          "port": 8091,
-          "service": [
-            "test"
-          ]
-        },
-        {
-          "type": "grpc",
-          "port": 8092,
-          "service": [
-            "test"
-          ]
-        }
-      ]
+      "entry": "com.nnt.server.Rest"
     }
   ],
   "dbms": [
