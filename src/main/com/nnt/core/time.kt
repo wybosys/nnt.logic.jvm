@@ -1,6 +1,7 @@
 package com.nnt.core
 
 import kotlinx.coroutines.*
+import java.time.LocalDateTime
 
 suspend fun Sleep(seconds: Seconds) {
     delay((seconds * 1000).toLong())
@@ -120,5 +121,74 @@ class Interval(time: Seconds, proc: () -> Unit, autostart: Boolean = true) {
             return
         CancelRepeat(_hdl!!)
         _hdl = null
+    }
+}
+
+fun InstanceDate(): LocalDateTime {
+    return LocalDateTime.now()
+}
+
+typealias Timestamp = Long
+
+class DateTime {
+
+    constructor() : this(Current()) {
+        // pass
+    }
+
+    constructor(ts: Timestamp) {
+        timestamp = ts
+    }
+
+    // 未来
+    fun future(ts: Long): DateTime {
+        timestamp += ts;
+        return this
+    }
+
+    // 过去
+    fun past(ts: Long): DateTime {
+        timestamp -= ts
+        return this
+    }
+
+    var timestamp: Timestamp = 0
+
+    companion object {
+
+        val MINUTE = 60
+        val MINUTE_2 = 120
+        val MINUTE_3 = 180
+        val MINUTE_4 = 240
+        val MINUTE_5 = 300
+        val MINUTE_15 = 900
+        val MINUTE_30 = 1800
+        val HOUR = 3600
+        val HOUR_2 = 7200
+        val HOUR_6 = 21600
+        val HOUR_12 = 43200
+        val DAY = 86400
+        val WEEK = 604800
+        val MONTH = 2592000
+        val YEAR = 31104000
+
+        fun Now(): Double {
+            val ts = System.currentTimeMillis()
+            return ts / 1000.0
+        }
+
+        fun Current(): Timestamp {
+            val ts = System.currentTimeMillis()
+            return ts / 1000
+        }
+    }
+}
+
+suspend fun Retry(cond: () -> Boolean, proc: () -> Unit, interval: Seconds = 1f, delta: Seconds = 2f) {
+    if (!cond()) {
+        Sleep(interval)
+        Retry(cond, proc, interval + delta, delta)
+    } else {
+        proc()
     }
 }
