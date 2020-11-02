@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     java
     idea
@@ -7,6 +9,7 @@ plugins {
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 group = "com.nnt"
@@ -25,6 +28,12 @@ buildscript {
 repositories {
     maven("https://maven.aliyun.com/repository/central")
     maven("https://maven.aliyun.com/repository/apache-snapshots")
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 sourceSets {
@@ -66,6 +75,10 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.10.0")
     implementation("com.ctrip.framework.apollo:apollo-client:1.7.0")
 
+    // http
+    implementation("io.vertx:vertx-core:3.9.4")
+    implementation("io.vertx:vertx-web:3.9.4")
+
     // db
     implementation("org.mybatis:mybatis:3.5.5")
     implementation("com.alibaba:druid:1.1.24")
@@ -86,3 +99,4 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+

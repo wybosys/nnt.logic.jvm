@@ -16,6 +16,7 @@ open class KvRedis : AbstractKv() {
     override fun config(cfg: Jsonobj): Boolean {
         if (!super.config(cfg))
             return false
+
         if (!cfg.has("host")) {
             logger.fatal("${id} 没有配置数据库地址")
             return false

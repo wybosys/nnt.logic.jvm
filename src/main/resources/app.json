@@ -11,7 +11,8 @@
   "server": [
     {
       "id": "sample",
-      "entry": "com.nnt.server.Rest"
+      "entry": "com.nnt.server.Rest",
+      "host": "0.0.0.0:8090"
     }
   ],
   "dbms": [
