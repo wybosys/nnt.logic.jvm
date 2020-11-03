@@ -1,5 +1,7 @@
 package com.nnt.core
 
+import kotlin.reflect.KClass
+
 // model的参数
 
 // 隐藏该model
@@ -24,13 +26,6 @@ const val required = "required"
 // 输入输出
 const val input = "input"
 const val output = "output"
-
-// 为了给array定义数据，不能直接用系统类型
-const val string_t = "string"
-const val integer_t = "integer"
-const val double_t = "double"
-const val number_t = "number"
-const val boolean_t = "boolean"
 
 class ModelOption {
 
@@ -96,3 +91,52 @@ class FieldOption {
     // 有效性检查函数
     var valid: FieldValidProc? = null
 }
+
+annotation class model(val options: Array<String> = [])
+
+annotation class string(
+    val id: Int,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
+annotation class integer(
+    val id: Int,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
+annotation class json(
+    val id: Int,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
+annotation class map(
+    val id: Int,
+    val keyType: KClass<*>,
+    val valueType: KClass<*>,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
+annotation class array(
+    val id: Int,
+    val valueType: KClass<*>,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
+annotation class enumerate(
+    val id: Int,
+    val type: KClass<*>,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
+annotation class type(
+    val id: Int,
+    val type: KClass<*>,
+    val options: Array<String>,
+    val comment: String = "",
+)
