@@ -371,8 +371,8 @@ class DateTime {
         val cur = LocalDateTime.of(_date.year, _date.month, 0, 0, 0, 0)
         val next = cur.plusMonths(1)
         return DateTimeRange(
-            java.sql.Timestamp.valueOf(cur).time,
-            java.sql.Timestamp.valueOf(next).time
+            java.sql.Timestamp.valueOf(cur).time / 1000,
+            java.sql.Timestamp.valueOf(next).time / 1000 - 1
         )
     }
 
