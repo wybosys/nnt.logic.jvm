@@ -11,7 +11,7 @@
   "server": [
     {
       "id": "sample",
-      "entry": "com.nnt.server.Rest",
+      "entry": "com.test.app.Test",
       "host": "0.0.0.0:8090"
     }
   ],
