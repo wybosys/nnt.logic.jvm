@@ -1,6 +1,7 @@
 package com.nnt.server
 
 import com.nnt.core.Jsonobj
+import java.util.*
 
 abstract class AbstractServer {
 
@@ -29,4 +30,15 @@ abstract class AbstractServer {
     protected fun onStop() {
         // pass
     }
+}
+
+// 如果需要在业务中的api调用某一个服务(使用Servers.Call函数)则目标server必须实现此接口
+interface IConsoleServer {
+
+    // 通过控制台执行
+    // @params 调用参数
+    // @req 请求对象
+    // @rsp 响应对象
+    fun invoke(params: Properties, req: Any, rsp: Any)
+
 }

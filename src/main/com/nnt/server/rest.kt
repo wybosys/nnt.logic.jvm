@@ -8,8 +8,9 @@ import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.ext.web.Router
+import java.util.*
 
-open class Rest : AbstractServer() {
+open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHttpServer {
 
     var host: String = ""
     var port: Int = 80
@@ -48,6 +49,24 @@ open class Rest : AbstractServer() {
         _env.undeploy(_svc.deploymentID())
     }
 
+    override val routers: Routers
+        get() = TODO("Not yet implemented")
+
+    override fun invoke(params: Properties, req: Any, rsp: Any) {
+        TODO("Not yet implemented")
+    }
+
+    override var imgsrv: String
+        get() = TODO("Not yet implemented")
+        set(value) {}
+    override var mediasrv: String
+        get() = TODO("Not yet implemented")
+        set(value) {}
+
+    override fun httpserver(): Any {
+        TODO("Not yet implemented")
+    }
+
 }
 
 private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() {
@@ -59,7 +78,7 @@ private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() 
         val srv = env.createHttpServer(opts)
         val router = Router.router(env).apply {
             get("/").handler(Handler {
-                
+
             })
         }
 

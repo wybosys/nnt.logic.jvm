@@ -167,7 +167,7 @@ abstract class Transaction {
     private var _submited: Boolean = false
     private var _submited_timeout: Boolean = false
 
-    open suspend fun submit(opt: TransactionSubmitOption?) {
+    open suspend fun submit(opt: TransactionSubmitOption? = null) {
 
     }
 
