@@ -1,7 +1,14 @@
 package com.nnt.core
 
 import kotlinx.coroutines.*
+import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.Month
+
+class DateTimeRange(
+    var from: Timestamp = 0, // 开始
+    var to: Timestamp = 0, // 结束，比如小时 [0, 60)
+) {}
 
 suspend fun Sleep(seconds: Seconds) {
     delay((seconds * 1000).toLong())
@@ -142,7 +149,7 @@ class DateTime {
 
     // 未来
     fun future(ts: Long): DateTime {
-        timestamp += ts;
+        timestamp += ts
         return this
     }
 
@@ -152,7 +159,222 @@ class DateTime {
         return this
     }
 
-    var timestamp: Timestamp = 0
+    private var _changed = false
+    private var _date = InstanceDate()
+    private var _timestamp: Timestamp = 0
+
+    var timestamp: Timestamp
+        get() {
+            if (_changed) {
+                _timestamp = java.sql.Timestamp.valueOf(_date).time / 1000
+                _changed = false
+            }
+            return _timestamp
+        }
+        set(value) {
+            if (_timestamp == value)
+                return
+            _timestamp = value
+            _date = java.sql.Timestamp(value * 1000).toLocalDateTime()
+        }
+
+    var year: Int
+        get() {
+            return _date.year
+        }
+        set(value) {
+            _changed = true
+            _date = _date.withYear(value)
+        }
+
+    var hyear: Int
+        get() {
+            return year
+        }
+        set(value) {
+            year = value
+        }
+
+    var month: Int
+        get() {
+            return _date.month.value - 1
+        }
+        set(value) {
+            _changed = true
+            _date = _date.withMonth(value + 1)
+        }
+
+    var hmonth: Month
+        get() {
+            return _date.month
+        }
+        set(value) {
+            _changed = true
+            _date = _date.withMonth(value.value)
+        }
+
+    var day: Int
+        get() {
+            return _date.dayOfMonth - 1
+        }
+        set(value) {
+            _changed = true
+            _date = _date.withDayOfMonth(value + 1)
+        }
+
+    var hday: Int
+        get() {
+            return _date.dayOfMonth
+        }
+        set(value) {
+            _changed = true
+            _date = _date.withDayOfMonth(value)
+        }
+
+    var hour: Int
+        get() {
+            return _date.hour
+        }
+        set(value) {
+            _changed = true
+            _date = _date.withHour(value)
+        }
+
+    var minute: Int
+        get() {
+            return _date.minute
+        }
+        set(value) {
+            _changed = true
+            _date = _date.withMinute(value)
+        }
+
+    var second: Int
+        get() {
+            return _date.second
+        }
+        set(value) {
+            _changed = true
+            _date = _date.withSecond(value)
+        }
+
+    val weekday: Int
+        get() {
+            return _date.dayOfWeek.value - 1
+        }
+
+    val hweekday: DayOfWeek
+        get() {
+            return _date.dayOfWeek
+        }
+
+    /** 计算diff-year，根绝suffix的类型返回对应的类型 */
+    fun <T : Number> dyears(up: Boolean = true, suffix: T? = null): Long {
+        val v = Dyears(_timestamp, up)
+        return if (suffix != null) v + suffix.toLong() else v
+    }
+
+    fun dyears(up: Boolean = true, suffix: String): String {
+        val v = Dyears(_timestamp, up)
+        return if (v > 0) "$v$suffix" else ""
+    }
+
+    fun <T : Number> dmonths(up: Boolean = true, suffix: T? = null): Long {
+        val v = Dmonths(_timestamp, up)
+        return if (suffix != null) v + suffix.toLong() else v
+    }
+
+    fun dmonths(up: Boolean = true, suffix: String): String {
+        val v = Dmonths(_timestamp, up)
+        return if (v > 0) "$v$suffix" else ""
+    }
+
+    fun <T : Number> ddays(up: Boolean = true, suffix: T? = null): Long {
+        val v = Ddays(_timestamp, up)
+        return if (suffix != null) v + suffix.toLong() else v
+    }
+
+    fun ddays(up: Boolean = true, suffix: String): String {
+        val v = Ddays(_timestamp, up)
+        return if (v > 0) "$v$suffix" else ""
+    }
+
+    fun <T : Number> dhours(up: Boolean = true, suffix: T? = null): Long {
+        val v = Dhours(_timestamp, up)
+        return if (suffix != null) v + suffix.toLong() else v
+    }
+
+    fun dhours(up: Boolean = true, suffix: String): String {
+        val v = Dhours(_timestamp, up)
+        return if (v > 0) "$v$suffix" else ""
+    }
+
+    fun <T : Number> dminutes(up: Boolean = true, suffix: T? = null): Long {
+        val v = Dminutes(_timestamp, up)
+        return if (suffix != null) v + suffix.toLong() else v
+    }
+
+    fun dminutes(up: Boolean = true, suffix: String): String {
+        val v = Dminutes(_timestamp, up)
+        return if (v > 0) "$v$suffix" else ""
+    }
+
+    fun <T : Number> dseconds(up: Boolean = true, suffix: T? = null): Long {
+        val v = Dseconds(_timestamp, up)
+        return if (suffix != null) v + suffix.toLong() else v
+    }
+
+    fun dseconds(up: Boolean = true, suffix: String): String {
+        val v = Dseconds(_timestamp, up)
+        return if (v > 0) "$v$suffix" else ""
+    }
+
+    // 当前分钟的起始
+    fun minuteRange(): DateTimeRange {
+        val from = this.timestamp - this.second
+        return DateTimeRange(
+            from,
+            from + 60 - 1 // 整数算在下一刻
+        )
+    }
+
+    // 当前小时的起始
+    fun hourRange(): DateTimeRange {
+        val from = this.timestamp - this.minute * DateTime.MINUTE - this.second
+        return DateTimeRange(
+            from,
+            from + DateTime.HOUR - 1
+        )
+    }
+
+    // 一天的起始
+    fun dayRange(): DateTimeRange {
+        val from = this.timestamp - this.hour * DateTime.HOUR - this.minute * DateTime.MINUTE - this.second
+        return DateTimeRange(
+            from,
+            from + DateTime.DAY - 1
+        )
+    }
+
+    // 本周的起始
+    fun weekRange(): DateTimeRange {
+        val from =
+            this.timestamp - this.weekday * DateTime.DAY - this.hour * DateTime.HOUR - this.minute * DateTime.MINUTE - this.second
+        return DateTimeRange(
+            from,
+            from + DateTime.WEEK - 1
+        )
+    }
+
+    // 本月的起始
+    fun monthRange(): DateTimeRange {
+        val cur = LocalDateTime.of(_date.year, _date.month, 0, 0, 0, 0)
+        val next = cur.plusMonths(1)
+        return DateTimeRange(
+            java.sql.Timestamp.valueOf(cur).time,
+            java.sql.Timestamp.valueOf(next).time
+        )
+    }
 
     companion object {
 
@@ -184,6 +406,64 @@ class DateTime {
 
         fun Pass(): Timestamp {
             return DateTime.Current() - __time_started
+        }
+
+        fun Dyears(ts: Timestamp, up: Boolean = true): Long {
+            return Math.floorDiv(ts, YEAR)
+        }
+
+        fun Dmonths(ts: Timestamp, up: Boolean = true): Long {
+            var v = 0L
+            if (up) {
+                v = ts % YEAR
+                v = Math.floorDiv(v, MONTH)
+            } else {
+                v = Math.floorDiv(ts, MONTH)
+            }
+            return v
+        }
+
+        fun Ddays(ts: Timestamp, up: Boolean = true): Long {
+            var v = 0L
+            if (up) {
+                v = ts % MONTH
+                v = Math.floorDiv(v, DAY)
+            } else {
+                v = Math.floorDiv(ts, DAY)
+            }
+            return v
+        }
+
+        fun Dhours(ts: Timestamp, up: Boolean = true): Long {
+            var v = 0L
+            if (up) {
+                v = ts % DAY
+                v = Math.floorDiv(v, HOUR)
+            } else {
+                v = Math.floorDiv(ts, HOUR)
+            }
+            return v
+        }
+
+        fun Dminutes(ts: Timestamp, up: Boolean = true): Long {
+            var v = 0L
+            if (up) {
+                v = ts % HOUR
+                v = Math.floorDiv(v, MINUTE)
+            } else {
+                v = Math.floorDiv(ts, MINUTE)
+            }
+            return v
+        }
+
+        fun Dseconds(ts: Timestamp, up: Boolean = true): Long {
+            var v = 0L
+            if (up) {
+                v = ts % MINUTE
+            } else {
+                v = ts
+            }
+            return v
         }
     }
 }
