@@ -62,19 +62,19 @@ abstract class CronTask {
 // 普通任务
 private val tasks = mutableSetOf<CronTask>();
 
-// 生成配置
-fun PerSecond(v: Int = 1): String {
-    return "*/$v * * * * *";
-}
+// 生成配置 cron4j不支持秒级
+// fun PerSecond(v: Int = 1): String {
+//    return "*/$v * * * *";
+//}
 
 fun PerMinute(v: Int = 1): String {
-    return "00 */$v * * * *";
+    return "*/$v * * * *";
 }
 
 fun PerHour(v: Int = 1): String {
-    return "00 00 */$v * * *";
+    return "0 */$v * * *";
 }
 
 fun PerDay(v: Int = 1): String {
-    return "00 00 00 */$v * *";
+    return "0 0 */$v * *";
 }
