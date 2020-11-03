@@ -74,6 +74,7 @@ dependencies {
     // logic
     implementation("com.fasterxml.jackson.core:jackson-databind:2.10.0")
     implementation("com.ctrip.framework.apollo:apollo-client:1.7.0")
+    implementation("it.sauronsoftware.cron4j:cron4j:2.2.5")
 
     // http
     implementation("io.vertx:vertx-core:3.9.4")
