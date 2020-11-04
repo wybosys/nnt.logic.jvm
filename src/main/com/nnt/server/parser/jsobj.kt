@@ -36,8 +36,26 @@ class Jsobj : AbstractParser() {
         return STATUS.OK
     }
 
-    override fun decodeField(fp: FieldOption, value: Any?, input: Boolean, output: Boolean): Any {
-        TODO("Not yet implemented")
+    override fun decodeField(fp: FieldOption, _value: Any?, input: Boolean, output: Boolean): Any {
+        var value: Any? = _value
+        if (fp.valtype != null) {
+            if (fp.array) {
+                val arr = mutableListOf<Any?>()
+                if (_value != null) {
+                    if (_value is String) {
+                        value = _value.split(",")
+                    }
+                    when (fp.valtype) {
+                        String::class -> {
+                            (value as List<*>).forEach {
+                                arr.add(it?.toString())
+                            }
+                        }
+                    }
+                }
+                return arr
+            }
+        }
     }
 
     override fun fill(mdl: Any, params: Map<String, *>, input: Boolean, output: Boolean) {
