@@ -14,7 +14,7 @@ abstract class AbstractParser {
     abstract fun checkInput(proto: KClass<*>, params: Map<String, *>): STATUS
 
     // 根据属性定义解码数据
-    abstract fun decodeField(fp: FieldOption, value: Any?, input: Boolean, output: Boolean): Any
+    abstract fun decodeField(fp: FieldOption, value: Any?, input: Boolean, output: Boolean): Any?
 
     // 将数据从参数集写入模型
     abstract fun fill(mdl: Any, params: Map<String, *>, input: Boolean, output: Boolean)

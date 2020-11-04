@@ -54,7 +54,7 @@ interface FieldValidProc {
     var status: STATUS
 
     // 当返回false时，即为验证失败，此时上层可以通过获取status来返回特定的错误状态码
-    fun valid(inp: Any): Boolean
+    fun valid(inp: Any?): Boolean
 }
 
 class FieldOption {
@@ -84,8 +84,8 @@ class FieldOption {
     var intfloat: Int? = null
 
     // 关联类型
-    var keytype: Any? = null
-    var valtype: Any? = null
+    var keytype: KClass<*>? = null
+    var valtype: KClass<*>? = null
 
     var comment: String = ""; // 注释
 
