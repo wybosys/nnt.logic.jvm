@@ -57,5 +57,8 @@ class Test {
 
         str = toJson(listOf("a", 123, null))
         Assertions.assertEquals(str, """["a",123,null]""")
+
+        val om = toJsonObject(mapOf("a" to 1))!!
+        Assertions.assertEquals(om["a"].asInt(), 1)
     }
 }

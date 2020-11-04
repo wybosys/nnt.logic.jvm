@@ -17,6 +17,11 @@ fun toJsonObject(obj: Jsonobj?): Jsonobj? {
     return obj
 }
 
+fun toJsonObject(map: Map<*, *>): Jsonobj? {
+    val mapper = ObjectMapper()
+    return mapper.convertValue(map, JsonNode::class.java)
+}
+
 fun toJson(jobj: Jsonobj?): String {
     if (jobj == null)
         return ""

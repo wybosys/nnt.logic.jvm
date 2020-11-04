@@ -26,7 +26,7 @@ class Echoo {
     var map = mapOf<String, Int>()
 
     @array(6, Double::class, [com.nnt.core.output])
-    var array = arrayOf<Double>()
+    var array = listOf<Double>()
 
     @enumerate(7, EchoType::class, [com.nnt.core.output])
     var enm = EchoType.TEST

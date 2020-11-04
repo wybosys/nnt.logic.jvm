@@ -67,6 +67,9 @@ open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHt
         TODO("Not yet implemented")
     }
 
+    protected open fun instanceTransaction(): Transaction {
+        return EmptyTransaction()
+    }
 }
 
 private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() {
