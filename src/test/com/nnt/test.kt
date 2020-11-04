@@ -1,17 +1,43 @@
 package com.nnt
 
-import com.nnt.core.ByteUnit
-import com.nnt.core.toJson
-import com.nnt.core.toJsonObject
+import com.nnt.core.*
+import com.nnt.server.EmptyTransaction
+import com.nnt.server.Transaction
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
+@model()
 class A {
+
+    @integer(1, [input, output])
     var a = 0
+
+    @string(2, [input, output])
     var b = "abc"
+
+    @type(3, Null::class, [input, output])
     var c = null
+
+    @integer(4, [input])
     var d = 1
+
+    @double(5, [input, output])
     var e = 1.1
+}
+
+class RTest : IRouter {
+    override val action = "test"
+
+    override fun config(node: Jsonobj) {
+        // pass
+    }
+
+    @action(A::class)
+    suspend fun test(trans: Transaction) {
+        trans.submit()
+    }
 }
 
 class Test {
@@ -60,5 +86,17 @@ class Test {
 
         val om = toJsonObject(mapOf("a" to 1))!!
         Assertions.assertEquals(om["a"].asInt(), 1)
+    }
+
+    @Test
+    fun TestProto() = runBlocking {
+        // 测试模型填充
+        val trans = EmptyTransaction()
+        val router = RTest()
+
+        launch {
+            trans.modelize(router)
+            trans.collect()
+        }.join()
     }
 }

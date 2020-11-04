@@ -106,6 +106,18 @@ annotation class integer(
     val comment: String = "",
 )
 
+annotation class double(
+    val id: Int,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
+annotation class number(
+    val id: Int,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
 annotation class json(
     val id: Int,
     val options: Array<String>,
