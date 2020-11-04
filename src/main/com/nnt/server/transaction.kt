@@ -4,6 +4,8 @@ import com.nnt.core.DelayHandler
 import com.nnt.core.IRouter
 import com.nnt.core.STATUS
 import com.nnt.core.Seconds
+import com.nnt.server.parser.AbstractParser
+import com.nnt.server.render.AbstractRender
 import java.time.LocalDateTime
 
 const val RESPONSE_SID = "X-NntLogic-SessionId"
@@ -106,7 +108,7 @@ abstract class Transaction {
     var call: String = ""
 
     // 参数
-    val params = mutableMapOf<String, Any>()
+    val params = mutableMapOf<String, Any?>()
 
     // 执行的结果
     var status = STATUS.UNKNOWN
@@ -219,10 +221,10 @@ abstract class Transaction {
     var quiet: Boolean = false
 
     // 用来解析传入数据
-    var parser: Any? = null
+    lateinit var parser: AbstractParser
 
     // 用来构建输出
-    var render: Any? = null
+    lateinit var render: AbstractRender
 }
 
 class EmptyTransaction : Transaction() {

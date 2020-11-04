@@ -140,3 +140,11 @@ annotation class type(
     val options: Array<String>,
     val comment: String = "",
 )
+
+// 收集model的输出
+fun Output(mdl: Any?): MutableMap<String, Any?>? {
+    if (mdl == null)
+        return null
+
+    return null
+}
