@@ -1,6 +1,8 @@
 package com.nnt.core
 
+import com.nnt.manager.IsLocal
 import kotlin.reflect.KClass
+import kotlin.reflect.full.declaredMemberProperties
 
 // model的参数
 
@@ -70,7 +72,6 @@ class FieldOption {
     // 类型标签
     var array: Boolean = false
     var map: Boolean = false
-    var multimap: Boolean = false
     var string: Boolean = false
     var integer: Boolean = false
     var double: Boolean = false
@@ -152,6 +153,84 @@ annotation class type(
     val options: Array<String>,
     val comment: String = "",
 )
+
+typealias FieldOptionStore = MutableMap<KClass<*>, MutableMap<String, FieldOption>>
+
+private val fieldoptions: FieldOptionStore = mutableMapOf()
+
+fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
+    // 参见 FindAction
+    var fps = fieldoptions[proto]
+    if (fps != null)
+        return fps
+
+    if (!IsLocal())
+        return null
+
+    // 本地模式才动态构造
+    fps = mutableMapOf()
+    proto.declaredMemberProperties.forEach { prop ->
+        prop.annotations.forEach { ann ->
+            var fp: FieldOption? = null
+            when (ann) {
+                is string -> {
+                    fp = DefineField(ann.options, ann.comment)
+                    fp.string = true
+                }
+                is integer -> {
+                    fp = DefineField(ann.options, ann.comment)
+                    fp.integer = true
+                }
+                is double -> {
+                    fp = DefineField(ann.options, ann.comment)
+                    fp.double = true
+                }
+                is number -> {
+                    fp = DefineField(ann.options, ann.comment)
+                    fp.number = true
+                }
+                is json -> {
+                    fp = DefineField(ann.options, ann.comment)
+                    fp.json = true
+                }
+                is map -> {
+                    fp = DefineField(ann.options, ann.comment)
+                    fp.map = true
+                    fp.keytype = ann.keyType
+                    fp.valtype = ann.valueType
+                }
+                is array -> {
+                    fp = DefineField(ann.options, ann.comment)
+                    fp.array = true
+                    fp.valtype = ann.valueType
+                }
+                is enumerate -> {
+                    fp = DefineField(ann.options, ann.comment)
+                    fp.enum = true
+                    fp.valtype = ann.type
+                }
+                is type -> {
+                    fp = DefineField(ann.options, ann.comment)
+                    fp.valtype = ann.type
+                }
+            }
+            if (fp != null)
+                fps[prop.name] = fp
+        }
+    }
+
+    fieldoptions[proto] = fps
+    return fps
+}
+
+private fun DefineField(options: Array<String>, comment: String): FieldOption {
+    val r = FieldOption()
+    r.optional = optional in options
+    r.input = input in options
+    r.output = output in options
+    r.comment = comment
+    return r
+}
 
 // 收集model的输出
 fun Output(mdl: Any?): MutableMap<String, Any?>? {
