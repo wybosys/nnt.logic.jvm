@@ -136,3 +136,12 @@ fun FindAction(target: Any, key: String): ActionProto? {
 
     return aps[key]
 }
+
+fun GetAllActionNames(obj: Any): Set<String> {
+    val clz = obj.javaClass.kotlin
+    val aps = actions[clz]
+    if (aps != null) {
+        return aps.keys
+    }
+    return setOf()
+}
