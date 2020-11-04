@@ -1,5 +1,6 @@
 package com.nnt.core
 
+import com.nnt.manager.Config
 import com.nnt.manager.IsLocal
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberFunctions
@@ -100,7 +101,36 @@ fun FindAction(target: Any, key: String): ActionProto? {
                 }
             }
 
-            aps[fn.name] = ap
+            // 挨个判断是否可以定义
+            var pass = false
+            if (!pass && ap.debug) {
+                if (Config.DEBUG)
+                    pass = true
+            }
+            if (!pass && ap.develop) {
+                if (Config.DEVELOP)
+                    pass = true
+            }
+            if (!pass && ap.local) {
+                if (Config.LOCAL)
+                    pass = true
+            }
+            if (!pass && ap.devops) {
+                if (Config.DEVOPS)
+                    pass = true
+            }
+            if (!pass && ap.devopsdevelop) {
+                if (Config.DEVOPS_DEVELOP)
+                    pass = true
+            }
+            if (!pass && ap.devopsrelease) {
+                if (Config.DEVOPS_RELEASE)
+                    pass = true
+            }
+
+            // 测试通过，该action生效
+            if (pass)
+                aps[fn.name] = ap
         }
     }
 
