@@ -17,13 +17,13 @@ class A {
     @string(2, [input, output])
     var b = "abc"
 
-    @type(3, Null::class, [input, output])
+    @type(3, Null::class, [input, output, optional])
     var c = null
 
-    @integer(4, [input])
+    @integer(4, [input, optional])
     var d = 1
 
-    @double(5, [input, output])
+    @double(5, [input, output, optional])
     var e = 1.1
 }
 
@@ -92,6 +92,9 @@ class Test {
     fun TestProto() = runBlocking {
         // 测试模型填充
         val trans = EmptyTransaction()
+        trans.action = "test.test"
+        trans.params = mapOf("a" to 1, "b" to "cde")
+
         val router = RTest()
 
         launch {

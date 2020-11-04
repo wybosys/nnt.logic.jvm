@@ -153,6 +153,10 @@ annotation class type(
     val comment: String = "",
 )
 
+fun FindAction(target: Any, key: String): ActionProto? {
+    return null
+}
+
 // 收集model的输出
 fun Output(mdl: Any?): MutableMap<String, Any?>? {
     if (mdl == null)

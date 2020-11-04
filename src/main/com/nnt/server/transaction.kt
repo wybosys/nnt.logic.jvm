@@ -1,9 +1,6 @@
 package com.nnt.server
 
-import com.nnt.core.DelayHandler
-import com.nnt.core.IRouter
-import com.nnt.core.STATUS
-import com.nnt.core.Seconds
+import com.nnt.core.*
 import com.nnt.server.parser.AbstractParser
 import com.nnt.server.render.AbstractRender
 import java.time.LocalDateTime
@@ -108,7 +105,7 @@ abstract class Transaction {
     var call: String = ""
 
     // 参数
-    val params = mutableMapOf<String, Any?>()
+    var params = mapOf<String, Any?>()
 
     // 执行的结果
     var status = STATUS.UNKNOWN
@@ -136,6 +133,30 @@ abstract class Transaction {
 
     // 恢复到model, 返回错误码
     open fun modelize(r: IRouter): STATUS {
+        // 恢复模型
+        val ap = FindAction(r, this.call)
+        if (ap == null)
+            return STATUS.ACTION_NOT_FOUND;
+        expose = ap.expose
+
+        // 获得模型类
+        val clz = ap.clazz
+
+        // 检查输入参数
+        val sta = parser.checkInput(clz, params)
+        if (sta != STATUS.OK)
+            return sta
+
+        // 填入数据到模型
+        model = clz.constructors.first().call()
+        try {
+            parser.fill(model!!, params, true, false)
+        } catch (err: Throwable) {
+            model = null
+            logger.fatal(err.toString())
+            return STATUS.MODEL_ERROR
+        }
+
         return STATUS.OK
     }
 
@@ -152,16 +173,6 @@ abstract class Transaction {
 
     // 是否已经授权
     abstract fun auth(): Boolean
-
-    // 需要业务层实现对api的流控，避免同一个api瞬间调用多次，业务层通过重载lock/unlock实现
-    // lock当即将调用api时由其他逻辑调用
-    open suspend fun lock(): Boolean {
-        return true
-    }
-
-    open suspend fun unlock() {
-        // pass
-    }
 
     // 同步模式会自动提交，异步模式需要手动提交
     var implSubmit: (opt: TransactionSubmitOption?) -> Unit = {}

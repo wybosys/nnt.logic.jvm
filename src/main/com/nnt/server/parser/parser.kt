@@ -16,7 +16,7 @@ abstract class AbstractParser {
     abstract fun decodeField(fp: FieldOption, value: Any, input: Boolean, output: Boolean): Any
 
     // 将数据从参数集写入模型
-    abstract fun fill(mdl: Any, params: Any, input: Boolean, output: Boolean)
+    abstract fun fill(mdl: Any, params: Map<String, Any?>, input: Boolean, output: Boolean)
 
 }
 
