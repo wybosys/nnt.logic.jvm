@@ -13,7 +13,7 @@ class Jsobj : AbstractParser() {
         TODO("Not yet implemented")
     }
 
-    override fun fill(mdl: Any, params: Any, input: Boolean, output: Boolean) {
+    override fun fill(mdl: Any, params: Map<String, Any?>, input: Boolean, output: Boolean) {
         TODO("Not yet implemented")
     }
 

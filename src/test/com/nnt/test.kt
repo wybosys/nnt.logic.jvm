@@ -34,7 +34,7 @@ class RTest : IRouter {
         // pass
     }
 
-    @action(A::class)
+    @action(A::class, [expose], "测试")
     suspend fun test(trans: Transaction) {
         trans.submit()
     }
