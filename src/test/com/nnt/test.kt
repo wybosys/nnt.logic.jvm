@@ -87,6 +87,9 @@ class Test {
 
         val om = toJsonObject(mapOf("a" to 1))!!
         Assertions.assertEquals(om["a"]!!.asInteger(), 1)
+
+        val ol = toJsonObject(listOf(0, 1, 2, 3, 4))!!
+        Assertions.assertEquals(ol[1]!!.asInteger(), 1)
     }
 
     @Test

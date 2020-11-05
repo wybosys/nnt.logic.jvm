@@ -1,5 +1,6 @@
 package com.nnt.core
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 
@@ -8,6 +9,9 @@ typealias JsonArray = MutableList<Any?>
 typealias JsonInteger = Long
 typealias JsonReal = Double
 typealias JsonBoolean = Boolean
+
+class JsonMapType : TypeReference<JsonMap>() {}
+class JsonArrayType : TypeReference<JsonArray>() {}
 
 enum class JsonType {
     MAP,
@@ -142,6 +146,14 @@ class JsonObject {
     }
 
     protected fun from_list(lst: List<*>): JsonObject {
+        _arr = mutableListOf()
+        lst.forEach {
+            _arr!!.add(JsonObject().from_any(it))
+        }
+        return this
+    }
+
+    protected fun from_list(lst: Array<*>): JsonObject {
         _arr = mutableListOf()
         lst.forEach {
             _arr!!.add(JsonObject().from_any(it))
@@ -300,16 +312,16 @@ class JsonObject {
             val r = JsonObject()
             r._map = mutableMapOf()
 
-            val node = ObjectMapper().convertValue(pojo, Map::class.java)
-            node.forEach {
-                r._map!![it.key as Any] = JsonObject().from(it.value as JsonNode?)
+            val mp = ObjectMapper().convertValue(pojo, JsonMapType())
+            mp.forEach {
+                r._map!![it.key] = JsonObject().from_any(it.value)
             }
 
             return r
         }
 
         inline fun <reified T> Map(jsobj: JsonObject): T {
-            return ObjectMapper().convertValue(jsobj, T::class.java)
+            return ObjectMapper().convertValue(jsobj.flat(), T::class.java)
         }
 
         fun FromFlat(map: Map<*, *>?): JsonObject {
@@ -321,6 +333,14 @@ class JsonObject {
         }
 
         fun FromFlat(lst: List<*>?): JsonObject {
+            val r = JsonObject()
+            if (lst != null) {
+                r.from_list(lst)
+            }
+            return r
+        }
+
+        fun FromFlat(lst: Array<*>?): JsonObject {
             val r = JsonObject()
             if (lst != null) {
                 r.from_list(lst)
@@ -347,6 +367,8 @@ fun toJsonObject(v: Any?): JsonObject? {
         return JsonObject().from(v)
     if (v is List<*>)
         return JsonObject.FromFlat(v)
+    if (v is Array<*>)
+        return JsonObject.FromFlat(v)
     if (v is Map<*, *>)
         return JsonObject.FromFlat(v)
     return JsonObject.FromFlatAny(v)
@@ -358,6 +380,6 @@ fun toJson(v: Any?): String {
     if (v is String)
         return v
     if (v is JsonObject)
-        return (v as JsonObject).toString()
+        return v.toString()
     return ObjectMapper().writeValueAsString(v)
 }
