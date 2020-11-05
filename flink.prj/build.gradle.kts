@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     java
     idea
@@ -8,6 +10,7 @@ plugins {
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 group = "com.nnt"
@@ -27,6 +30,12 @@ buildscript {
 repositories {
     maven("https://maven.aliyun.com/repository/central")
     maven("https://maven.aliyun.com/repository/apache-snapshots")
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 sourceSets {
@@ -64,6 +73,11 @@ dependencies {
     // logic
     implementation("com.fasterxml.jackson.core:jackson-databind:2.10.0")
     implementation("com.ctrip.framework.apollo:apollo-client:1.7.0")
+    implementation("it.sauronsoftware.cron4j:cron4j:2.2.5")
+
+    // http
+    compileOnly("io.vertx:vertx-core:3.9.4")
+    compileOnly("io.vertx:vertx-web:3.9.4")
 
     // db
     implementation("org.mybatis:mybatis:3.5.5")

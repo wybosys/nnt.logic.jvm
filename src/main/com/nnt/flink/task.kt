@@ -1,6 +1,6 @@
 package com.nnt.flink
 
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import com.nnt.manager.App
 import com.nnt.task.Task
@@ -10,16 +10,16 @@ open class Task : Task() {
 
     val subtasks = mutableListOf<SubTask>()
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
         if (cfg.has("subtask")) {
-            for (e in cfg["subtask"]) {
-                val t = App.shared.instanceEntry(e.asText())
+            for (e in cfg["subtask"]!!.asArray()) {
+                val t = App.shared.instanceEntry(e.asString())
                 if (t is SubTask) {
                     subtasks.add(t)
                 } else {
-                    logger.fatal("${id}@task 设置的 ${e.asText()} 没有继承于 SubTask")
+                    logger.fatal("${id}@task 设置的 ${e.asString()} 没有继承于 SubTask")
                     return false
                 }
             }
