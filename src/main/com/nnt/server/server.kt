@@ -1,7 +1,7 @@
 package com.nnt.server
 
+import com.nnt.acl.AcEntity
 import com.nnt.core.JsonObject
-import java.util.*
 
 abstract class AbstractServer {
 
@@ -39,6 +39,6 @@ interface IConsoleServer {
     // @params 调用参数
     // @req 请求对象
     // @rsp 响应对象
-    fun invoke(params: Properties, req: Any, rsp: Any)
+    fun invoke(params: Map<String, Any?>, req: Any, rsp: Any, ac: AcEntity? = null)
 
 }

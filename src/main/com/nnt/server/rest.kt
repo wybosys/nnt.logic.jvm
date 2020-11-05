@@ -1,28 +1,36 @@
 package com.nnt.server
 
-import com.nnt.core.IRouter
-import com.nnt.core.JsonObject
-import com.nnt.core.Seconds
-import com.nnt.core.logger
+import com.nnt.acl.AcEntity
+import com.nnt.core.*
 import com.nnt.manager.App
 import com.nnt.manager.Config
+import com.nnt.server.parser.FindParser
+import com.nnt.server.render.FindRender
 import com.nnt.server.rest.ParseContentToParams
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerOptions
+import io.vertx.core.http.HttpServerRequest
+import io.vertx.core.http.HttpServerResponse
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.util.*
 
 open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHttpServer {
 
     var listen: String = ""
     var port: Int = 80
     var timeout: Seconds = 0.0
+
+    override var imgsrv: String = ""
+    override var mediasrv: String = ""
+
+    override fun httpserver(): Any {
+        return _svc
+    }
 
     override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
@@ -98,21 +106,112 @@ open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHt
     override val routers: Routers = _routers
 
     // 处理请求
-    override fun invoke(params: Properties, req: Any, rsp: Any) {
-        TODO("Not yet implemented")
+    override fun invoke(params: Map<String, Any?>, req: Any, rsp: Any, ac: AcEntity?) {
+        GlobalScope.launch {
+            processInvoke(params, req as HttpServerRequest, rsp as HttpServerResponse, ac)
+        }
     }
 
+    protected suspend fun processInvoke(
+        params: Map<String, Any?>,
+        req: HttpServerRequest,
+        rsp: HttpServerResponse,
+        ac: AcEntity?,
+    ) {
+        val action = params["$$"] ?: params["action"]
+        if (action == null) {
+            rsp.statusCode = 400
+            rsp.end()
+            return
+        }
 
-    override var imgsrv: String = ""
-    override var mediasrv: String = ""
+        val t = instanceTransaction()
+        try {
+            t.ace = ac
+            t.server = this
+            t.action = action as String
+            t.params = params
 
-    override fun httpserver(): Any {
-        return _svc
+            // 整理数据
+            if (params.contains("_agent"))
+                t.info.ua = ava(params["_agent"], "unknown")
+            else
+                t.info.ua = req.getHeader("user-agent") ?: "unknown"
+            t.info.agent = t.info.ua.toLowerCase()
+            t.info.host = ava(req.getHeader("host"), "unknown")
+            t.info.origin = ava(req.getHeader("origin"), "unknown")
+            t.info.referer = ava(req.getHeader("referer"), "unknown")
+            t.info.path = req.path()
+
+            val h = req.getHeader("accept-encoding")
+            if (h != null)
+                t.gzip = h.indexOf("gzip") != -1
+
+            // 获取客户端真实ip
+            if (t.info.addr.isEmpty())
+                t.info.addr = ava(req.getHeader("http_x_forwarded_for"), "")
+            if (t.info.addr.isEmpty())
+                t.info.addr = ava(req.getHeader("x-forwarded-for"), "")
+            if (t.info.addr.isEmpty())
+                t.info.addr = req.remoteAddress().host()
+
+            // 绑定解析器
+            t.parser = FindParser(params["_pfmt"] as String?)
+            t.render = FindRender(params["_rfmt"] as String?)
+
+            // 处理调用
+            onBeforeInvoke(t)
+            doInvoke(t, params, req, rsp, ac)
+            onAfterInvoke(t)
+
+        } catch (err: Throwable) {
+            logger.exception(err.localizedMessage)
+            t.status = STATUS.EXCEPTION
+            t.submit()
+        }
+    }
+
+    protected fun onBeforeInvoke(trans: Transaction) {
+        // pass
+    }
+
+    protected fun onAfterInvoke(trans: Transaction) {
+        // pass
+    }
+
+    protected suspend fun doInvoke(
+        t: Transaction,
+        params: Map<String, Any?>,
+        req: HttpServerRequest,
+        rsp: HttpServerResponse,
+        ac: AcEntity?,
+    ) {
+        // 绑定处理
+        val pl = VerticlePayload()
+        pl.req = req
+        pl.rsp = rsp
+        t.payload = pl
+
+        // 绑定输出
+        t.implSubmit = { trans, opt ->
+            VerticleSubmit(trans, opt)
+        }
+        t.implOutput = { trans, type, obj ->
+            VerticleOutput(trans, type, obj)
+        }
+
+        // 执行
+        _routers.process(t)
     }
 
     protected open fun instanceTransaction(): Transaction {
         return EmptyTransaction()
     }
+}
+
+private class VerticlePayload {
+    lateinit var req: HttpServerRequest
+    lateinit var rsp: HttpServerResponse
 }
 
 private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() {
@@ -235,6 +334,17 @@ private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() 
                 params[it.name()] = it
             }
         }
+
+        // 启动处理
+        rest.invoke(params, req, rsp)
     }
+
+}
+
+fun VerticleSubmit(trans: Transaction, opt: TransactionSubmitOption?): Unit {
+
+}
+
+fun VerticleOutput(trans: Transaction, type: String, obj: Any): Unit {
 
 }

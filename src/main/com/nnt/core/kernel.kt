@@ -57,4 +57,10 @@ fun asString(o: Any?, def: String = ""): String {
 fun <T> use(o: T, proc: (self: T) -> Unit): T {
     proc(o)
     return o
-} 
+}
+
+inline fun <reified T> ava(o: Any?, r: T): T {
+    if (o == null || o !is T)
+        return r
+    return o
+}

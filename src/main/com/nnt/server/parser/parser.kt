@@ -31,6 +31,6 @@ fun RegisterParser(name: String, parser: AbstractParser) {
     parsers[name] = parser
 }
 
-fun FindParser(name: String): AbstractParser {
+fun FindParser(name: String?): AbstractParser {
     return parsers[name] ?: parsers["jsobj"]!!
 }

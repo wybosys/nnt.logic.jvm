@@ -25,6 +25,6 @@ fun RegisterRender(name: String, render: AbstractRender) {
     renders[name] = render
 }
 
-fun FindRender(name: String): AbstractRender {
+fun FindRender(name: String?): AbstractRender {
     return renders[name] ?: renders["json"]!!
 }

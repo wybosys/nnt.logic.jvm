@@ -90,6 +90,9 @@ abstract class Transaction {
     // 执行权限
     var ace: AcEntity? = null
 
+    // 额外附加数据
+    var payload: Any? = null
+
     // 动作
     private var _action: String = ""
     var action: String
@@ -182,7 +185,7 @@ abstract class Transaction {
     abstract fun auth(): Boolean
 
     // 同步模式会自动提交，异步模式需要手动提交
-    var implSubmit: (opt: TransactionSubmitOption?) -> Unit = {}
+    var implSubmit: (trans: Transaction, opt: TransactionSubmitOption?) -> Unit = { trans, opt -> }
 
     private var _submited: Boolean = false
     private var _submited_timeout: Boolean = false
@@ -207,14 +210,14 @@ abstract class Transaction {
                 logger.exception(err.localizedMessage)
             }
         }
-        implSubmit(opt)
+        implSubmit(this, opt)
     }
 
     // 当提交的时候修改
     var hookSubmit: (suspend () -> Unit)? = null
 
     // 输出文件
-    var implOutput: (type: String, obj: Any) -> Unit = { type, obj -> }
+    var implOutput: (trans: Transaction, type: String, obj: Any) -> Unit = { trans, type, obj -> }
     private var _outputed: Boolean = false
 
     open fun output(type: String, obj: Any) {
@@ -228,7 +231,7 @@ abstract class Transaction {
         }
         _outputed = true
         _submited = true
-        implOutput(type, obj)
+        implOutput(this, type, obj)
     }
 
     protected open fun waitTimeout() {
