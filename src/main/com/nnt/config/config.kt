@@ -1,6 +1,6 @@
 package com.nnt.config
 
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import com.nnt.manager.App
 import com.nnt.manager.Config
@@ -18,14 +18,14 @@ class Attribute {
     }
 }
 
-fun NodeIsEnable(node: Jsonobj): Boolean {
+fun NodeIsEnable(node: JsonObject): Boolean {
     if (node["enable"] == null)
         return true
-    if (!node["enable"].isTextual) {
+    if (!node["enable"]!!.isString()) {
         logger.warn("enable节点数据类型不是string")
         return false
     }
-    val conds = node["enable"].asText().split(",")
+    val conds = node["enable"]!!.asString().split(",")
     // 找到一个满足的即为满足
     val fnd = conds.firstOrNull() { e: String ->
         if (e.isEmpty())

@@ -17,7 +17,7 @@ class RestUpdate {
     var heartbeatTime: Int = 3
 
     @json(2, [output])
-    var models: Jsonobj? = null
+    var models: JsonObject? = null
 }
 
 // 具有顺序性的分页基类模型

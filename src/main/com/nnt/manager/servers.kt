@@ -1,7 +1,7 @@
 package com.nnt.manager
 
 import com.nnt.config.NodeIsEnable
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import com.nnt.server.AbstractServer
 
@@ -11,7 +11,7 @@ class Servers {
 
         private val _servers = mutableMapOf<String, AbstractServer>()
 
-        fun Start(cfg: Jsonobj) {
+        fun Start(cfg: JsonObject) {
             if (!cfg.isArray) {
                 logger.fatal("server的配置不是数组")
                 return

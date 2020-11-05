@@ -30,7 +30,7 @@ class A {
 class RTest : IRouter {
     override val action = "test"
 
-    override fun config(node: Jsonobj) {
+    override fun config(node: JsonObject) {
         // pass
     }
 
@@ -68,24 +68,27 @@ class Test {
     @Test
     fun Test1() {
         val jsonstr = """{"a":1,"b":null}"""
-        val t = toJsonObject(jsonstr)!!
-        Assertions.assertTrue(t["a"].asInt() == 1)
-        Assertions.assertTrue(t["b"].isNull)
+        val t = toJsonObject(jsonstr)
+        Assertions.assertTrue(t["a"]!!.asInteger() == 1L)
+        Assertions.assertTrue(t["b"]!!.isNull)
         Assertions.assertEquals(toJson(t), jsonstr)
 
-        var str = toJson(A())
+        var jsobj = JsonObject.UnMap(A())
+        var str = jsobj.toString()
         Assertions.assertEquals(str, """{"a":0,"b":"abc","d":1,"e":1.1}""")
-        var obja = toJsonObject(str, A::class.java)
+        var obja = JsonObject.Map<A>(jsobj)
         Assertions.assertTrue(obja.e == 1.1)
 
-        str = toJson(mapOf("a" to 123, "b" to null))
-        Assertions.assertEquals(str, """{"a":123,"b":null}""")
+        //str = toJson(mapOf("a" to 123, "b" to null))
+        //Assertions.assertEquals(str, """{"a":123,"b":null}""")
 
-        str = toJson(listOf("a", 123, null))
-        Assertions.assertEquals(str, """["a",123,null]""")
+        //str = toJson(listOf("a", 123, null))
+        //Assertions.assertEquals(str, """["a",123,null]""")
 
-        val om = toJsonObject(mapOf("a" to 1))!!
-        Assertions.assertEquals(om["a"].asInt(), 1)
+        //val om = toJsonObject(mapOf("a" to 1))!!
+        //Assertions.assertEquals(om["a"].asInt(), 1)
+
+        //val od = toJsonMap("""{"a":{"b":{"c":123}}}""")
     }
 
     @Test

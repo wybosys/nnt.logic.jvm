@@ -4,7 +4,7 @@ import com.ctrip.framework.apollo.Config
 import com.ctrip.framework.apollo.ConfigChangeListener
 import com.ctrip.framework.apollo.ConfigService
 import com.ctrip.framework.apollo.model.ConfigChangeEvent
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.toJsonObject
 import com.nnt.signals.Object
 import com.nnt.signals.kSignalChanged
@@ -35,25 +35,25 @@ object Apollo : Object() {
     }
 
     private var key: String = ""
-    private var _val: Jsonobj? = null
+    private var _val: JsonObject? = null
 
-    fun config(cfg: Jsonobj): Boolean {
+    fun config(cfg: JsonObject): Boolean {
         if (!cfg.has("host"))
             return false
-        System.setProperty("apollo.configService", cfg["host"].asText())
+        System.setProperty("apollo.configService", cfg["host"]!!.asString())
         if (!cfg.has("appid"))
             return false
-        System.setProperty("app.id", cfg["appid"].asText())
+        System.setProperty("app.id", cfg["appid"]!!.asString())
         if (!cfg.has("key"))
             return false
-        key = cfg["key"].asText()
+        key = cfg["key"]!!.asString()
         val txt = _svc.getProperty(key, "")
         _val = toJsonObject(txt)
         _enabled = true
         return true
     }
 
-    fun value(): Jsonobj? {
+    fun value(): JsonObject? {
         return _val
     }
 }

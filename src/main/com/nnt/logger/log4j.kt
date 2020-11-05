@@ -12,7 +12,7 @@ class Log4j : AbstractLogger() {
     var pattern = "[%d{dd/MM/yy hh:mm:ss:sss z}{TIMEZONE}] %p: %m%n"
     private lateinit var _logger: Logger
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
 
@@ -20,19 +20,19 @@ class Log4j : AbstractLogger() {
             println("${id} 没有配置日志名称")
             return false
         }
-        name = cfg["name"].asText()
+        name = cfg["name"]!!.asString()
 
         if (!cfg.has("dir")) {
             println("${id} 没有配置日志保存的目录")
             return false
         }
-        dir = URI(cfg["dir"].asText())
+        dir = URI(cfg["dir"]!!.asString())
         if (!File(dir).exists()) {
             File(dir).mkdirs()
         }
 
         if (cfg.has("pattern")) {
-            pattern = cfg["pattern"].asText()
+            pattern = cfg["pattern"]!!.asString()
         }
         pattern = pattern.replace("{TIMEZONE}", "{${Config.TIMEZONE}}")
 
@@ -43,17 +43,17 @@ class Log4j : AbstractLogger() {
             return false
         }
 
-        val nroll = cfg["roll"]
+        val nroll = cfg["roll"]!!
         if (nroll.has("size")) {
-            val n = nroll["size"]
-            if (n.isNumber()) {
-                size.bytes = n.asLong()
+            val n = nroll["size"]!!
+            if (n.isInteger()) {
+                size.bytes = n.asInteger()
             } else {
-                size.fromstr(n.asText())
+                size.fromstr(n.asString())
             }
         }
         if (nroll.has("daily")) {
-            daily = nroll["daily"].asBoolean()
+            daily = nroll["daily"]!!.asBoolean()
         }
         if (size.bytes == 0L && !daily) {
             println("${id} roll参数配置失败")

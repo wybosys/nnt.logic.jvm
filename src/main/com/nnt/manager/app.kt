@@ -18,16 +18,16 @@ open class App {
     fun start() {
         val cfg = App.CurrentConfig!!
         if (cfg.has("logger")) {
-            Loggers.Start(cfg["logger"])
+            Loggers.Start(cfg["logger"]!!)
         }
         if (cfg.has("dbms")) {
-            Dbms.Start(cfg["dbms"])
+            Dbms.Start(cfg["dbms"]!!)
         }
         if (cfg.has("server")) {
-            Servers.Start(cfg["server"])
+            Servers.Start(cfg["server"]!!)
         }
         if (cfg.has("task")) {
-            Tasks.Start(cfg["task"])
+            Tasks.Start(cfg["task"]!!)
         }
     }
 
@@ -74,10 +74,10 @@ open class App {
         val shared get() = _shared!!
 
         // 当前app的配置参数
-        var CurrentConfig: Jsonobj? = null
+        var CurrentConfig: JsonObject? = null
 
         // 加载程序配置
-        fun LoadConfig(appcfg: URI, devcfg: URI): Jsonobj? {
+        fun LoadConfig(appcfg: URI, devcfg: URI): JsonObject? {
             // 读取配置信息
             if (!File(appcfg).exists()) {
                 println("读取配置文件失败 ${appcfg}");
@@ -131,9 +131,9 @@ open class App {
             CurrentConfig = cfg
 
             // 读取系统配置
-            val c = cfg!!["config"]!!
+            val c = cfg["config"]!!
             if (c.has("cache")) {
-                Config.CACHE = URI(c["cache"].asText()!!)
+                Config.CACHE = URI(c["cache"]!!.asString())
             }
 
             if (!File(Config.CACHE).exists()) {
@@ -142,11 +142,12 @@ open class App {
 
             // 如果使用apollo，则从对应服务读取
             if (c.has("apollo")) {
-                if (!Apollo.config(c["apollo"])) {
+                if (!Apollo.config(c["apollo"]!!)) {
                     logger.error("apollo配置失败")
                     return null
                 }
-                Merge(CurrentConfig!!, Apollo.value())
+
+                CurrentConfig!!.merge(Apollo.value())
             }
 
             return cfg
