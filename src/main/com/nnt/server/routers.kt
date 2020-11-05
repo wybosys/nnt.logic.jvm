@@ -2,6 +2,7 @@ package com.nnt.server
 
 import com.nnt.core.*
 import com.nnt.session.ModelError
+import kotlin.reflect.full.callSuspend
 
 interface IRouterable {
 
@@ -100,7 +101,10 @@ open class Routers {
         // 不论同步或者异步模式，默认认为是成功的，业务逻辑如果出错则再次设置status为对应的错误码        
         trans.status = STATUS.OK
         try {
-            ap.func.call(r, trans)
+            if (ap.func.isSuspend)
+                ap.func.callSuspend(r, trans)
+            else
+                ap.func.call(r, trans)
         } catch (err: Throwable) {
             if (err is ModelError)
                 trans.status = TO_STATUS(err.code)

@@ -93,7 +93,7 @@ class Test {
         Assertions.assertTrue(t["b"]!!.isNull)
         Assertions.assertEquals(toJson(t), jsonstr)
 
-        var jsobj = JsonObject.UnMap(B())
+        var jsobj = JsonObject.UnMap(A())
         var str = jsobj.toString()
         Assertions.assertEquals(str, """{"a":0,"b":"abc","d":1,"e":1.1}""")
         var obja = JsonObject.Map<A>(jsobj)
