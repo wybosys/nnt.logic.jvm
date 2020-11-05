@@ -90,7 +90,7 @@ open class App {
             }
 
             // 通过配置文件启动服务
-            val cfg = toJsonObject(File(appcfg).readText())
+            val cfg = toJsonObject(File(appcfg).readText())!!
 
             // 处理输入参数
             Config.DEBUG = args.indexOf("--debug") != -1

@@ -64,7 +64,7 @@ class Jsobj : AbstractParser() {
                         }
                     } else {
                         if (value is String)
-                            value = toJsonObject(value)
+                            value = toJsonObject(value)!!.flat()
                         if (value != null) {
                             if (value is Array<*>) {
                                 val clz = fp.valtype!!
@@ -122,7 +122,7 @@ class Jsobj : AbstractParser() {
                 return toInteger(value)
             } else {
                 if (fp.valtype == String::class) {
-                    // value = toJsonObject(value)
+                    value = toJsonObject(value)!!.flat()
                 }
                 if (fp.valtype == Any::class)
                     return value

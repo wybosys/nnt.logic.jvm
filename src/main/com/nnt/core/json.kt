@@ -327,35 +327,37 @@ class JsonObject {
             }
             return r
         }
+
+        fun FromFlatAny(v: Any?): JsonObject {
+            val r = JsonObject()
+            if (v != null) {
+                r.from_any(v)
+            }
+            return r
+        }
     }
 }
 
-fun toJsonObject(str: String?): JsonObject {
-    return JsonObject().from(str)
+fun toJsonObject(v: Any?): JsonObject? {
+    if (v == null)
+        return null
+    if (v is JsonObject)
+        return v
+    if (v is String)
+        return JsonObject().from(v)
+    if (v is List<*>)
+        return JsonObject.FromFlat(v)
+    if (v is Map<*, *>)
+        return JsonObject.FromFlat(v)
+    return JsonObject.FromFlatAny(v)
 }
 
-fun toJsonObject(obj: JsonObject?): JsonObject? {
-    return obj
-}
-
-fun toJsonObject(map: Map<*, *>?): JsonObject {
-    return JsonObject.FromFlat(map)
-}
-
-fun toJson(jobj: JsonObject?): String {
-    if (jobj == null)
+fun toJson(v: Any?): String {
+    if (v == null)
         return ""
-    return jobj.toString()
-}
-
-fun toJson(str: String): String {
-    return str
-}
-
-fun toJson(map: Map<*, *>): String {
-    return ObjectMapper().writeValueAsString(map)
-}
-
-fun toJson(lst: List<*>): String {
-    return ObjectMapper().writeValueAsString(lst)
+    if (v is String)
+        return v
+    if (v is JsonObject)
+        return (v as JsonObject).toString()
+    return ObjectMapper().writeValueAsString(v)
 }
