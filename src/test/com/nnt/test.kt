@@ -9,7 +9,11 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 @model()
-class A {
+open class A {
+
+    init {
+        proc()
+    }
 
     @integer(1, [input, output])
     var a = 0
@@ -25,6 +29,16 @@ class A {
 
     @double(5, [input, output, optional])
     var e = 1.1
+
+    open fun proc() {
+        println("A")
+    }
+}
+
+class B : A() {
+    override fun proc() {
+        println("B")
+    }
 }
 
 class RTest : IRouter {
@@ -73,7 +87,7 @@ class Test {
         Assertions.assertTrue(t["b"]!!.isNull)
         Assertions.assertEquals(toJson(t), jsonstr)
 
-        var jsobj = JsonObject.UnMap(A())
+        var jsobj = JsonObject.UnMap(B())
         var str = jsobj.toString()
         Assertions.assertEquals(str, """{"a":0,"b":"abc","d":1,"e":1.1}""")
         var obja = JsonObject.Map<A>(jsobj)
@@ -100,10 +114,11 @@ class Test {
         trans.params = mapOf("a" to 1, "b" to "cde")
         trans.parser = com.nnt.server.parser.Jsobj()
         trans.render = com.nnt.server.render.Json()
-        
+
         val router = RTest()
 
         launch {
+            trans.begin()
             trans.modelize(router)
             trans.collect()
         }.join()

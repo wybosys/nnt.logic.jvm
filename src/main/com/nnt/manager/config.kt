@@ -1,5 +1,6 @@
 package com.nnt.manager
 
+import com.nnt.core.Seconds
 import com.nnt.core.URI
 
 class Config {
@@ -40,7 +41,7 @@ class Config {
         var MODEL_FIELDS_MAX = 100
 
         // transaction超时时间
-        var TRANSACTION_TIMEOUT = 20
+        var TRANSACTION_TIMEOUT: Seconds = 20f
 
         // 是否允许客户端访问
         var CLIENT_ALLOW = false

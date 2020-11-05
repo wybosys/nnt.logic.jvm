@@ -1,8 +1,11 @@
 package com.nnt.server
 
 import com.nnt.core.*
+import com.nnt.manager.Config
 import com.nnt.server.parser.AbstractParser
 import com.nnt.server.render.AbstractRender
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 const val RESPONSE_SID = "X-NntLogic-SessionId"
@@ -65,7 +68,8 @@ class TransactionSubmitOption {
 
 abstract class Transaction {
 
-    init {
+    // 开始处理流程
+    open fun begin() {
         waitTimeout()
     }
 
@@ -192,24 +196,37 @@ abstract class Transaction {
     private var _outputed: Boolean = false
 
     open fun output(type: String, obj: Any) {
-
     }
 
     protected open fun waitTimeout() {
-
+        _timeout = Delay(Config.TRANSACTION_TIMEOUT) {
+            _cbTimeout()
+        }
     }
 
     // 部分api本来时间就很长，所以存在自定义timeout的需求
     fun timeout(seconds: Seconds) {
-
+        if (_timeout != null) {
+            CancelDelay(_timeout!!)
+            _timeout = null
+        }
+        if (seconds <= 0)
+            return
+        _timeout = Delay(seconds) {
+            _cbTimeout()
+        }
     }
 
     private fun _cbTimeout() {
-
+        logger.warn("$action 超时")
+        status = STATUS.TIMEOUT
+        GlobalScope.launch {
+            submit()
+        }
     }
 
     // 超时定时器
-    private lateinit var _timeout: DelayHandler
+    private var _timeout: DelayHandler? = null
 
     // 运行在console中
     var console: Boolean = false
