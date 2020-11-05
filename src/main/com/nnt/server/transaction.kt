@@ -1,5 +1,6 @@
 package com.nnt.server
 
+import com.nnt.acl.AcEntity
 import com.nnt.core.*
 import com.nnt.manager.Config
 import com.nnt.server.parser.AbstractParser
@@ -86,6 +87,9 @@ abstract class Transaction {
         return params["_noc"] == "1"
     }
 
+    // 执行权限
+    var ace: AcEntity? = null
+
     // 动作
     private var _action: String = ""
     var action: String
@@ -171,8 +175,7 @@ abstract class Transaction {
 
     // 验证
     open fun needAuth(): Boolean {
-        // return IsNeedAuth(model)
-        return true
+        return IsNeedAuth(model)
     }
 
     // 是否已经授权

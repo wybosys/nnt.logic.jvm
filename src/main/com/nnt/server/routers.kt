@@ -1,14 +1,14 @@
 package com.nnt.server
 
-import com.nnt.core.IRouter
-import com.nnt.core.logger
+import com.nnt.core.*
+import com.nnt.session.ModelError
 
 interface IRouterable {
 
     val routers: Routers
 }
 
-class Routers {
+open class Routers {
 
     protected val _routers = mutableMapOf<String, IRouter>()
 
@@ -44,6 +44,75 @@ class Routers {
     }
 
     suspend fun process(trans: Transaction) {
+        val ac = trans.ace
 
+        // 开始事务处理流程
+        trans.begin()
+
+        // 查找router
+        val r = _routers[trans.router]
+        if (r == null) {
+            trans.status = STATUS.ROUTER_NOT_FOUND
+            trans.submit()
+            return
+        }
+
+        // 模型化
+        val sta = trans.modelize(r)
+        if (sta != STATUS.OK) {
+            trans.status = sta
+            trans.submit()
+            return
+        }
+
+        // 恢复数据上下文
+        trans.collect()
+
+        // 检查是否需要验证
+        if (ac != null && ac.ignore) {
+            // 不做权限判断
+        } else if (!trans.expose) {
+            // 访问权限判断
+            if (trans.needAuth()) {
+                if (!trans.auth()) {
+                    trans.status = STATUS.NEED_AUTH
+                    trans.submit()
+                    return
+                }
+            } else {
+                // 检查devops
+                if (!devopscheck(trans)) {
+                    trans.status = STATUS.PERMISSION_FAILED
+                    trans.submit()
+                    return
+                }
+            }
+        }
+
+        // 调用处理
+        val ap = FindAction(r, trans.call)
+        if (ap == null) {
+            trans.status = STATUS.ACTION_NOT_FOUND
+            trans.submit()
+            return
+        }
+
+        // 不论同步或者异步模式，默认认为是成功的，业务逻辑如果出错则再次设置status为对应的错误码        
+        trans.status = STATUS.OK
+        try {
+            ap.func.call(r, trans)
+        } catch (err: Throwable) {
+            if (err is ModelError)
+                trans.status = TO_STATUS(err.code)
+            else
+                trans.status = STATUS.EXCEPTION
+            trans.message = err.message
+            trans.submit()
+        }
+    }
+
+    // devops下的权限判断
+    protected open suspend fun devopscheck(trans: Transaction): Boolean {
+        return true
     }
 }

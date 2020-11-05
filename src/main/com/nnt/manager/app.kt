@@ -62,6 +62,7 @@ open class App {
         init {
             // 运行各模块初始化函数
             com.nnt.core.Init()
+            com.nnt.acl.Init()
             com.nnt.server.Init()
         }
 

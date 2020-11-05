@@ -53,3 +53,8 @@ fun asString(o: Any?, def: String = ""): String {
         return o
     return o.toString()
 }
+
+fun <T> use(o: T, proc: (self: T) -> Unit): T {
+    proc(o)
+    return o
+} 

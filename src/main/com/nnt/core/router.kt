@@ -3,6 +3,7 @@ package com.nnt.core
 import com.nnt.manager.Config
 import com.nnt.manager.IsLocal
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.full.declaredMemberFunctions
 
 interface IRouter {
@@ -51,6 +52,9 @@ class ActionProto {
 
     // 暴露接口
     var expose: Boolean = false
+
+    // 对应的函数对象
+    lateinit var func: KFunction<*>
 }
 
 annotation class action(val modelType: KClass<*>, val options: Array<String> = [], val comment: String = "")
@@ -89,6 +93,8 @@ fun FindAction(target: Any, key: String): ActionProto? {
             val ap = ActionProto()
             ap.clazz = ann.modelType
             ap.comment = ann.comment
+            ap.func = fn
+
             ann.options.forEach {
                 when (it) {
                     debug -> ap.debug = true

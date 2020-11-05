@@ -2,6 +2,7 @@ package com.nnt
 
 import com.nnt.core.*
 import com.nnt.server.EmptyTransaction
+import com.nnt.server.Routers
 import com.nnt.server.Transaction
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -35,7 +36,12 @@ open class A {
     }
 }
 
+@model([], A::class)
 class B : A() {
+
+    @integer(1, [input, output])
+    var ba = 0
+
     override fun proc() {
         println("B")
     }
@@ -115,12 +121,11 @@ class Test {
         trans.parser = com.nnt.server.parser.Jsobj()
         trans.render = com.nnt.server.render.Json()
 
-        val router = RTest()
+        val routers = Routers()
+        routers.register(RTest())
 
         launch {
-            trans.begin()
-            trans.modelize(router)
-            trans.collect()
+            routers.process(trans)
         }.join()
     }
 }

@@ -45,7 +45,7 @@ class ModelOption {
     var hidden: Boolean = false
 
     // 父类，目前用来生成api里面的父类名称
-    var parent: Any? = null
+    var parent: KClass<*>? = null
 
 }
 
@@ -96,7 +96,55 @@ class FieldOption {
     lateinit var property: KProperty<*>
 }
 
-annotation class model(val options: Array<String> = [])
+annotation class model(val options: Array<String> = [], val parent: KClass<*> = Null::class)
+
+typealias ModelOptionStore = MutableMap<KClass<*>, ModelOption>
+
+var models: ModelOptionStore = mutableMapOf()
+
+fun FindModel(clz: KClass<*>): ModelOption? {
+    var mp = models[clz]
+    if (mp != null)
+        return mp
+
+    if (!IsLocal())
+        return null
+
+    // 本地调试模式主动获取
+    clz.annotations.forEach { ann ->
+        if (ann is model) {
+            mp = ModelOption()
+            ann.options.forEach {
+                when (it) {
+                    hidden -> mp!!.hidden = true
+                    auth -> mp!!.auth = true
+                    enumm -> mp!!.enum = true
+                    constant -> mp!!.constant = true
+                }
+            }
+
+            if (ann.parent != Null::class)
+                mp!!.parent = ann.parent
+            models[clz] = mp!!
+        }
+    }
+
+    return models[clz]
+}
+
+// 是否是模型
+fun IsModel(clz: KClass<*>): Boolean {
+    return models.contains(clz)
+}
+
+// 是否需要登陆验证
+fun IsNeedAuth(mdl: Any?): Boolean {
+    if (mdl == null)
+        return false
+    val clz = mdl.javaClass.kotlin
+    val mp = models[clz]
+    return mp?.auth ?: false
+}
 
 annotation class string(
     val id: Int,
