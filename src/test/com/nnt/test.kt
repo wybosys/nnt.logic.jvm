@@ -100,7 +100,7 @@ class Test {
         trans.params = mapOf("a" to 1, "b" to "cde")
         trans.parser = com.nnt.server.parser.Jsobj()
         trans.render = com.nnt.server.render.Json()
-
+        
         val router = RTest()
 
         launch {

@@ -2,6 +2,7 @@ package com.nnt.server.parser
 
 import com.nnt.core.*
 import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty
 
 class Jsobj : AbstractParser() {
 
@@ -170,14 +171,11 @@ class Jsobj : AbstractParser() {
                 continue
             if (output && !fp.output)
                 continue
-            val v = decodeField(fp, inp, input, output)
 
-            // 设置到对象身上
-            try {
-                val setter = clz.getDeclaredMethod("set${name.capitalize()}")
-                setter.invoke(mdl, v)
-            } catch (err: Throwable) {
-                // pass
+            if (fp.property is KMutableProperty<*>) {
+                // 绑定数据到对象
+                val v = decodeField(fp, inp, input, output)
+                (fp.property as KMutableProperty<*>).setter.call(mdl, v)
             }
         }
     }

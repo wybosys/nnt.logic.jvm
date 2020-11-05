@@ -4,12 +4,11 @@ import com.nnt.core.Output
 import com.nnt.core.STATUS
 import com.nnt.server.Transaction
 import com.nnt.server.TransactionSubmitOption
-import org.springframework.util.MimeType
 
 class Json : AbstractRender() {
 
     init {
-        type = MimeType.valueOf("json").toString()
+        type = "application/json"
     }
 
     override fun render(trans: Transaction, opt: TransactionSubmitOption?): ByteArray {

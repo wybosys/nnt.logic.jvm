@@ -2,6 +2,7 @@ package com.nnt.core
 
 import com.nnt.manager.IsLocal
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
 
 // model的参数
@@ -90,6 +91,9 @@ class FieldOption {
 
     // 有效性检查函数
     var valid: FieldValidProc? = null
+
+    // 对应的属性设置，用来绑定数据到对象
+    lateinit var property: KProperty<*>
 }
 
 annotation class model(val options: Array<String> = [])
@@ -167,39 +171,39 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
             var fp: FieldOption? = null
             when (ann) {
                 is string -> {
-                    fp = DefineField(ann.options, ann.comment)
+                    fp = DefineField(prop, ann.options, ann.comment)
                     fp.string = true
                 }
                 is integer -> {
-                    fp = DefineField(ann.options, ann.comment)
+                    fp = DefineField(prop, ann.options, ann.comment)
                     fp.integer = true
                 }
                 is double -> {
-                    fp = DefineField(ann.options, ann.comment)
+                    fp = DefineField(prop, ann.options, ann.comment)
                     fp.decimal = true
                 }
                 is json -> {
-                    fp = DefineField(ann.options, ann.comment)
+                    fp = DefineField(prop, ann.options, ann.comment)
                     fp.json = true
                 }
                 is map -> {
-                    fp = DefineField(ann.options, ann.comment)
+                    fp = DefineField(prop, ann.options, ann.comment)
                     fp.map = true
                     fp.keytype = ann.keyType
                     fp.valtype = ann.valueType
                 }
                 is array -> {
-                    fp = DefineField(ann.options, ann.comment)
+                    fp = DefineField(prop, ann.options, ann.comment)
                     fp.array = true
                     fp.valtype = ann.valueType
                 }
                 is enumerate -> {
-                    fp = DefineField(ann.options, ann.comment)
+                    fp = DefineField(prop, ann.options, ann.comment)
                     fp.enum = true
                     fp.valtype = ann.type
                 }
                 is type -> {
-                    fp = DefineField(ann.options, ann.comment)
+                    fp = DefineField(prop, ann.options, ann.comment)
                     fp.valtype = ann.type
                 }
             }
@@ -212,12 +216,14 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
     return fps
 }
 
-private fun DefineField(options: Array<String>, comment: String): FieldOption {
+private fun DefineField(prop: KProperty<*>, options: Array<String>, comment: String): FieldOption {
     val r = FieldOption()
     r.optional = optional in options
     r.input = input in options
     r.output = output in options
     r.comment = comment
+    r.property = prop
+
     return r
 }
 

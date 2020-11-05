@@ -101,31 +101,35 @@ fun FindAction(target: Any, key: String): ActionProto? {
                 }
             }
 
-            // 挨个判断是否可以定义
-            var pass = false
-            if (!pass && ap.debug) {
-                if (Config.DEBUG)
-                    pass = true
-            }
-            if (!pass && ap.develop) {
-                if (Config.DEVELOP)
-                    pass = true
-            }
-            if (!pass && ap.local) {
-                if (Config.LOCAL)
-                    pass = true
-            }
-            if (!pass && ap.devops) {
-                if (Config.DEVOPS)
-                    pass = true
-            }
-            if (!pass && ap.devopsdevelop) {
-                if (Config.DEVOPS_DEVELOP)
-                    pass = true
-            }
-            if (!pass && ap.devopsrelease) {
-                if (Config.DEVOPS_RELEASE)
-                    pass = true
+            var pass = true
+
+            if (ap.develop || ap.develop || ap.local || ap.devops || ap.devopsdevelop || ap.devopsrelease) {
+                pass = false
+                // 挨个判断是否可以定义
+                if (!pass && ap.debug) {
+                    if (Config.DEBUG)
+                        pass = true
+                }
+                if (!pass && ap.develop) {
+                    if (Config.DEVELOP)
+                        pass = true
+                }
+                if (!pass && ap.local) {
+                    if (Config.LOCAL)
+                        pass = true
+                }
+                if (!pass && ap.devops) {
+                    if (Config.DEVOPS)
+                        pass = true
+                }
+                if (!pass && ap.devopsdevelop) {
+                    if (Config.DEVOPS_DEVELOP)
+                        pass = true
+                }
+                if (!pass && ap.devopsrelease) {
+                    if (Config.DEVOPS_RELEASE)
+                        pass = true
+                }
             }
 
             // 测试通过，该action生效
