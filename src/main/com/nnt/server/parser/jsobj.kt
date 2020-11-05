@@ -175,7 +175,7 @@ class Jsobj : AbstractParser() {
             if (fp.property is KMutableProperty<*>) {
                 // 绑定数据到对象
                 val v = decodeField(fp, inp, input, output)
-                (fp.property as KMutableProperty<*>).setter.call(mdl, v)
+                (fp.property as KMutableProperty<*>).setter.call(mdl, ToType(v, fp.property.returnType))
             }
         }
     }
