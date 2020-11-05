@@ -1,7 +1,7 @@
 package com.nnt.core
 
 // 定义秒的类型
-typealias Seconds = Float
+typealias Seconds = Double
 
 // 框架中基本小数定义为double
 typealias Decimal = Double

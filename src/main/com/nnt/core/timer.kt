@@ -4,7 +4,7 @@ import com.nnt.signals.Object
 import com.nnt.signals.kSignalAction
 import com.nnt.signals.kSignalDone
 
-abstract class CTimer(_interval: Seconds = 1f, _count: Int = -1) : Object() {
+abstract class CTimer(_interval: Seconds = 1.0, _count: Int = -1) : Object() {
 
     // tick 的次数
     var count: Int = _count

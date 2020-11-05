@@ -16,8 +16,8 @@ class RestService : IRouter {
 
     override var action = "rest"
 
-    override fun config(node: JsonObject) {
-        // pass
+    override fun config(node: JsonObject): Boolean {
+        return true
     }
 
     @action(RestUpdate::class)

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 typealias JsonMap = MutableMap<Any, Any?>
 typealias JsonArray = MutableList<Any?>
 typealias JsonInteger = Long
-typealias JsonReal = Double
+typealias JsonDecimal = Double
 typealias JsonBoolean = Boolean
 
 class JsonMapType : TypeReference<JsonMap>() {}
@@ -66,6 +66,14 @@ class JsonObject {
     private var _map: MutableMap<Any, JsonObject>? = null
     private var _arr: MutableList<JsonObject>? = null
     private var _pod: Any? = null
+
+    fun asMap(): Map<Any, JsonObject> {
+        return _map!!
+    }
+
+    fun asArray(): List<JsonObject> {
+        return _arr!!
+    }
 
     operator fun get(kid: Any): JsonObject? {
         if (_map != null) {
@@ -232,7 +240,7 @@ class JsonObject {
         return def
     }
 
-    fun asReal(def: JsonReal = 0.0): JsonReal {
+    fun asDecimal(def: JsonDecimal = 0.0): JsonDecimal {
         if (_pod == null)
             return def
         if (_pod is Number)

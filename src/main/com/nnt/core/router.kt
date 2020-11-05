@@ -12,7 +12,7 @@ interface IRouter {
     val action: String
 
     // 接受配置文件的设置
-    fun config(node: JsonObject)
+    fun config(node: JsonObject): Boolean
 }
 
 // action可用的模式

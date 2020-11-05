@@ -50,8 +50,8 @@ class B : A() {
 class RTest : IRouter {
     override val action = "test"
 
-    override fun config(node: JsonObject) {
-        // pass
+    override fun config(node: JsonObject): Boolean {
+        return true
     }
 
     @action(A::class, [expose], "测试")

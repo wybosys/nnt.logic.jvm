@@ -470,7 +470,7 @@ class DateTime {
 
 private var __time_started = DateTime.Current()
 
-suspend fun Retry(cond: () -> Boolean, proc: () -> Unit, interval: Seconds = 1f, delta: Seconds = 2f) {
+suspend fun Retry(cond: () -> Boolean, proc: () -> Unit, interval: Seconds = 1.0, delta: Seconds = 2.0) {
     if (!cond()) {
         Sleep(interval)
         Retry(cond, proc, interval + delta, delta)

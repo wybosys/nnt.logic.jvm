@@ -41,7 +41,7 @@ class Config {
         var MODEL_FIELDS_MAX = 100
 
         // transaction超时时间
-        var TRANSACTION_TIMEOUT: Seconds = 20f
+        var TRANSACTION_TIMEOUT: Seconds = 20.0
 
         // 是否允许客户端访问
         var CLIENT_ALLOW = false

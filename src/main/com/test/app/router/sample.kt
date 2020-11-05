@@ -11,8 +11,8 @@ class RSample : IRouter {
 
     override val action = "test"
 
-    override fun config(node: JsonObject) {
-        // pass
+    override fun config(node: JsonObject): Boolean {
+        return true
     }
 
     @action(Echoo::class)
