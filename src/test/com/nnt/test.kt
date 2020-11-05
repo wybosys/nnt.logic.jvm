@@ -69,7 +69,7 @@ class Test {
     fun Test1() {
         val jsonstr = """{"a":1,"b":null}"""
         val t = toJsonObject(jsonstr)
-        Assertions.assertTrue(t["a"]!!.asInteger() == 1L)
+        Assertions.assertEquals(t["a"]!!.asInteger(), 1)
         Assertions.assertTrue(t["b"]!!.isNull)
         Assertions.assertEquals(toJson(t), jsonstr)
 
@@ -79,16 +79,14 @@ class Test {
         var obja = JsonObject.Map<A>(jsobj)
         Assertions.assertTrue(obja.e == 1.1)
 
-        //str = toJson(mapOf("a" to 123, "b" to null))
-        //Assertions.assertEquals(str, """{"a":123,"b":null}""")
+        str = toJson(mapOf("a" to 123, "b" to null))
+        Assertions.assertEquals(str, """{"a":123,"b":null}""")
 
-        //str = toJson(listOf("a", 123, null))
-        //Assertions.assertEquals(str, """["a",123,null]""")
+        str = toJson(listOf("a", 123, null))
+        Assertions.assertEquals(str, """["a",123,null]""")
 
-        //val om = toJsonObject(mapOf("a" to 1))!!
-        //Assertions.assertEquals(om["a"].asInt(), 1)
-
-        //val od = toJsonMap("""{"a":{"b":{"c":123}}}""")
+        val om = toJsonObject(mapOf("a" to 1))
+        Assertions.assertEquals(om["a"]!!.asInteger(), 1)
     }
 
     @Test

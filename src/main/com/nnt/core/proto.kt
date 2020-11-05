@@ -74,8 +74,7 @@ class FieldOption {
     var map: Boolean = false
     var string: Boolean = false
     var integer: Boolean = false
-    var double: Boolean = false
-    var number: Boolean = false
+    var decimal: Boolean = false
     var boolean: Boolean = false
     var enum: Boolean = false
     var file: Boolean = false
@@ -108,12 +107,6 @@ annotation class integer(
 )
 
 annotation class double(
-    val id: Int,
-    val options: Array<String>,
-    val comment: String = "",
-)
-
-annotation class number(
     val id: Int,
     val options: Array<String>,
     val comment: String = "",
@@ -183,11 +176,7 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
                 }
                 is double -> {
                     fp = DefineField(ann.options, ann.comment)
-                    fp.double = true
-                }
-                is number -> {
-                    fp = DefineField(ann.options, ann.comment)
-                    fp.number = true
+                    fp.decimal = true
                 }
                 is json -> {
                     fp = DefineField(ann.options, ann.comment)

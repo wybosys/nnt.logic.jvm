@@ -1,6 +1,5 @@
 package com.nnt.core
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 
@@ -106,7 +105,7 @@ class JsonObject {
     }
 
     fun from(node: JsonNode?): JsonObject {
-        if (node == null)
+        if (node == null || node.isNull)
             return this
 
         if (node.isArray) {
@@ -121,12 +120,14 @@ class JsonObject {
             }
         } else if (node.isTextual) {
             _pod = node.asText()
-        } else if (node.isLong) {
+        } else if (node.isLong || node.isInt || node.isShort) {
             _pod = node.asLong()
-        } else if (node.isDouble) {
+        } else if (node.isDouble || node.isFloat) {
             _pod = node.asDouble()
         } else if (node.isBoolean) {
             _pod = node.asBoolean()
+        } else {
+            logger.fatal("json解析遇到不支持的类型")
         }
 
         return this
@@ -166,11 +167,28 @@ class JsonObject {
     override fun toString(): String {
         if (isNull)
             return ""
-        if (_map != null)
-            return ObjectMapper().writeValueAsString(_map)
-        if (_arr != null)
-            return ObjectMapper().writeValueAsString(_arr)
-        return _pod.toString()
+
+        // 转换成普通类型
+        val t = flat()
+        return ObjectMapper().writeValueAsString(t)
+    }
+
+    fun flat(): Any? {
+        if (_map != null) {
+            val r = mutableMapOf<Any, Any?>()
+            _map!!.forEach {
+                r[it.key] = it.value.flat()
+            }
+            return r
+        }
+        if (_arr != null) {
+            val r = mutableListOf<Any?>()
+            _arr!!.forEach {
+                r.add(it.flat())
+            }
+            return r
+        }
+        return _pod
     }
 
     fun merge(r: JsonObject?): JsonObject {
@@ -293,12 +311,24 @@ class JsonObject {
         inline fun <reified T> Map(jsobj: JsonObject): T {
             return ObjectMapper().convertValue(jsobj, T::class.java)
         }
+
+        fun FromFlat(map: Map<*, *>?): JsonObject {
+            val r = JsonObject()
+            if (map != null) {
+                r.from_map(map)
+            }
+            return r
+        }
+
+        fun FromFlat(lst: List<*>?): JsonObject {
+            val r = JsonObject()
+            if (lst != null) {
+                r.from_list(lst)
+            }
+            return r
+        }
     }
 }
-
-// jackson依赖的转换类型
-class JsonMapType : TypeReference<JsonMap>() {}
-class JsonListType : TypeReference<JsonArray>() {}
 
 fun toJsonObject(str: String?): JsonObject {
     return JsonObject().from(str)
@@ -308,8 +338,24 @@ fun toJsonObject(obj: JsonObject?): JsonObject? {
     return obj
 }
 
+fun toJsonObject(map: Map<*, *>?): JsonObject {
+    return JsonObject.FromFlat(map)
+}
+
 fun toJson(jobj: JsonObject?): String {
     if (jobj == null)
         return ""
     return jobj.toString()
+}
+
+fun toJson(str: String): String {
+    return str
+}
+
+fun toJson(map: Map<*, *>): String {
+    return ObjectMapper().writeValueAsString(map)
+}
+
+fun toJson(lst: List<*>): String {
+    return ObjectMapper().writeValueAsString(lst)
 }

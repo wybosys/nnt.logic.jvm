@@ -51,11 +51,11 @@ class Jsobj : AbstractParser() {
                             }
                         } else if (TypeIsInteger(fp.valtype!!)) {
                             (value as List<*>).forEach {
-                                arr.add(toInt(it))
+                                arr.add(toInteger(it))
                             }
                         } else if (TypeIsDecimal(fp.valtype!!)) {
                             (value as List<*>).forEach {
-                                arr.add(toDouble(it))
+                                arr.add(toDecimal(it))
                             }
                         } else if (fp.valtype == Boolean::class) {
                             (value as List<*>).forEach {
@@ -86,9 +86,9 @@ class Jsobj : AbstractParser() {
             } else if (fp.map) {
                 var keyconv: (v: Any) -> Any = { it }
                 if (TypeIsInteger(fp.keytype!!))
-                    keyconv = { toInt(it) }
+                    keyconv = { toInteger(it) }
                 else if (TypeIsDecimal(fp.keytype!!))
-                    keyconv = { toDouble(it) }
+                    keyconv = { toDecimal(it) }
                 val map = mutableMapOf<Any, Any?>()
                 if (fp.valtype == String::class) {
                     for ((ek, ev) in (value as Map<*, *>)) {
@@ -96,11 +96,11 @@ class Jsobj : AbstractParser() {
                     }
                 } else if (TypeIsInteger(fp.valtype!!)) {
                     for ((ek, ev) in (value as Map<*, *>)) {
-                        map[keyconv(ek!!)] = toInt(ev)
+                        map[keyconv(ek!!)] = toInteger(ev)
                     }
                 } else if (TypeIsDecimal(fp.valtype!!)) {
                     for ((ek, ev) in (value as Map<*, *>)) {
-                        map[keyconv(ek!!)] = toDouble(ev)
+                        map[keyconv(ek!!)] = toDecimal(ev)
                     }
                 } else if (fp.valtype == Boolean::class) {
                     for ((ek, ev) in (value as Map<*, *>)) {
@@ -119,7 +119,7 @@ class Jsobj : AbstractParser() {
                 }
                 return map
             } else if (fp.enum) {
-                return toInt(value)
+                return toInteger(value)
             } else {
                 if (fp.valtype == String::class) {
                     // value = toJsonObject(value)
@@ -139,13 +139,13 @@ class Jsobj : AbstractParser() {
             if (fp.string) {
                 return asString(value)
             } else if (fp.integer) {
-                return toInt(value)
-            } else if (fp.double) {
-                return toDouble(value)
+                return toInteger(value)
+            } else if (fp.decimal) {
+                return toDecimal(value)
             } else if (fp.boolean) {
                 return toBoolean(value)
             } else if (fp.enum) {
-                return toInt(value)
+                return toInteger(value)
             } else if (fp.json) {
                 // return toJsonObject(value)
                 return null

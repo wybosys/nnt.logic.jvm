@@ -42,6 +42,6 @@ fun IsNumber(o: Any): Boolean {
     return IsInteger(o) || IsDecimal(o)
 }
 
-fun TypeIsNumber(clz: KClass<*>): Boolean {
+fun TypeIsReal(clz: KClass<*>): Boolean {
     return TypeIsInteger(clz) || TypeIsDecimal(clz)
 }
