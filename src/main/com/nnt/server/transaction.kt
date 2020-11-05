@@ -96,7 +96,7 @@ abstract class Transaction {
         get() {
             return _action
         }
-        set(act: String) {
+        set(act) {
             _action = act
             val p = _action.split(".")
             if (p.size != 2) {
@@ -188,17 +188,47 @@ abstract class Transaction {
     private var _submited_timeout: Boolean = false
 
     open suspend fun submit(opt: TransactionSubmitOption? = null) {
-
+        if (_submited) {
+            if (!_submited_timeout)
+                logger.warn("数据已经发送")
+            return
+        }
+        if (_timeout != null) {
+            CancelDelay(_timeout!!)
+            _timeout = null
+            _submited_timeout = true
+        }
+        _submited = true
+        _outputed = true
+        if (hookSubmit != null) {
+            try {
+                hookSubmit!!()
+            } catch (err: Throwable) {
+                logger.exception(err.localizedMessage)
+            }
+        }
+        implSubmit(opt)
     }
 
     // 当提交的时候修改
-    var hookSubmit: suspend () -> Unit = {}
+    var hookSubmit: (suspend () -> Unit)? = null
 
     // 输出文件
     var implOutput: (type: String, obj: Any) -> Unit = { type, obj -> }
     private var _outputed: Boolean = false
 
     open fun output(type: String, obj: Any) {
+        if (_outputed) {
+            logger.warn("api已经发送")
+            return
+        }
+        if (_timeout != null) {
+            CancelDelay(_timeout!!)
+            _timeout = null
+        }
+        _outputed = true
+        _submited = true
+        implOutput(type, obj)
     }
 
     protected open fun waitTimeout() {
@@ -236,11 +266,9 @@ abstract class Transaction {
 
     // 带上此次请求事务的参数实例化一个模型
     // 通常业务层中会对params增加一些数据，来满足trans对auth、context的需求，如果直接new对象的化，就没办法加入这些数据
-    /*
-    open fun <T> instance(cls: Class<T>): T {
-
+    inline fun <reified T> instance(cls: Class<T>): T {
+        return T::class.constructors.first().call()
     }
-     */
 
     // 环境信息
     val info = TransactionInfo()
