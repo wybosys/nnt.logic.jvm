@@ -254,6 +254,28 @@ class JsonObject {
         return _pod is Boolean
     }
 
+    fun forEach(lst: (value: JsonObject) -> Unit) {
+        if (_arr != null)
+            _arr!!.forEach {
+                lst(it)
+            }
+    }
+
+    fun forEach(map: (value: JsonObject, key: Any) -> Unit) {
+        if (_map != null)
+            _map!!.forEach {
+                map(it.value, it.key)
+            }
+    }
+
+    fun <T> map(lst: (value: JsonObject) -> T): List<T> {
+        if (_arr != null)
+            return _arr!!.map {
+                lst(it)
+            }
+        return listOf()
+    }
+
     companion object {
 
         fun <T> UnMap(pojo: T): JsonObject {

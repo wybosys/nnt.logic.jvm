@@ -20,7 +20,7 @@ class Echoo {
     var time: Long = 0
 
     @json(4, [com.nnt.core.output])
-    var json: Jsonobj? = null
+    var json: JsonObject? = null
 
     @map(5, String::class, Int::class, [com.nnt.core.output])
     var map = mapOf<String, Int>()

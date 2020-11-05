@@ -1,7 +1,7 @@
 package com.nnt.store
 
 import com.alibaba.druid.pool.DruidDataSourceFactory
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import org.springframework.dao.DataAccessException
 import org.springframework.jdbc.core.*
@@ -19,7 +19,7 @@ open class Jdbc : AbstractDbms() {
     var pwd: String = ""
     var driver: String = ""
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
 
@@ -27,18 +27,18 @@ open class Jdbc : AbstractDbms() {
             logger.fatal("${id} 没有配置url")
             return false
         }
-        url = cfg["url"].asText()
+        url = cfg["url"]!!.asString()
 
         if (!cfg.has("driver")) {
             logger.fatal("${id} 没有配置driver")
             return false
         }
-        driver = cfg["driver"].asText()
+        driver = cfg["driver"]!!.asString()
 
         if (cfg.has("user"))
-            user = cfg["user"].asText()
+            user = cfg["user"]!!.asString()
         if (cfg.has("pwd"))
-            pwd = cfg["pwd"].asText()
+            pwd = cfg["pwd"]!!.asString()
 
         return true
     }
@@ -81,7 +81,7 @@ open class Jdbc : AbstractDbms() {
 
     // 直接执行sql语句返回原始数据类型
     fun execute(
-        proc: (tpl: JdbcTemplate, conn: Connection) -> Unit
+        proc: (tpl: JdbcTemplate, conn: Connection) -> Unit,
     ): Boolean {
         var r = true
         var conn: Connection? = null
@@ -401,7 +401,7 @@ open class JdbcSession(conn: Connection, tpl: JdbcTemplate) {
         sql: String,
         batchArgs: Collection<T>,
         batchSize: Int,
-        pss: ParameterizedPreparedStatementSetter<T>
+        pss: ParameterizedPreparedStatementSetter<T>,
     ): Array<IntArray> {
         return _tpl.batchUpdate(sql, batchArgs, batchSize, pss)
     }

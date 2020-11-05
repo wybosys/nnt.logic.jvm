@@ -17,11 +17,11 @@ class Tasks {
                 return
             }
 
-            cfg.forEach() {
+            cfg.forEach { it ->
                 if (!NodeIsEnable(it))
-                    return
+                    return@forEach
 
-                val cfg_entry = it["entry"].asText()
+                val cfg_entry = it["entry"]!!.asString()
                 val t = App.shared.instanceEntry(cfg_entry) as Task?
                 if (t == null) {
                     println("${cfg_entry} 实例化失败")

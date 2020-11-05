@@ -1,6 +1,6 @@
 package com.nnt.task
 
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 
 abstract class Task {
 
@@ -8,10 +8,10 @@ abstract class Task {
     var id: String = ""
 
     // 配置服务
-    open fun config(cfg: Jsonobj): Boolean {
+    open fun config(cfg: JsonObject): Boolean {
         if (!cfg.has("id"))
             return false
-        id = cfg["id"].asText()
+        id = cfg["id"]!!.asString()
         return true
     }
 

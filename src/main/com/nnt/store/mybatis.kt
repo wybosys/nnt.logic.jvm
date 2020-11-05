@@ -2,7 +2,7 @@ package com.nnt.store
 
 import com.alibaba.druid.pool.DruidDataSourceFactory
 import com.nnt.core.File
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.URI
 import com.nnt.core.logger
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
@@ -27,33 +27,33 @@ open class Mybatis : AbstractRdb() {
     var driver: String = ""
     var maps = listOf<URI>()
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
         if (cfg.has("user"))
-            user = cfg["user"].asText()
+            user = cfg["user"]!!.asString()
         if (cfg.has("pwd"))
-            pwd = cfg["pwd"].asText()
+            pwd = cfg["pwd"]!!.asString()
 
         if (!cfg.has("url")) {
             logger.fatal("${id} 没有配置url")
             return false
         }
-        url = cfg["url"].asText()
+        url = cfg["url"]!!.asString()
 
         if (!cfg.has("driver")) {
             logger.fatal("${id} 没有配置driver")
             return false
         }
-        driver = cfg["driver"].asText()
+        driver = cfg["driver"]!!.asString()
 
         if (cfg.has("mybatis")) {
-            val nmb = cfg["mybatis"]
+            val nmb = cfg["mybatis"]!!
             if (!nmb.has("map")) {
                 logger.fatal("${id} 没有配置mybatis的map数据")
                 return false
             }
-            maps = nmb["map"].map { URI(it.asText()) }
+            maps = nmb["map"]!!.map { URI(it.asString()) }
         }
 
         return true
@@ -149,7 +149,7 @@ open class Mybatis : AbstractRdb() {
 
     // 使用mybatis的mapper操作orm数据
     fun execute(
-        proc: (session: SqlSession) -> Unit
+        proc: (session: SqlSession) -> Unit,
     ): Boolean {
         var r = true
         var ses: SqlSession? = null
@@ -168,7 +168,7 @@ open class Mybatis : AbstractRdb() {
 
     // 直接执行sql语句返回原始数据类型
     fun execute(
-        proc: (tpl: JdbcTemplate, conn: Connection) -> Unit
+        proc: (tpl: JdbcTemplate, conn: Connection) -> Unit,
     ): Boolean {
         var r = true
         var conn: Connection? = null

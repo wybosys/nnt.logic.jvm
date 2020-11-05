@@ -1,6 +1,6 @@
 package com.nnt.server
 
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import java.util.*
 
 abstract class AbstractServer {
@@ -9,10 +9,10 @@ abstract class AbstractServer {
     var id: String = ""
 
     // 配置服务
-    open fun config(cfg: Jsonobj): Boolean {
+    open fun config(cfg: JsonObject): Boolean {
         if (!cfg.has("id"))
             return false
-        id = cfg["id"].asText()
+        id = cfg["id"]!!.asString()
         return true
     }
 

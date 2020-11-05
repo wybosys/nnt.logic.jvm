@@ -1,6 +1,6 @@
 package com.nnt.server
 
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -22,7 +22,7 @@ class Kafka : Mq() {
     var zk: String = ""
     var group: String = "nnt-logic"
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
 
@@ -30,10 +30,10 @@ class Kafka : Mq() {
             logger.fatal("${id} 没有配置通信地址")
             return false
         }
-        zk = cfg["zk"].asText()
+        zk = cfg["zk"]!!.asString()
 
         if (cfg.has("group")) {
-            group = cfg["group"].asText()
+            group = cfg["group"]!!.asString()
         }
         return true
     }

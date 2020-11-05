@@ -1,6 +1,6 @@
 package com.nnt.server
 
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import com.nnt.manager.Config
 import io.vertx.core.AbstractVerticle
@@ -15,7 +15,7 @@ open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHt
     var host: String = ""
     var port: Int = 80
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
 
@@ -23,7 +23,7 @@ open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHt
             logger.fatal("${id} 没有配置数据库地址")
             return false
         }
-        val th = cfg["host"].asText()
+        val th = cfg["host"]!!.asString()
         val sp = th.split(":")
         if (sp.size == 1) {
             host = th

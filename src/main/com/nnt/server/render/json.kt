@@ -2,7 +2,6 @@ package com.nnt.server.render
 
 import com.nnt.core.Output
 import com.nnt.core.STATUS
-import com.nnt.core.toJson
 import com.nnt.server.Transaction
 import com.nnt.server.TransactionSubmitOption
 import org.springframework.util.MimeType
@@ -51,8 +50,9 @@ class Json : AbstractRender() {
             r["_listening"] = listen.toInt()
 
         // 转换成数据流输出
-        val str = toJson(r)
-        return str.toByteArray()
+        //val str = toJson(r)
+        //return str.toByteArray()
+        return "".toByteArray()
     }
 
 }

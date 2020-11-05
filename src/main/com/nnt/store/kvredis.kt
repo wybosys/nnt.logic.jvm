@@ -1,6 +1,6 @@
 package com.nnt.store
 
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
@@ -13,7 +13,7 @@ open class KvRedis : AbstractKv() {
     var port: Int = DEFAULT_PORT
     var prefix: String? = null
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
 
@@ -21,7 +21,7 @@ open class KvRedis : AbstractKv() {
             logger.fatal("${id} 没有配置数据库地址")
             return false
         }
-        val th = cfg["host"].asText()
+        val th = cfg["host"]!!.asString()
         if (th.startsWith("unix://")) {
             logger.fatal("${id} java不支持使用管道连接redis")
             return false
@@ -36,7 +36,7 @@ open class KvRedis : AbstractKv() {
         }
 
         if (cfg.has("prefix"))
-            prefix = cfg["prefix"].asText()
+            prefix = cfg["prefix"]!!.asString()
         return true
     }
 

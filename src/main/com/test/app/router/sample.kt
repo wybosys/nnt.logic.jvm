@@ -1,7 +1,9 @@
 package com.test.app.router
 
-import com.nnt.component.TODAY_RANGE
-import com.nnt.core.*
+import com.nnt.core.DateTime
+import com.nnt.core.IRouter
+import com.nnt.core.JsonObject
+import com.nnt.core.action
 import com.test.app.model.Echoo
 import com.test.app.model.Trans
 
@@ -9,7 +11,7 @@ class RSample : IRouter {
 
     override val action = "test"
 
-    override fun config(node: Jsonobj) {
+    override fun config(node: JsonObject) {
         // pass
     }
 
@@ -18,7 +20,7 @@ class RSample : IRouter {
         val m = trans.model as Echoo
         m.output = m.input
         m.time = DateTime.Current()
-        m.json = toJsonObject(mapOf("today" to TODAY_RANGE))
+        // m.json = toJsonObject(mapOf("today" to TODAY_RANGE))
         m.map = mapOf("a0" to 0, "b1" to 1)
         m.array = listOf(0.0, 1.0, 2.0, 3.0)
         trans.submit()

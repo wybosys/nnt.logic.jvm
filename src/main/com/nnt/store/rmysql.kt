@@ -2,7 +2,7 @@ package com.nnt.store
 
 import com.alibaba.druid.pool.DruidDataSourceFactory
 import com.nnt.core.File
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.URI
 import com.nnt.core.logger
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
@@ -30,26 +30,26 @@ class RMysql : AbstractRdb() {
     var scheme: String = ""
     var maps = listOf<URI>()
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
 
         if (cfg.has("user"))
-            user = cfg["user"].asText()
+            user = cfg["user"]!!.asString()
         if (cfg.has("pwd"))
-            pwd = cfg["pwd"].asText()
+            pwd = cfg["pwd"]!!.asString()
 
         if (!cfg.has("scheme")) {
             logger.fatal("${id} 没有配置数据表")
             return false
         }
-        scheme = cfg["scheme"].asText()
+        scheme = cfg["scheme"]!!.asString()
 
         if (!cfg.has("host")) {
             logger.fatal("${id} 没有配置数据库地址")
             return false
         }
-        val th = cfg["host"].asText()
+        val th = cfg["host"]!!.asString()
         if (th.startsWith("unix://")) {
             logger.fatal("${id} java不支持使用管道连接")
             return false
@@ -64,12 +64,12 @@ class RMysql : AbstractRdb() {
         }
 
         if (cfg.has("mybatis")) {
-            val nmb = cfg["mybatis"]
+            val nmb = cfg["mybatis"]!!
             if (!nmb.has("map")) {
                 logger.fatal("${id} 没有配置mybatis的map数据")
                 return false
             }
-            maps = nmb["map"].map { URI(it.asText()) }
+            maps = nmb["map"]!!.map { URI(it.asString()) }
         }
 
         return true
@@ -150,7 +150,7 @@ class RMysql : AbstractRdb() {
 
     // 使用mybatis的mapper操作orm数据
     fun execute(
-        proc: (session: SqlSession) -> Unit
+        proc: (session: SqlSession) -> Unit,
     ): Boolean {
         var r = true
         var ses: SqlSession? = null
@@ -169,7 +169,7 @@ class RMysql : AbstractRdb() {
 
     // 直接执行sql语句返回原始数据类型
     fun execute(
-        proc: (tpl: JdbcTemplate, conn: Connection) -> Unit
+        proc: (tpl: JdbcTemplate, conn: Connection) -> Unit,
     ): Boolean {
         var r = true
         var conn: Connection? = null

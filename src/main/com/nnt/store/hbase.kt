@@ -1,6 +1,6 @@
 package com.nnt.store
 
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.hadoop.hbase.client.Connection
@@ -15,7 +15,7 @@ class HBase : AbstractKv() {
     var zkport: Int = DEFAULT_PORT
     var zkdir: String = "/hbase"
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
 
@@ -23,7 +23,7 @@ class HBase : AbstractKv() {
             logger.fatal("${id} 没有配置数据库地址")
             return false
         }
-        val th = cfg["zk"].asText()
+        val th = cfg["zk"]!!.asString()
         val sp = th.split(":")
         if (sp.size == 1) {
             zkhost = th
@@ -57,7 +57,7 @@ class HBase : AbstractKv() {
     }
 
     fun execute(
-        proc: (conn: Connection) -> Unit
+        proc: (conn: Connection) -> Unit,
     ): Boolean {
         var r = true
         var conn: Connection? = null

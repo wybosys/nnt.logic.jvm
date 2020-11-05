@@ -64,7 +64,7 @@ class Jsobj : AbstractParser() {
                         }
                     } else {
                         if (value is String)
-                            value = toJsonObject(value, Array<Any>::class.java)
+                            value = toJsonObject(value)
                         if (value != null) {
                             if (value is Array<*>) {
                                 val clz = fp.valtype!!

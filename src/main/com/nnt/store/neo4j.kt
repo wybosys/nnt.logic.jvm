@@ -1,6 +1,6 @@
 package com.nnt.store
 
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import org.neo4j.driver.AuthTokens
 import org.neo4j.driver.Driver
@@ -16,19 +16,19 @@ class Neo4J : AbstractGraphDb() {
     var user: String = ""
     var pwd: String = ""
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
 
         if (cfg.has("user")) {
-            user = cfg["user"].asText()
+            user = cfg["user"]!!.asString()
         } else {
             logger.fatal("${id} 没有配置user")
             return false
         }
 
         if (cfg.has("pwd")) {
-            pwd = cfg["pwd"].asText()
+            pwd = cfg["pwd"]!!.asString()
         } else {
             logger.fatal("${id} 没有配置pwd")
             return false
@@ -38,7 +38,7 @@ class Neo4J : AbstractGraphDb() {
             logger.fatal("${id} 没有配置数据库地址")
             return false
         }
-        val th = cfg["host"].asText()
+        val th = cfg["host"]!!.asString()
         if (th.startsWith("unix://")) {
             logger.fatal("${id} java不支持使用管道连接neo4j")
             return false
@@ -75,7 +75,7 @@ class Neo4J : AbstractGraphDb() {
     }
 
     fun execute(
-        proc: (transaction: Transaction) -> Unit
+        proc: (transaction: Transaction) -> Unit,
     ): Boolean {
         var r = true
         try {

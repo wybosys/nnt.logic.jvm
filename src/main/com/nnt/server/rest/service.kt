@@ -1,7 +1,7 @@
 package com.nnt.server.rest
 
 import com.nnt.core.IRouter
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.RestUpdate
 import com.nnt.core.action
 import com.nnt.server.Transaction
@@ -16,7 +16,7 @@ class RestService : IRouter {
 
     override var action = "rest"
 
-    override fun config(node: Jsonobj) {
+    override fun config(node: JsonObject) {
         // pass
     }
 

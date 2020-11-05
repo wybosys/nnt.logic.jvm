@@ -1,6 +1,6 @@
 package com.nnt.store
 
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 
 abstract class AbstractDbms {
@@ -8,12 +8,12 @@ abstract class AbstractDbms {
     var id: String = ""
 
     // 配置
-    open fun config(cfg: Jsonobj): Boolean {
+    open fun config(cfg: JsonObject): Boolean {
         if (!cfg.has("id")) {
             logger.fatal("dbms没有配置id")
             return false
         }
-        this.id = cfg["id"].asText()
+        this.id = cfg["id"]!!.asString()
         return true;
     }
 

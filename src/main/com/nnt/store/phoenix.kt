@@ -1,7 +1,6 @@
 package com.nnt.store
 
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.nnt.core.Jsonobj
+import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
@@ -16,12 +15,12 @@ class Phoenix : Mybatis() {
     var host: String = ""
     var port: Int = 8765
 
-    override fun config(cfg: Jsonobj): Boolean {
+    override fun config(cfg: JsonObject): Boolean {
         // mybatis需要外部绑定url，保护一下
         if (!cfg.has("url"))
-            (cfg as ObjectNode).put("url", "")
+            cfg["url"] = ""
         if (!cfg.has("driver"))
-            (cfg as ObjectNode).put("driver", "")
+            cfg["driver"] = ""
 
         // mybatis初始化
         if (!super.config(cfg))
@@ -35,7 +34,7 @@ class Phoenix : Mybatis() {
             logger.fatal("${id} 没有配置queryserver地址")
             return false
         }
-        val th = cfg["thin"].asText()
+        val th = cfg["thin"]!!.asString()
         val sp = th.split(":")
         if (sp.size == 1) {
             host = th
@@ -101,7 +100,7 @@ class PhoenixJdbcSession(conn: Connection, tpl: JdbcTemplate) : JdbcSession(conn
         sql: String,
         args: Array<Any>,
         argTypes: IntArray,
-        requiredType: Class<T>
+        requiredType: Class<T>,
     ): T {
         if (requiredType == Date::class.java) {
             val r = super.queryForObject(sql, args, argTypes, Long::class.java)
