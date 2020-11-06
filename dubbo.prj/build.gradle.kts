@@ -35,16 +35,8 @@ repositories {
     maven("https://maven.aliyun.com/repository/apache-snapshots")
 }
 
-val MAINCLASS = "com.nnt.Dubbo"
-
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = MAINCLASS
-    }
-}
-
 springBoot {
-    mainClassName = MAINCLASS
+    mainClassName = "com.nnt.Dubbo"
 }
 
 tasks.withType<KotlinCompile>().configureEach {
