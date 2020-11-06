@@ -33,4 +33,13 @@ class Echoo {
 
     @type(8, Null::class, [com.nnt.core.output])
     var nullval: Null? = null
+
+    @boolean(9, [com.nnt.core.input])
+    var ok: Boolean = false
+
+    @integer(10, [com.nnt.core.input])
+    var value: Boolean = false
+
+    @string(11, [com.nnt.core.input, com.nnt.core.output])
+    var content: String = ""
 }

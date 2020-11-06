@@ -408,8 +408,8 @@ class DateTime {
             return DateTime.Current() - __time_started
         }
 
-        @SuppressWarnings("UnusedParameters")
-        fun Dyears(ts: Timestamp, up: Boolean = true): Long {
+
+        fun Dyears(ts: Timestamp, @SuppressWarnings("UnusedParameters") up: Boolean = true): Long {
             return Math.floorDiv(ts, YEAR)
         }
 

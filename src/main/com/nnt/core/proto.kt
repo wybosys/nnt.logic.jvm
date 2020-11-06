@@ -105,7 +105,7 @@ fun FindModel(clz: KClass<*>): ModelOption? {
     var mp = models[clz]
     if (mp != null)
         return mp
-    
+
     clz.annotations.forEach { ann ->
         if (ann is model) {
             mp = ModelOption()
@@ -216,43 +216,43 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
             var fp: FieldOption? = null
             when (ann) {
                 is string -> {
-                    fp = DefineField(prop, ann.options, ann.comment)
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.string = true
                 }
                 is integer -> {
-                    fp = DefineField(prop, ann.options, ann.comment)
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.integer = true
                 }
                 is double -> {
-                    fp = DefineField(prop, ann.options, ann.comment)
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.decimal = true
                 }
                 is boolean -> {
-                    fp = DefineField(prop, ann.options, ann.comment)
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.boolean = true
                 }
                 is json -> {
-                    fp = DefineField(prop, ann.options, ann.comment)
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.json = true
                 }
                 is map -> {
-                    fp = DefineField(prop, ann.options, ann.comment)
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.map = true
                     fp.keytype = ann.keyType
                     fp.valtype = ann.valueType
                 }
                 is array -> {
-                    fp = DefineField(prop, ann.options, ann.comment)
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.array = true
                     fp.valtype = ann.valueType
                 }
                 is enumerate -> {
-                    fp = DefineField(prop, ann.options, ann.comment)
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.enum = true
                     fp.valtype = ann.type
                 }
                 is type -> {
-                    fp = DefineField(prop, ann.options, ann.comment)
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.valtype = ann.type
                 }
             }
@@ -265,8 +265,9 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
     return fps
 }
 
-private fun DefineField(prop: KProperty<*>, options: Array<String>, comment: String): FieldOption {
+private fun DefineField(id: Int, prop: KProperty<*>, options: Array<String>, comment: String): FieldOption {
     val r = FieldOption()
+    r.id = id
     r.optional = optional in options
     r.input = input in options
     r.output = output in options
