@@ -60,6 +60,11 @@ class RTest : IRouter {
     }
 }
 
+enum class TestType(val value: Int) {
+    XXXX(1),
+    YYYY(2)
+}
+
 class Test {
 
     @Test
@@ -83,6 +88,10 @@ class Test {
         Assertions.assertEquals(c.k, 100)
         Assertions.assertEquals(c.b, 200)
         Assertions.assertEquals(c.bytes, 1100200)
+
+        Assertions.assertEquals(EnumValue(TestType.XXXX), 1)
+        Assertions.assertEquals(ToEnum(TestType::class, 1), TestType.XXXX)
+        Assertions.assertEquals(ToEnum(TestType::class, "XXXX"), TestType.XXXX)
     }
 
     @Test

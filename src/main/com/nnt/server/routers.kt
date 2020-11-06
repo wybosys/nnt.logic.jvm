@@ -112,7 +112,7 @@ open class Routers {
                 ap.func.call(r, trans)
         } catch (err: Throwable) {
             if (err is ModelError)
-                trans.status = TO_STATUS(err.code)
+                trans.status = ToEnum(STATUS::class, err.code, STATUS.EXCEPTION)!!
             else
                 trans.status = STATUS.EXCEPTION
             trans.message = err.message ?: err.localizedMessage

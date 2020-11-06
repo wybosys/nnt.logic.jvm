@@ -292,7 +292,7 @@ fun Output(mdl: Any?): MutableMap<String, Any?>? {
 
     val clz = mdl.javaClass.kotlin
     val fps = GetAllFields(clz)!!
-    var r = mutableMapOf<String, Any?>()
+    val r = mutableMapOf<String, Any?>()
     for ((fk, fp) in fps) {
         if (!fp.output)
             continue
@@ -352,7 +352,7 @@ fun Output(mdl: Any?): MutableMap<String, Any?>? {
                 }
                 r[fk] = map
             } else if (fp.enum) {
-                // r[fk] = v.value
+                r[fk] = EnumValue(v, -1)
             } else {
                 r[fk] = Output(v)
             }
@@ -368,11 +368,11 @@ fun Output(mdl: Any?): MutableMap<String, Any?>? {
             } else if (fp.boolean) {
                 r[fk] = toBoolean(v)
             } else if (fp.enum) {
-
+                r[fk] = EnumValue(v.javaClass, -1)
             } else if (fp.filter) {
                 r[fk] = v.toString()
             } else if (fp.intfloat != null) {
-
+                // pass
             } else {
                 if (IsModel(v.javaClass.kotlin)) {
                     r[fk] = Output(v)
