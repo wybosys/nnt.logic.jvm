@@ -5,6 +5,7 @@ plugins {
     idea
     kotlin("jvm") version "1.4.10"
     kotlin("kapt") version "1.4.10"
+    id("com.github.johnrengelman.shadow") version "6.1.0"
 }
 
 java {
@@ -22,6 +23,7 @@ buildscript {
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10")
+        classpath("com.github.jengelman.gradle.plugins:shadow:6.1.0")
     }
 }
 
@@ -101,3 +103,17 @@ tasks.test {
     useJUnitPlatform()
 }
 
+tasks.jar {
+    manifest {
+        attributes(
+            mapOf(
+                "Manifest-Version" to 1.0,
+                "Main-Class" to "com.nnt.Index"
+            )
+        )
+    }
+}
+
+tasks.shadowJar {
+    isZip64 = true
+}
