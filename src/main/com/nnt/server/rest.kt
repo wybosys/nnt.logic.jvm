@@ -366,6 +366,9 @@ fun VerticleOutput(trans: Transaction, type: String, obj: Any): Unit {
     } else if (obj is Buffer) {
         pl.rsp.statusCode = 200
         pl.rsp.end(obj)
+    } else if (obj is String) {
+        pl.rsp.statusCode = 200
+        pl.rsp.end(obj)
     } else {
         pl.rsp.statusCode = 500
         pl.rsp.end("data format error")

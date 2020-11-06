@@ -148,8 +148,7 @@ class Jsobj : AbstractParser() {
             } else if (fp.enum) {
                 return toInteger(value)
             } else if (fp.json) {
-                // return toJsonObject(value)
-                return null
+                return toJsonObject(value)
             } else {
                 return value
             }

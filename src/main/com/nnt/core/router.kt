@@ -63,27 +63,8 @@ typealias ActionProtoStore = MutableMap<KClass<*>, MutableMap<String, ActionProt
 
 private val actions: ActionProtoStore = mutableMapOf()
 
-// 查找action定义
-fun FindAction(target: Any, key: String): ActionProto? {
-    // 不需要加锁，框架启动时会根据配置初始化所有的action信息，只有test代码才存在动态添加的需求
-    val clz = target.javaClass.kotlin
-    var aps = actions[clz]
-    if (aps != null) {
-        val ap = aps[key]
-        if (ap != null)
-            return ap
-    }
-
-    // 测试时才会动态去查找并加入actions
-    if (!IsLocal()) {
-        return null
-    }
-
-    if (aps == null) {
-        aps = mutableMapOf()
-        actions[clz] = aps
-    }
-
+// 添加action定义
+fun UpdateAction(clz: KClass<*>, aps: MutableMap<String, ActionProto>) {
     // 读取
     clz.declaredMemberFunctions.forEach { fn ->
         fn.annotations.forEach { ann ->
@@ -143,15 +124,48 @@ fun FindAction(target: Any, key: String): ActionProto? {
                 aps[fn.name] = ap
         }
     }
+}
+
+// 查找action定义
+fun FindAction(target: Any, key: String): ActionProto? {
+    // 不需要加锁，框架启动时会根据配置初始化所有的action信息，只有test代码才存在动态添加的需求
+    val clz = target.javaClass.kotlin
+    var aps = actions[clz]
+    if (aps != null) {
+        val ap = aps[key]
+        if (ap != null)
+            return ap
+    }
+
+    // 测试时才会动态去查找并加入actions
+    if (!IsLocal()) {
+        return null
+    }
+
+    if (aps == null) {
+        aps = mutableMapOf()
+        actions[clz] = aps
+    }
+
+    // 读取类型
+    UpdateAction(clz, aps)
 
     return aps[key]
 }
 
 fun GetAllActionNames(obj: Any): Set<String> {
     val clz = obj.javaClass.kotlin
-    val aps = actions[clz]
+    var aps = actions[clz]
     if (aps != null) {
         return aps.keys
     }
-    return setOf()
+
+    if (!IsLocal()) {
+        return setOf()
+    }
+
+    aps = mutableMapOf()
+    UpdateAction(clz, aps)
+
+    return aps.keys
 }
