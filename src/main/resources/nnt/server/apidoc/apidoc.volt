@@ -1,6 +1,7 @@
 <!-- @formatter:off -->
 <html>
 <head>
+    <title>api-doc</title>
     <script type="text/javascript" src="//wybosys.gitee.io/zepto.min.js"></script>
     <script type="text/javascript" src="//wybosys.gitee.io/vue.min.js"></script>
     <link type="text/css" rel="stylesheet" href="//wybosys.gitee.io/bootstrap.min.css"></link>

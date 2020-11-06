@@ -18,8 +18,15 @@ class File(uri: URI) {
     fun readText(): String {
         if (uri.bundle) {
             val stm = javaClass.classLoader.getResourceAsStream(uri.path)
-            val reader = BufferedReader(InputStreamReader(stm))
-            return reader.readLines().joinToString("")
+            val reader = BufferedReader(InputStreamReader(stm!!))
+
+            // jar中运行时，没一行不带行尾，所以使用保护方式执行合并
+            val lines = reader.readLines()
+            var hasln = false
+            if (lines.size > 0) {
+                hasln = lines[0].endsWith("\n")
+            }
+            return lines.joinToString(if (hasln) "" else "\n")
         }
 
         return File(uri.path).readText()
@@ -41,5 +48,5 @@ class File(uri: URI) {
 }
 
 class Stats {
-    
+
 }
