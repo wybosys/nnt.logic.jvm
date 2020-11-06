@@ -1,6 +1,5 @@
 package com.nnt.core
 
-import com.nnt.manager.IsLocal
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
@@ -106,11 +105,7 @@ fun FindModel(clz: KClass<*>): ModelOption? {
     var mp = models[clz]
     if (mp != null)
         return mp
-
-    if (!IsLocal())
-        return null
-
-    // 本地调试模式主动获取
+    
     clz.annotations.forEach { ann ->
         if (ann is model) {
             mp = ModelOption()
@@ -207,18 +202,14 @@ annotation class type(
 
 typealias FieldOptionStore = MutableMap<KClass<*>, MutableMap<String, FieldOption>>
 
-private val fieldoptions: FieldOptionStore = mutableMapOf()
+private val _fieldoptions: FieldOptionStore = mutableMapOf()
 
 fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
     // 参见 FindAction
-    var fps = fieldoptions[proto]
+    var fps = _fieldoptions[proto]
     if (fps != null)
         return fps
 
-    if (!IsLocal())
-        return null
-
-    // 本地模式才动态构造
     fps = mutableMapOf()
     proto.declaredMemberProperties.forEach { prop ->
         prop.annotations.forEach { ann ->
@@ -270,7 +261,7 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
         }
     }
 
-    fieldoptions[proto] = fps
+    _fieldoptions[proto] = fps
     return fps
 }
 

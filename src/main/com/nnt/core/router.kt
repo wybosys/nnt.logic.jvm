@@ -1,7 +1,6 @@
 package com.nnt.core
 
 import com.nnt.manager.Config
-import com.nnt.manager.IsLocal
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.declaredMemberFunctions
@@ -61,7 +60,7 @@ annotation class action(val modelType: KClass<*>, val options: Array<String> = [
 
 typealias ActionProtoStore = MutableMap<KClass<*>, MutableMap<String, ActionProto>>
 
-private val actions: ActionProtoStore = mutableMapOf()
+private val _actions: ActionProtoStore = mutableMapOf()
 
 // 添加action定义
 fun UpdateAction(clz: KClass<*>, aps: MutableMap<String, ActionProto>) {
@@ -128,26 +127,19 @@ fun UpdateAction(clz: KClass<*>, aps: MutableMap<String, ActionProto>) {
 
 // 查找action定义
 fun FindAction(target: Any, key: String): ActionProto? {
-    // 不需要加锁，框架启动时会根据配置初始化所有的action信息，只有test代码才存在动态添加的需求
     val clz = target.javaClass.kotlin
-    var aps = actions[clz]
+    var aps = _actions[clz]
     if (aps != null) {
         val ap = aps[key]
         if (ap != null)
             return ap
     }
 
-    // 测试时才会动态去查找并加入actions
-    if (!IsLocal()) {
-        return null
-    }
-
     if (aps == null) {
         aps = mutableMapOf()
-        actions[clz] = aps
+        _actions[clz] = aps
     }
 
-    // 读取类型
     UpdateAction(clz, aps)
 
     return aps[key]
@@ -155,16 +147,13 @@ fun FindAction(target: Any, key: String): ActionProto? {
 
 fun GetAllActionNames(obj: Any): Set<String> {
     val clz = obj.javaClass.kotlin
-    var aps = actions[clz]
+    var aps = _actions[clz]
     if (aps != null) {
         return aps.keys
     }
 
-    if (!IsLocal()) {
-        return setOf()
-    }
-
     aps = mutableMapOf()
+    _actions[clz] = aps
     UpdateAction(clz, aps)
 
     return aps.keys
