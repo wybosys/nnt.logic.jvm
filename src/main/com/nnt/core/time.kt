@@ -408,12 +408,13 @@ class DateTime {
             return DateTime.Current() - __time_started
         }
 
+        @SuppressWarnings("UnusedParameters")
         fun Dyears(ts: Timestamp, up: Boolean = true): Long {
             return Math.floorDiv(ts, YEAR)
         }
 
         fun Dmonths(ts: Timestamp, up: Boolean = true): Long {
-            var v = 0L
+            var v: Long
             if (up) {
                 v = ts % YEAR
                 v = Math.floorDiv(v, MONTH)
@@ -424,7 +425,7 @@ class DateTime {
         }
 
         fun Ddays(ts: Timestamp, up: Boolean = true): Long {
-            var v = 0L
+            var v: Long
             if (up) {
                 v = ts % MONTH
                 v = Math.floorDiv(v, DAY)
@@ -435,7 +436,7 @@ class DateTime {
         }
 
         fun Dhours(ts: Timestamp, up: Boolean = true): Long {
-            var v = 0L
+            var v: Long
             if (up) {
                 v = ts % DAY
                 v = Math.floorDiv(v, HOUR)
@@ -446,7 +447,7 @@ class DateTime {
         }
 
         fun Dminutes(ts: Timestamp, up: Boolean = true): Long {
-            var v = 0L
+            var v: Long
             if (up) {
                 v = ts % HOUR
                 v = Math.floorDiv(v, MINUTE)
@@ -457,7 +458,7 @@ class DateTime {
         }
 
         fun Dseconds(ts: Timestamp, up: Boolean = true): Long {
-            var v = 0L
+            var v: Long
             if (up) {
                 v = ts % MINUTE
             } else {

@@ -15,7 +15,7 @@ abstract class CronTask {
     abstract fun main()
 
     // 启动
-    fun start(cluster: Boolean = false): Boolean {
+    fun start(): Boolean {
         if (_doStart()) {
             tasks.add(this)
             return true

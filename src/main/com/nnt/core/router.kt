@@ -66,9 +66,9 @@ private val _actions: ActionProtoStore = mutableMapOf()
 fun UpdateAction(clz: KClass<*>, aps: MutableMap<String, ActionProto>) {
     // 读取
     clz.declaredMemberFunctions.forEach { fn ->
-        fn.annotations.forEach { ann ->
-            if (!(ann is action))
-                return@forEach
+        fn.annotations.forEach ann@{ ann ->
+            if (ann !is action)
+                return@ann
 
             val ap = ActionProto()
             ap.clazz = ann.modelType

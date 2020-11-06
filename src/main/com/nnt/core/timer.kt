@@ -46,7 +46,7 @@ abstract class CTimer(_interval: Seconds = 1.0, _count: Int = -1) : Object() {
     // 是否正在运行
     abstract fun isRunning(): Boolean
 
-    fun oneTick(delta: Int = 0) {
+    fun oneTick(@SuppressWarnings("UnusedParameters") delta: Int = 0) {
         _deltaFired = 0
         signals.emit(kSignalAction)
     }

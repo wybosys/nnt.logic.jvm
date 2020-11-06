@@ -35,41 +35,41 @@ class Jsobj : AbstractParser() {
         return STATUS.OK
     }
 
-    override fun decodeField(fp: FieldOption, _val: Any?, input: Boolean, output: Boolean): Any? {
-        var value: Any? = _val
+    override fun decodeField(fp: FieldOption, value: Any?, input: Boolean, output: Boolean): Any? {
+        var v: Any? = value
         if (fp.valtype != null) {
             if (fp.array) {
                 val arr = mutableListOf<Any?>()
-                if (value != null) {
+                if (v != null) {
                     if (fp.valtype == String::class) {
-                        if (value is String) {
+                        if (v is String) {
                             // 对于array，约定用，来分割
-                            value = value.split(",")
+                            v = v.split(",")
                         }
                         if (fp.valtype == String::class) {
-                            (value as List<*>).forEach {
+                            (v as List<*>).forEach {
                                 arr.add(it?.toString())
                             }
                         } else if (TypeIsInteger(fp.valtype!!)) {
-                            (value as List<*>).forEach {
+                            (v as List<*>).forEach {
                                 arr.add(toInteger(it))
                             }
                         } else if (TypeIsDecimal(fp.valtype!!)) {
-                            (value as List<*>).forEach {
+                            (v as List<*>).forEach {
                                 arr.add(toDecimal(it))
                             }
                         } else if (fp.valtype == Boolean::class) {
-                            (value as List<*>).forEach {
+                            (v as List<*>).forEach {
                                 arr.add(toBoolean(it))
                             }
                         }
                     } else {
-                        if (value is String)
-                            value = toJsonObject(value)!!.flat()
-                        if (value != null) {
-                            if (value is Array<*>) {
+                        if (v is String)
+                            v = toJsonObject(v)!!.flat()
+                        if (v != null) {
+                            if (v is Array<*>) {
                                 val clz = fp.valtype!!
-                                value.forEach {
+                                v.forEach {
                                     val t = clz.constructors.first().call()
 
                                     @Suppress("UNCHECKED_CAST")
@@ -78,7 +78,7 @@ class Jsobj : AbstractParser() {
                                     arr.add(t)
                                 }
                             } else {
-                                logger.log("Array遇到了错误的数据 ${value}")
+                                logger.log("Array遇到了错误的数据 ${v}")
                             }
                         }
                     }
@@ -92,24 +92,24 @@ class Jsobj : AbstractParser() {
                     keyconv = { toDecimal(it) }
                 val map = mutableMapOf<Any, Any?>()
                 if (fp.valtype == String::class) {
-                    for ((ek, ev) in (value as Map<*, *>)) {
+                    for ((ek, ev) in (v as Map<*, *>)) {
                         map[keyconv(ek!!)] = asString(ev)
                     }
                 } else if (TypeIsInteger(fp.valtype!!)) {
-                    for ((ek, ev) in (value as Map<*, *>)) {
+                    for ((ek, ev) in (v as Map<*, *>)) {
                         map[keyconv(ek!!)] = toInteger(ev)
                     }
                 } else if (TypeIsDecimal(fp.valtype!!)) {
-                    for ((ek, ev) in (value as Map<*, *>)) {
+                    for ((ek, ev) in (v as Map<*, *>)) {
                         map[keyconv(ek!!)] = toDecimal(ev)
                     }
                 } else if (fp.valtype == Boolean::class) {
-                    for ((ek, ev) in (value as Map<*, *>)) {
+                    for ((ek, ev) in (v as Map<*, *>)) {
                         map[keyconv(ek!!)] = toBoolean(ev)
                     }
                 } else {
                     val clz = fp.valtype!!
-                    for ((ek, ev) in (value as Map<*, *>)) {
+                    for ((ek, ev) in (v as Map<*, *>)) {
                         val t = clz.constructors.first().call()
 
                         @Suppress("UNCHECKED_CAST")
@@ -120,37 +120,37 @@ class Jsobj : AbstractParser() {
                 }
                 return map
             } else if (fp.enum) {
-                return toInteger(value)
+                return EnumValue(v)
             } else {
                 if (fp.valtype == String::class) {
-                    value = toJsonObject(value)!!.flat()
+                    v = toJsonObject(v)!!.flat()
                 }
                 if (fp.valtype == Any::class)
-                    return value
+                    return v
                 val clz = fp.valtype!!
 
                 val t = clz.constructors.first().call()
 
                 @Suppress("UNCHECKED_CAST")
-                fill(t, value as Map<String, *>, input, output)
+                fill(t, v as Map<String, *>, input, output)
 
                 return t
             }
         } else {
             if (fp.string) {
-                return asString(value)
+                return asString(v)
             } else if (fp.integer) {
-                return toInteger(value)
+                return toInteger(v)
             } else if (fp.decimal) {
-                return toDecimal(value)
+                return toDecimal(v)
             } else if (fp.boolean) {
-                return toBoolean(value)
+                return toBoolean(v)
             } else if (fp.enum) {
-                return toInteger(value)
+                return toInteger(v)
             } else if (fp.json) {
-                return toJsonObject(value)
+                return toJsonObject(v)
             } else {
-                return value
+                return v
             }
         }
     }

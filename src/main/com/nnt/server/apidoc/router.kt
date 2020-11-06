@@ -63,7 +63,7 @@ private val _actioninfos = mutableMapOf<String, List<ActionInfo>>()
 
 fun ActionsInfo(routers: Routers): List<ActionInfo> {
     val r = mutableListOf<ActionInfo>()
-    routers.forEach { v, k ->
+    routers.forEach { v, _ ->
         RouterActions(v).forEach {
             r.add(it)
         }
