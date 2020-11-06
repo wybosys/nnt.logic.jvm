@@ -6,7 +6,7 @@ import java.io.File
 class File(uri: URI) {
 
     val uri: URI = uri
-    
+
     fun exists(): Boolean {
         if (uri.bundle) {
             return javaClass.getResource(uri.path) == null
@@ -38,4 +38,8 @@ class File(uri: URI) {
 
         return File(uri.path).mkdirs()
     }
+}
+
+class Stats {
+    
 }

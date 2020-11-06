@@ -54,6 +54,7 @@ open class Routers {
         val r = _routers[trans.router]
         if (r == null) {
             trans.status = STATUS.ROUTER_NOT_FOUND
+            trans.message = "router not found"
             trans.submit()
             return
         }
@@ -62,6 +63,7 @@ open class Routers {
         val sta = trans.modelize(r)
         if (sta != STATUS.OK) {
             trans.status = sta
+            trans.message = "modelize failed"
             trans.submit()
             return
         }
@@ -77,6 +79,7 @@ open class Routers {
             if (trans.needAuth()) {
                 if (!trans.auth()) {
                     trans.status = STATUS.NEED_AUTH
+                    trans.message = "need auth"
                     trans.submit()
                     return
                 }
@@ -84,6 +87,7 @@ open class Routers {
                 // 检查devops
                 if (!devopscheck(trans)) {
                     trans.status = STATUS.PERMISSION_FAILED
+                    trans.message = "permission failed"
                     trans.submit()
                     return
                 }
@@ -94,6 +98,7 @@ open class Routers {
         val ap = FindAction(r, trans.call)
         if (ap == null) {
             trans.status = STATUS.ACTION_NOT_FOUND
+            trans.message = "action not found"
             trans.submit()
             return
         }

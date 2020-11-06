@@ -219,6 +219,7 @@ private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() 
     override fun start() {
         val opts = HttpServerOptions()
         opts.logActivity = Config.DEBUG
+        opts.isCompressionSupported = true
 
         val srv = env.createHttpServer(opts)
         val router = Router.router(env).apply {
@@ -342,9 +343,26 @@ private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() 
 }
 
 fun VerticleSubmit(trans: Transaction, opt: TransactionSubmitOption?): Unit {
-
+    val pl = trans.payload as VerticlePayload
+    pl.rsp.putHeader("Content-Type", opt?.type ?: trans.render.type)
+    if (trans.responseSessionId)
+        pl.rsp.putHeader(RESPONSE_SID, trans.sessionId())
+    val buf = trans.render.render(trans, opt)
+    pl.rsp.statusCode = 200
+    pl.rsp.end(Buffer.buffer(buf))
 }
 
 fun VerticleOutput(trans: Transaction, type: String, obj: Any): Unit {
-
+    val pl = trans.payload as VerticlePayload
+    pl.rsp.putHeader("Content-Type", type)
+    if (obj is RespFile) {
+        pl.rsp.statusCode = 200
+        pl.rsp.sendFile(obj.file)
+    } else if (obj is Buffer) {
+        pl.rsp.statusCode = 200
+        pl.rsp.end(obj)
+    } else {
+        pl.rsp.statusCode = 500
+        pl.rsp.end("data format error")
+    }
 }

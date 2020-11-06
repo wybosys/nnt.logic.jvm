@@ -2,6 +2,7 @@ package com.nnt.server.render
 
 import com.nnt.core.Output
 import com.nnt.core.STATUS
+import com.nnt.core.toJson
 import com.nnt.server.Transaction
 import com.nnt.server.TransactionSubmitOption
 
@@ -25,7 +26,7 @@ class Json : AbstractRender() {
             if (trans.model != null && tr != null)
                 r = tr
         } else {
-            r["code"] = trans.status
+            r["code"] = trans.status.value
             if (trans.status != STATUS.OK) {
                 r["message"] = trans.message
             } else {
@@ -49,9 +50,8 @@ class Json : AbstractRender() {
             r["_listening"] = listen.toInt()
 
         // 转换成数据流输出
-        //val str = toJson(r)
-        //return str.toByteArray()
-        return "".toByteArray()
+        val str = toJson(r)
+        return str.toByteArray()
     }
 
 }
