@@ -252,9 +252,9 @@ private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() 
 
         srv.listen(rest.port, rest.listen) {
             if (it.succeeded()) {
-                logger.info("创建 ${rest.id}@rest")
+                logger.info("启动 ${rest.id}@rest")
             } else {
-                logger.info("创建 ${rest.id}@rest 失败")
+                logger.info("启动 ${rest.id}@rest 失败")
             }
         }
     }
@@ -357,7 +357,7 @@ fun VerticleSubmit(trans: Transaction, opt: TransactionSubmitOption?): Unit {
         pl.rsp.putHeader("Content-Type", opt?.type ?: trans.render.type)
         pl.rsp.statusCode = 200
         pl.rsp.end(Buffer.buffer(buf))
-        
+
     } catch (err: Throwable) {
         pl.rsp.statusCode = 500
         pl.rsp.end(err.message ?: err.localizedMessage)
