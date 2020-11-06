@@ -290,5 +290,98 @@ fun Output(mdl: Any?): MutableMap<String, Any?>? {
     if (mdl == null)
         return null
 
-    return null
+    val clz = mdl.javaClass.kotlin
+    val fps = GetAllFields(clz)!!
+    var r = mutableMapOf<String, Any?>()
+    for ((fk, fp) in fps) {
+        if (!fp.output)
+            continue
+        val v = fp.property.getter.call(mdl)
+        if (fp.valtype != null) {
+            if (fp.array) {
+                val arr = mutableListOf<Any?>()
+                // 通用类型，则直接可以输出
+                if (v == null) {
+                    // 处理val==null的情况
+                } else if (fp.valtype == String::class) {
+                    (v as List<*>).forEach {
+                        arr.add(asString(it))
+                    }
+                } else if (TypeIsInteger(fp.valtype!!)) {
+                    (v as List<*>).forEach {
+                        arr.add(toInteger(it))
+                    }
+                } else if (TypeIsDecimal(fp.valtype!!)) {
+                    (v as List<*>).forEach {
+                        arr.add(toDecimal(it))
+                    }
+                } else if (fp.valtype == Boolean::class) {
+                    (v as List<*>).forEach {
+                        arr.add(toBoolean(it))
+                    }
+                } else {
+                    (v as List<*>).forEach {
+                        arr.add(Output(it))
+                    }
+                }
+                r[fk] = arr
+            } else if (fp.map) {
+                val map = mutableMapOf<Any, Any?>()
+                if (v == null) {
+                    // pass
+                } else if (fp.valtype == String::class) {
+                    (v as Map<*, *>).forEach {
+                        map[it.key!!] = asString(it.value)
+                    }
+                } else if (TypeIsInteger(fp.valtype!!)) {
+                    (v as Map<*, *>).forEach {
+                        map[it.key!!] = toInteger(it.value)
+                    }
+                } else if (TypeIsDecimal(fp.valtype!!)) {
+                    (v as Map<*, *>).forEach {
+                        map[it.key!!] = toDecimal(it.value)
+                    }
+                } else if (fp.valtype == Boolean::class) {
+                    (v as Map<*, *>).forEach {
+                        map[it.key!!] = toBoolean(it.value)
+                    }
+                } else {
+                    (v as Map<*, *>).forEach {
+                        map[it.key!!] = Output(it.value)
+                    }
+                }
+                r[fk] = map
+            } else if (fp.enum) {
+                // r[fk] = v.value
+            } else {
+                r[fk] = Output(v)
+            }
+        } else {
+            if (v == null) {
+                r[fk] = null
+            } else if (fp.string) {
+                r[fk] = asString(v)
+            } else if (fp.integer) {
+                r[fk] = toInteger(v)
+            } else if (fp.decimal) {
+                r[fk] = toDecimal(v)
+            } else if (fp.boolean) {
+                r[fk] = toBoolean(v)
+            } else if (fp.enum) {
+
+            } else if (fp.filter) {
+                r[fk] = v.toString()
+            } else if (fp.intfloat != null) {
+
+            } else {
+                if (IsModel(v.javaClass.kotlin)) {
+                    r[fk] = Output(v)
+                } else {
+                    r[fk] = toJsonObject(v)?.flat()
+                }
+            }
+        }
+    }
+
+    return r
 }

@@ -115,7 +115,7 @@ open class Routers {
                 trans.status = TO_STATUS(err.code)
             else
                 trans.status = STATUS.EXCEPTION
-            trans.message = err.message
+            trans.message = err.message ?: err.localizedMessage
             trans.submit()
         }
     }
