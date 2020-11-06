@@ -38,7 +38,7 @@ class Echoo {
     var ok: Boolean = false
 
     @integer(10, [com.nnt.core.input])
-    var value: Boolean = false
+    var value: Int = 0
 
     @string(11, [com.nnt.core.input, com.nnt.core.output])
     var content: String = ""
