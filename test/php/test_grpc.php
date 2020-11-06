@@ -8,7 +8,7 @@ use Grpc\Channel;
 
 require dirname(__FILE__) . '/vendor/autoload.php';
 
-define("HOST", "localhost:8092");
+define("HOST", "localhost:8093");
 
 function println($msg)
 {

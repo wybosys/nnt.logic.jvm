@@ -9,32 +9,49 @@
     "cluster": 1,
     "apollo": {
       "host": "http://apollo-config-server:8080",
-      "appid": "test",
+      "appid": "test-logic",
       "key": "nnt.logic.jvm"
     }
   },
   "server": [
     {
-      "id": "sample",
+      "id": "sample-app",
+      "entry": "com.test.app.Test",
+      "listen": "*:8090",
+      "router": {
+        "com.nnt.server.apidoc.Router": {
+          "export": {
+            "router": [
+              "com.test.app.router.RSample"
+            ],
+            "model": [
+              "com.test.app.model.Echoo"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "sample-dubbo",
       "entry": "com.nnt.dubbo.Dubbo",
       "protocol": [
         {
           "type": "dubbo",
-          "port": 8090,
-          "service": [
-            "test"
-          ]
-        },
-        {
-          "type": "rest",
           "port": 8091,
           "service": [
             "test"
           ]
         },
         {
-          "type": "grpc",
+          "type": "rest",
           "port": 8092,
+          "service": [
+            "test"
+          ]
+        },
+        {
+          "type": "grpc",
+          "port": 8093,
           "service": [
             "test"
           ]

@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 
-import grpc
 import asyncio
 from dubbo.test_pb2_grpc import TestStub
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import StringValue
 
+import grpc
+
 # 当前启动的测试服务
-host = "localhost:8092"
+host = "localhost:8093"
 
 # 链接服务器
 channel = grpc.insecure_channel(host)
 stub = TestStub(channel)
+
 
 async def test(idx):
     print("test %d" % idx)
@@ -43,6 +45,7 @@ async def test(idx):
 
 async def test_co():
     await asyncio.wait([test(i) for i in range(100)])
+
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(test_co())

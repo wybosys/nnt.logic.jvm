@@ -88,8 +88,8 @@ dependencies {
     implementation("it.sauronsoftware.cron4j:cron4j:2.2.5")
 
     // http
-    compileOnly("io.vertx:vertx-core:3.9.4")
-    compileOnly("io.vertx:vertx-web:3.9.4")
+    implementation("io.vertx:vertx-core:3.9.4")
+    implementation("io.vertx:vertx-web:3.9.4")
 
     // db
     implementation("org.mybatis:mybatis:3.5.5")
