@@ -12,7 +12,19 @@
     {
       "id": "sample",
       "entry": "com.test.app.Test",
-      "listen": "*:8090"
+      "listen": "*:8090",
+      "router": {
+        "com.nnt.server.apidoc.Router": {
+          "export": {
+            "router": [
+              "com.test.app.router.RSample"
+            ],
+            "model": [
+              "com.test.app.model.Echoo"
+            ]
+          }
+        }
+      }
     }
   ],
   "dbms": [

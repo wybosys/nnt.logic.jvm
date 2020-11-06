@@ -288,7 +288,12 @@ private class RestVerticle(val rest: Rest, val env: Vertx) : AbstractVerticle() 
         logger.log(url)
 
         // 请求数据类型
-        val ct = req.getHeader("content-type").split(";")[0]
+        var ct = req.getHeader("content-type")
+        if (ct != null) {
+            ct = ct.split(";")[0]
+        } else {
+            ct = "unknown"
+        }
 
         // 支持几种不同的路由格式
         // ?action=xxx.yyy&params

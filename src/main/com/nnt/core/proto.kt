@@ -164,6 +164,12 @@ annotation class double(
     val comment: String = "",
 )
 
+annotation class boolean(
+    val id: Int,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
 annotation class json(
     val id: Int,
     val options: Array<String>,
@@ -229,6 +235,10 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
                 is double -> {
                     fp = DefineField(prop, ann.options, ann.comment)
                     fp.decimal = true
+                }
+                is boolean -> {
+                    fp = DefineField(prop, ann.options, ann.comment)
+                    fp.boolean = true
                 }
                 is json -> {
                     fp = DefineField(prop, ann.options, ann.comment)
