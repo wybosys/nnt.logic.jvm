@@ -199,7 +199,7 @@ open class Dubbo : AbstractServer() {
             e.value.export()
         }
 
-        logger.info("启动 ${id}@rest")
+        logger.info("启动 ${id}@dubbo")
     }
 
     override fun stop() {
@@ -210,7 +210,7 @@ open class Dubbo : AbstractServer() {
         _protocols.clear()
         _services.clear()
 
-        logger.info("停止 ${id}@rest")
+        logger.info("停止 ${id}@dubbo")
     }
 }
 
