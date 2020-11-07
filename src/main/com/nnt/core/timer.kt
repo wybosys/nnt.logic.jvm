@@ -35,7 +35,7 @@ abstract class CTimer(_interval: Seconds = 1.0, _count: Int = -1) : Object() {
     val pastTime: Seconds get() = _firedCount * interval
 
     // 当前的逻辑时间戳
-    var currentTime: Timestamp = 0
+    var currentTime: UnixTimestamp = 0
 
     // 启动定时器
     abstract fun start()

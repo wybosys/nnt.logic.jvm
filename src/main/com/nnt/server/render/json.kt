@@ -28,7 +28,7 @@ class Json : AbstractRender() {
         } else {
             r["code"] = trans.status.value
             if (trans.status != STATUS.OK) {
-                r["message"] = trans.message
+                r["message"] = trans.message ?: trans.status.name
             } else {
                 if (opt != null && opt.raw) {
                     r["data"] = trans.model

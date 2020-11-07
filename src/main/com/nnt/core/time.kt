@@ -6,8 +6,8 @@ import java.time.LocalDateTime
 import java.time.Month
 
 class DateTimeRange(
-    var from: Timestamp = 0, // 开始
-    var to: Timestamp = 0, // 结束，比如小时 [0, 60)
+    var from: UnixTimestamp = 0, // 开始
+    var to: UnixTimestamp = 0, // 结束，比如小时 [0, 60)
 ) {}
 
 suspend fun Sleep(seconds: Seconds) {
@@ -135,7 +135,11 @@ fun InstanceDate(): LocalDateTime {
     return LocalDateTime.now()
 }
 
-typealias Timestamp = Long
+// UNIX时间戳精确到秒
+typealias UnixTimestamp = Long
+
+// 精确到毫秒的时间戳
+typealias FullTimestamp = Long
 
 class DateTime {
 
@@ -143,7 +147,7 @@ class DateTime {
         // pass
     }
 
-    constructor(ts: Timestamp) {
+    constructor(ts: UnixTimestamp) {
         timestamp = ts
     }
 
@@ -166,9 +170,9 @@ class DateTime {
 
     private var _changed = false
     private var _date = InstanceDate()
-    private var _timestamp: Timestamp = 0
+    private var _timestamp: UnixTimestamp = 0
 
-    var timestamp: Timestamp
+    var timestamp: UnixTimestamp
         get() {
             if (_changed) {
                 _timestamp = java.sql.Timestamp.valueOf(_date).time / 1000
@@ -404,21 +408,21 @@ class DateTime {
             return ts / 1000.0
         }
 
-        fun Current(): Timestamp {
+        fun Current(): UnixTimestamp {
             val ts = System.currentTimeMillis()
             return ts / 1000
         }
 
-        fun Pass(): Timestamp {
+        fun Pass(): UnixTimestamp {
             return DateTime.Current() - __time_started
         }
 
 
-        fun Dyears(ts: Timestamp, @SuppressWarnings("UnusedParameters") up: Boolean = true): Long {
+        fun Dyears(ts: UnixTimestamp, @SuppressWarnings("UnusedParameters") up: Boolean = true): Long {
             return Math.floorDiv(ts, YEAR)
         }
 
-        fun Dmonths(ts: Timestamp, up: Boolean = true): Long {
+        fun Dmonths(ts: UnixTimestamp, up: Boolean = true): Long {
             var v: Long
             if (up) {
                 v = ts % YEAR
@@ -429,7 +433,7 @@ class DateTime {
             return v
         }
 
-        fun Ddays(ts: Timestamp, up: Boolean = true): Long {
+        fun Ddays(ts: UnixTimestamp, up: Boolean = true): Long {
             var v: Long
             if (up) {
                 v = ts % MONTH
@@ -440,7 +444,7 @@ class DateTime {
             return v
         }
 
-        fun Dhours(ts: Timestamp, up: Boolean = true): Long {
+        fun Dhours(ts: UnixTimestamp, up: Boolean = true): Long {
             var v: Long
             if (up) {
                 v = ts % DAY
@@ -451,7 +455,7 @@ class DateTime {
             return v
         }
 
-        fun Dminutes(ts: Timestamp, up: Boolean = true): Long {
+        fun Dminutes(ts: UnixTimestamp, up: Boolean = true): Long {
             var v: Long
             if (up) {
                 v = ts % HOUR
@@ -462,7 +466,7 @@ class DateTime {
             return v
         }
 
-        fun Dseconds(ts: Timestamp, up: Boolean = true): Long {
+        fun Dseconds(ts: UnixTimestamp, up: Boolean = true): Long {
             var v: Long
             if (up) {
                 v = ts % MINUTE
