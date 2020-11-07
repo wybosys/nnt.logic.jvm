@@ -170,7 +170,7 @@ class Filter {
 
         fun Parse(str: String): Filter? {
             val jsobj = toJsonObject(str)
-            if (jsobj == null) {
+            if (jsobj == null || jsobj.isNull) {
                 return null
             }
             val r = Filter()
