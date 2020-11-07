@@ -120,9 +120,11 @@ class PhoenixJdbcSession(conn: Connection, tpl: JdbcTemplate) : JdbcSession(conn
         return super.queryForObject(sql, args, argTypes, requiredType)
     }
 
-    override fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T {
+    override fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T? {
         if (requiredType == Date::class.java) {
             val r = super.queryForObject(sql, args, Long::class)
+            if (r == null)
+                return null
 
             @Suppress("UNCHECKED_CAST")
             return Date(r.toLong()) as T

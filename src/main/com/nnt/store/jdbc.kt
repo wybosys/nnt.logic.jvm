@@ -311,7 +311,7 @@ open class JdbcSession(conn: Connection, tpl: JdbcTemplate) : ISession {
     }
 
     @Throws(DataAccessException::class)
-    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T {
+    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T? {
         return _tpl.queryForObject(sql, args, requiredType.java)
     }
 
@@ -332,7 +332,18 @@ open class JdbcSession(conn: Connection, tpl: JdbcTemplate) : ISession {
 
     @Throws(DataAccessException::class)
     open fun <T : Any> queryForList(sql: String, args: Array<Any>, elementType: KClass<T>): List<T> {
-        return _tpl.queryForList(sql, args, elementType.java)
+        val ti = GetTableInfo(elementType)
+        if (ti == null) {
+            return _tpl.queryForList(sql, args, elementType.java)
+        }
+
+        // 模型类型
+        val r = _tpl.queryForList(sql, *args)
+        return r.map {
+            val t = elementType.constructors.first().call()
+            Fill(t, it, ti)
+            t
+        }
     }
 
     @Throws(DataAccessException::class)

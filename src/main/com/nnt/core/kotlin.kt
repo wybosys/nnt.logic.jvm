@@ -16,6 +16,10 @@ fun ToType(v: Any?, typ: KType): Any? {
                 if (v is Number)
                     return v.toInt()
             }
+            Double::class.java -> {
+                if (v is Number)
+                    return v.toDouble()
+            }
             Short::class.java -> {
                 if (v is Number)
                     return v.toShort()
@@ -33,7 +37,7 @@ fun ToType(v: Any?, typ: KType): Any? {
                     return v != 0
             }
             else -> {
-                println("ToType遇到未处理的类型 ${v.javaClass}")
+                logger.fatal("ToType遇到未处理的类型 ${v.javaClass}")
             }
         }
     }

@@ -2,6 +2,7 @@ package com.nnt.server
 
 import com.nnt.core.*
 import com.nnt.session.ModelError
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.full.callSuspend
 
 interface IRouterable {
@@ -111,11 +112,16 @@ open class Routers {
             else
                 ap.func.call(r, trans)
         } catch (err: Throwable) {
-            if (err is ModelError)
+            if (err is ModelError) {
                 trans.status = ToEnum(STATUS::class, err.code, STATUS.EXCEPTION)!!
-            else
+                trans.message = err.message
+            } else if (err is InvocationTargetException) {
                 trans.status = STATUS.EXCEPTION
-            trans.message = err.message ?: err.localizedMessage
+                trans.message = err.targetException.localizedMessage
+            } else {
+                trans.status = STATUS.EXCEPTION
+                trans.message = err.message ?: err.localizedMessage
+            }
             trans.submit()
         }
     }

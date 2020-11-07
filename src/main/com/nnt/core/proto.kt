@@ -230,6 +230,12 @@ annotation class enumerate(
     val comment: String = "",
 )
 
+annotation class filter(
+    val id: Int,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
 annotation class type(
     val id: Int,
     val type: KClass<*>,
@@ -289,6 +295,10 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
                     fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.enum = true
                     fp.valtype = ann.type
+                }
+                is filter -> {
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
+                    fp.filter = true
                 }
                 is type -> {
                     fp = DefineField(ann.id, prop, ann.options, ann.comment)

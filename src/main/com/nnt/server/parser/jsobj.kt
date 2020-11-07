@@ -1,6 +1,7 @@
 package com.nnt.server.parser
 
 import com.nnt.core.*
+import com.nnt.store.Filter
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 
@@ -151,6 +152,8 @@ class Jsobj : AbstractParser() {
                 return toJsonObject(v)
             } else if (fp.timestamp) {
                 return DateTime(toInteger(v))
+            } else if (fp.filter) {
+                return Filter.Parse(asString(v))
             } else {
                 return v
             }
