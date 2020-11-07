@@ -387,21 +387,21 @@ class DateTime {
 
     companion object {
 
-        val MINUTE = 60
-        val MINUTE_2 = 120
-        val MINUTE_3 = 180
-        val MINUTE_4 = 240
-        val MINUTE_5 = 300
-        val MINUTE_15 = 900
-        val MINUTE_30 = 1800
-        val HOUR = 3600
-        val HOUR_2 = 7200
-        val HOUR_6 = 21600
-        val HOUR_12 = 43200
-        val DAY = 86400
-        val WEEK = 604800
-        val MONTH = 2592000
-        val YEAR = 31104000
+        val MINUTE = 60L
+        val MINUTE_2 = 120L
+        val MINUTE_3 = 180L
+        val MINUTE_4 = 240L
+        val MINUTE_5 = 300L
+        val MINUTE_15 = 900L
+        val MINUTE_30 = 1800L
+        val HOUR = 3600L
+        val HOUR_2 = 7200L
+        val HOUR_6 = 21600L
+        val HOUR_12 = 43200L
+        val DAY = 86400L
+        val WEEK = 604800L
+        val MONTH = 2592000L
+        val YEAR = 31104000L
 
         fun Now(): Double {
             val ts = System.currentTimeMillis()
@@ -467,7 +467,7 @@ class DateTime {
         }
 
         fun Dseconds(ts: UnixTimestamp, up: Boolean = true): Long {
-            var v: Long
+            val v: Long
             if (up) {
                 v = ts % MINUTE
             } else {
