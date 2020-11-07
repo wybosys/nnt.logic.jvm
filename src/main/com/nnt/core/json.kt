@@ -138,6 +138,8 @@ class JsonObject {
             _pod = node.asDouble()
         } else if (node.isBoolean) {
             _pod = node.asBoolean()
+        } else if (node.isMissingNode) {
+            // pass 传入 "" 空字符串解析会遇到该情况
         } else {
             logger.fatal("json解析遇到不支持的类型")
         }
