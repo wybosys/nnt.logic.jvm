@@ -87,7 +87,7 @@ fun IsDevops(): Boolean {
 }
 
 fun IsDevopsDevelop(): Boolean {
-    return System.getenv("DEVOPS") != null && System.getenv("DEVOPS_RELEASE") != null
+    return System.getenv("DEVOPS") != null && System.getenv("DEVOPS_RELEASE") == null
 }
 
 fun IsDevopsRelease(): Boolean {

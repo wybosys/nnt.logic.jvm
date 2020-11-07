@@ -195,6 +195,10 @@ open class Mybatis : AbstractRdb() {
         val ses = _mapfac.openSession(false)
         return MybatisSession(ses)
     }
+
+    override fun acquireSession(): ISession {
+        return acquireJdbc()
+    }
 }
 
 // mybatis业务对象
@@ -204,7 +208,7 @@ class MybatisSession(sql: SqlSession) : SqlSession by sql {
     private var _closed = false
 
     override fun close() {
-        if (_closed) {
+        if (!_closed) {
             _sql.close()
             _closed = true
         }

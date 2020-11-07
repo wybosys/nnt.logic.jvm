@@ -11,6 +11,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet
 import java.sql.Connection
 import java.util.*
 import javax.sql.DataSource
+import kotlin.reflect.KClass
 
 open class Jdbc : AbstractDbms() {
 
@@ -79,6 +80,10 @@ open class Jdbc : AbstractDbms() {
         return JdbcSession(conn, tpl)
     }
 
+    override fun acquireSession(): ISession {
+        return acquire()
+    }
+
     // 直接执行sql语句返回原始数据类型
     fun execute(
         proc: (tpl: JdbcTemplate, conn: Connection) -> Unit,
@@ -101,7 +106,7 @@ open class Jdbc : AbstractDbms() {
 }
 
 // jdbc业务对象
-open class JdbcSession(conn: Connection, tpl: JdbcTemplate) {
+open class JdbcSession(conn: Connection, tpl: JdbcTemplate) : ISession {
 
     // 不使用 JdbcOperations by tpl 的写法是因为会造成编译器warnning
 
@@ -109,14 +114,18 @@ open class JdbcSession(conn: Connection, tpl: JdbcTemplate) {
     private val _tpl = tpl
     private var _closed = false
 
-    open fun close() {
-        if (_closed) {
+    override open fun close() {
+        if (!_closed) {
             _conn.close()
             _closed = true
         }
     }
 
-    open fun commit() {
+    override open fun commit() {
+        // pass
+    }
+
+    override fun rollback() {
         // pass
     }
 
@@ -162,8 +171,8 @@ open class JdbcSession(conn: Connection, tpl: JdbcTemplate) {
     }
 
     @Throws(DataAccessException::class)
-    open fun <T> queryForObject(sql: String, requiredType: Class<T>): T {
-        return _tpl.queryForObject(sql, requiredType)
+    open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>): T? {
+        return _tpl.queryForObject(sql, requiredType.java)
     }
 
     @Throws(DataAccessException::class)
@@ -172,8 +181,8 @@ open class JdbcSession(conn: Connection, tpl: JdbcTemplate) {
     }
 
     @Throws(DataAccessException::class)
-    open fun <T> queryForList(sql: String, elementType: Class<T>): List<T> {
-        return _tpl.queryForList(sql, elementType)
+    open fun <T : Any> queryForList(sql: String, elementType: KClass<T>): List<T> {
+        return _tpl.queryForList(sql, elementType.java)
     }
 
     @Throws(DataAccessException::class)
@@ -297,18 +306,18 @@ open class JdbcSession(conn: Connection, tpl: JdbcTemplate) {
     }
 
     @Throws(DataAccessException::class)
-    open fun <T> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, requiredType: Class<T>): T {
-        return _tpl.queryForObject(sql, args, argTypes, requiredType)
+    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, requiredType: KClass<T>): T {
+        return _tpl.queryForObject(sql, args, argTypes, requiredType.java)
     }
 
     @Throws(DataAccessException::class)
-    open fun <T> queryForObject(sql: String, args: Array<Any>, requiredType: Class<T>): T {
-        return _tpl.queryForObject(sql, args, requiredType)
+    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T {
+        return _tpl.queryForObject(sql, args, requiredType.java)
     }
 
     @Throws(DataAccessException::class)
-    open fun <T> queryForObject(sql: String, requiredType: Class<T>, vararg args: Any): T {
-        return _tpl.queryForObject(sql, requiredType, *args)
+    open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? {
+        return _tpl.queryForObject(sql, requiredType.java, *args)
     }
 
     @Throws(DataAccessException::class)
@@ -322,18 +331,24 @@ open class JdbcSession(conn: Connection, tpl: JdbcTemplate) {
     }
 
     @Throws(DataAccessException::class)
-    open fun <T> queryForList(sql: String, args: Array<Any>, argTypes: IntArray, elementType: Class<T>): List<T> {
-        return _tpl.queryForList(sql, args, argTypes, elementType)
+    open fun <T : Any> queryForList(sql: String, args: Array<Any>, elementType: KClass<T>): List<T> {
+        return _tpl.queryForList(sql, args, elementType.java)
     }
 
     @Throws(DataAccessException::class)
-    open fun <T> queryForList(sql: String, args: Array<Any>, elementType: Class<T>): List<T> {
-        return _tpl.queryForList(sql, args, elementType)
-    }
+    open fun <T : Any> queryForList(sql: String, elementType: KClass<T>, vararg args: Any): List<T> {
+        val ti = GetTableInfo(elementType)
+        if (ti == null) {
+            return _tpl.queryForList(sql, elementType.java, *args)
+        }
 
-    @Throws(DataAccessException::class)
-    open fun <T> queryForList(sql: String, elementType: Class<T>, vararg args: Any): List<T> {
-        return _tpl.queryForList(sql, elementType, *args)
+        // 模型类型
+        val r = _tpl.queryForList(sql, *args)
+        return r.map {
+            val t = elementType.constructors.first().call()
+            Fill(t, it, ti)
+            t
+        }
     }
 
     @Throws(DataAccessException::class)

@@ -56,6 +56,15 @@ class HBase : AbstractKv() {
         // pass
     }
 
+    fun acquire(): HBaseSession {
+        val conn = ConnectionFactory.createConnection(_conf)
+        return HBaseSession(conn)
+    }
+
+    override fun acquireSession(): ISession {
+        return acquire()
+    }
+
     fun execute(
         proc: (conn: Connection) -> Unit,
     ): Boolean {
@@ -71,6 +80,32 @@ class HBase : AbstractKv() {
             conn?.close()
         }
         return r
+    }
+
+}
+
+open class HBaseSession(conn: Connection) : ISession {
+
+    private val _conn = conn
+    private var _closed = false
+
+    override fun close() {
+        if (!_closed) {
+            _conn.close()
+            _closed = true
+        }
+    }
+
+    protected fun finalize() {
+        close()
+    }
+
+    override fun commit() {
+        // pass
+    }
+
+    override fun rollback() {
+        // pass
     }
 
 }

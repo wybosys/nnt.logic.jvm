@@ -15,7 +15,7 @@ class Index {
             App.args = args
 
             // 配置文件路径
-            val appcfg = URI("bundle://app.json")
+            val appcfg = URI("bundle://dubbo.json")
             val devcfg = URI("bundle://devops.json")
 
             // 加载配置

@@ -2,14 +2,11 @@ package com.nnt.store
 
 import com.nnt.core.JsonObject
 import com.nnt.core.logger
-import org.neo4j.driver.AuthTokens
-import org.neo4j.driver.Driver
-import org.neo4j.driver.GraphDatabase
-import org.neo4j.driver.Transaction
+import org.neo4j.driver.*
 
 private const val DEFAULT_PORT = 7687
 
-class Neo4J : AbstractGraphDb() {
+open class Neo4J : AbstractGraphDb() {
 
     var host: String = ""
     var port: Int = DEFAULT_PORT
@@ -89,10 +86,46 @@ class Neo4J : AbstractGraphDb() {
                 }
                 ""
             }
+            ses.close()
         } catch (err: Throwable) {
             logger.exception(err.localizedMessage)
             r = false
         }
         return r
     }
+
+    open fun acquire(): Neo4jSession {
+        val ses = _driver.session()
+        return Neo4jSession(ses)
+    }
+
+    override fun acquireSession(): ISession {
+        return acquire()
+    }
+}
+
+open class Neo4jSession(ses: Session) : ISession {
+
+    private val _ses = ses
+    private var _closed = false
+
+    override fun close() {
+        if (!_closed) {
+            _ses.close()
+            _closed = true
+        }
+    }
+
+    protected fun finalize() {
+        close()
+    }
+
+    override fun commit() {
+        // pass
+    }
+
+    override fun rollback() {
+        // pass
+    }
+
 }

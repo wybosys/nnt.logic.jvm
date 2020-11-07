@@ -147,6 +147,11 @@ class DateTime {
         timestamp = ts
     }
 
+    constructor(dt: LocalDateTime) {
+        _date = dt
+        _timestamp = java.sql.Timestamp.valueOf(_date).time / 1000
+    }
+
     // 未来
     fun future(ts: Long): DateTime {
         timestamp += ts

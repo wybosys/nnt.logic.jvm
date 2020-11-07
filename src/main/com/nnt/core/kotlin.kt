@@ -24,6 +24,17 @@ fun ToType(v: Any?, typ: KType): Any? {
                 if (v is Number)
                     return v.toLong()
             }
+            DateTime::class.java -> {
+                if (v is java.sql.Timestamp)
+                    return DateTime(v.time / 1000)
+            }
+            java.lang.Boolean::class.java -> {
+                if (v is Byte)
+                    return v != 0
+            }
+            else -> {
+                println("ToType遇到未处理的类型 ${v.javaClass}")
+            }
         }
     }
 

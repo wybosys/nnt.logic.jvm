@@ -22,4 +22,7 @@ abstract class AbstractDbms {
 
     // 关闭链接
     abstract fun close()
+
+    // 分配一个session对象
+    abstract fun acquireSession(): ISession
 }

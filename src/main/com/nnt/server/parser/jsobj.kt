@@ -149,6 +149,8 @@ class Jsobj : AbstractParser() {
                 return toInteger(v)
             } else if (fp.json) {
                 return toJsonObject(v)
+            } else if (fp.timestamp) {
+                return DateTime(toInteger(v))
             } else {
                 return v
             }

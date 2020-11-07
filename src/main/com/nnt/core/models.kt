@@ -22,7 +22,7 @@ class RestUpdate {
 
 // 具有顺序性的分页基类模型
 @model()
-class SeqPaged {
+open class SeqPaged {
 
     @integer(1, [input, output, optional], "排序依赖的最大数值")
     var last: Int = -1
@@ -41,7 +41,7 @@ class SeqPaged {
 
 // 基于页码的分页数据模型
 @model()
-class NumPaged {
+open class NumPaged {
 
     @integer(1, [input, output, optional], "请求的页码")
     var page: Int = 0
@@ -55,5 +55,10 @@ class NumPaged {
     val skips: Int
         get() {
             return page * limit
+        }
+
+    val overflow: Boolean
+        get() {
+            return total > PAGED_LIMIT
         }
 }

@@ -186,4 +186,14 @@ class RMysql : AbstractRdb() {
         return r
     }
 
+    fun acquireJdbc(): JdbcSession {
+        val conn = _dsfac.connection
+        val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
+        return PhoenixJdbcSession(conn, tpl)
+    }
+
+    override fun acquireSession(): ISession {
+        return acquireJdbc()
+    }
+
 }

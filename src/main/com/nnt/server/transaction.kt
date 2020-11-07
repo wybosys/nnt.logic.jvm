@@ -3,8 +3,10 @@ package com.nnt.server
 import com.nnt.acl.AcEntity
 import com.nnt.core.*
 import com.nnt.manager.Config
+import com.nnt.manager.Dbms
 import com.nnt.server.parser.AbstractParser
 import com.nnt.server.render.AbstractRender
+import com.nnt.store.ISession
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -184,6 +186,16 @@ abstract class Transaction {
     // 是否已经授权
     abstract fun auth(): Boolean
 
+    // 清理
+    open fun clear() {
+        if (_dbsessions.size > 0) {
+            _dbsessions.forEach { _, ses ->
+                ses.close()
+            }
+            _dbsessions.clear()
+        }
+    }
+
     // 同步模式会自动提交，异步模式需要手动提交
     var implSubmit: (trans: Transaction, opt: TransactionSubmitOption?) -> Unit = { trans, opt -> }
 
@@ -201,8 +213,10 @@ abstract class Transaction {
             _timeout = null
             _submited_timeout = true
         }
+
         _submited = true
         _outputed = true
+
         if (hookSubmit != null) {
             try {
                 hookSubmit!!()
@@ -210,7 +224,11 @@ abstract class Transaction {
                 logger.exception(err.localizedMessage)
             }
         }
+
         implSubmit(this, opt)
+
+        // 完成数据提交后清理
+        clear()
     }
 
     // 当提交的时候修改
@@ -220,7 +238,7 @@ abstract class Transaction {
     var implOutput: (trans: Transaction, type: String, obj: Any) -> Unit = { trans, type, obj -> }
     private var _outputed: Boolean = false
 
-    open fun output(type: String, obj: Any) {
+    open suspend fun output(type: String, obj: Any) {
         if (_outputed) {
             logger.warn("api已经发送")
             return
@@ -229,9 +247,22 @@ abstract class Transaction {
             CancelDelay(_timeout!!)
             _timeout = null
         }
-        _outputed = true
+
         _submited = true
+        _outputed = true
+
+        if (hookSubmit != null) {
+            try {
+                hookSubmit!!()
+            } catch (err: Throwable) {
+                logger.exception(err.localizedMessage)
+            }
+        }
+
         implOutput(this, type, obj)
+
+        // 完成数据提交后清理
+        clear()
     }
 
     protected open fun waitTimeout() {
@@ -287,6 +318,19 @@ abstract class Transaction {
 
     // 用来构建输出
     lateinit var render: AbstractRender
+
+    // 获取事物数据库，事务提交时自动关闭，同一个事物获得同一个数据库对象。不进行是否为null的判断，因为调试时必定会发现。
+    fun db(id: String): ISession {
+        if (_dbsessions.contains(id))
+            return _dbsessions[id]!!
+        val tgt = Dbms.Find(id)!!
+        val ses = tgt.acquireSession()
+        _dbsessions[id] = ses
+        return ses
+    }
+
+    // 事务数据库暂存
+    private val _dbsessions = mutableMapOf<String, ISession>()
 }
 
 class EmptyTransaction : Transaction() {

@@ -60,7 +60,10 @@ interface FieldValidProc {
 class FieldOption {
 
     // 唯一序号，后续类似pb的协议会使用id来做数据版本兼容
-    var id: Int = 0;
+    var id: Int = 0
+
+    // 继承过来的属性
+    var inherited: Boolean = false
 
     // 可选
     var optional: Boolean = false
@@ -81,28 +84,56 @@ class FieldOption {
     var json: Boolean = false
     var filter: Boolean = false
     var intfloat: Int? = null
+    var timestamp: Boolean = false
 
     // 关联类型
     var keytype: KClass<*>? = null
     var valtype: KClass<*>? = null
 
-    var comment: String = ""; // 注释
+    var comment: String = "" // 注释
 
     // 有效性检查函数
     var valid: FieldValidProc? = null
 
     // 对应的属性设置，用来绑定数据到对象
     lateinit var property: KProperty<*>
+
+    fun clone(): FieldOption {
+        val r = FieldOption()
+        r.id = id
+        r.inherited = inherited
+        r.optional = optional
+        r.input = input
+        r.output = output
+        r.array = array
+        r.map = map
+        r.string = string
+        r.integer = integer
+        r.decimal = decimal
+        r.boolean = boolean
+        r.enum = enum
+        r.file = file
+        r.json = json
+        r.filter = filter
+        r.intfloat = intfloat
+        r.timestamp = timestamp
+        r.keytype = keytype
+        r.valtype = valtype
+        r.comment = comment
+        r.valid = valid
+        r.property = property
+        return r
+    }
 }
 
 annotation class model(val options: Array<String> = [], val parent: KClass<*> = Null::class)
 
 typealias ModelOptionStore = MutableMap<KClass<*>, ModelOption>
 
-var models: ModelOptionStore = mutableMapOf()
+private var _models: ModelOptionStore = mutableMapOf()
 
 fun FindModel(clz: KClass<*>): ModelOption? {
-    var mp = models[clz]
+    var mp = _models[clz]
     if (mp != null)
         return mp
 
@@ -120,16 +151,16 @@ fun FindModel(clz: KClass<*>): ModelOption? {
 
             if (ann.parent != Null::class)
                 mp!!.parent = ann.parent
-            models[clz] = mp!!
+            _models[clz] = mp!!
         }
     }
 
-    return models[clz]
+    return _models[clz]
 }
 
 // 是否是模型
 fun IsModel(clz: KClass<*>): Boolean {
-    return models.contains(clz)
+    return _models.contains(clz)
 }
 
 // 是否需要登陆验证
@@ -137,7 +168,7 @@ fun IsNeedAuth(mdl: Any?): Boolean {
     if (mdl == null)
         return false
     val clz = mdl.javaClass.kotlin
-    val mp = models[clz]
+    val mp = _models[clz]
     return mp?.auth ?: false
 }
 
@@ -153,13 +184,19 @@ annotation class integer(
     val comment: String = "",
 )
 
-annotation class double(
+annotation class decimal(
     val id: Int,
     val options: Array<String>,
     val comment: String = "",
 )
 
 annotation class boolean(
+    val id: Int,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
+annotation class timestamp(
     val id: Int,
     val options: Array<String>,
     val comment: String = "",
@@ -200,6 +237,8 @@ annotation class type(
     val comment: String = "",
 )
 
+val FIELDS_MAX = 100
+
 typealias FieldOptionStore = MutableMap<KClass<*>, MutableMap<String, FieldOption>>
 
 private val _fieldoptions: FieldOptionStore = mutableMapOf()
@@ -223,7 +262,7 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
                     fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.integer = true
                 }
-                is double -> {
+                is decimal -> {
                     fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.decimal = true
                 }
@@ -255,9 +294,24 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
                     fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.valtype = ann.type
                 }
+                is timestamp -> {
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
+                    fp.timestamp = true
+                }
             }
             if (fp != null)
                 fps[prop.name] = fp
+        }
+    }
+
+    // 处理一下父类的id偏移
+    val mp = FindModel(proto)
+    if (mp?.parent != null) {
+        val pfps = GetAllFields(mp.parent!!)
+        pfps!!.forEach { name, fp ->
+            val nfp = fp.clone()
+            nfp.id *= FIELDS_MAX // 每一次继承，id后面x100，即一个类参数最大数量不能超过100
+            fps[name] = nfp
         }
     }
 
@@ -273,7 +327,6 @@ private fun DefineField(id: Int, prop: KProperty<*>, options: Array<String>, com
     r.output = output in options
     r.comment = comment
     r.property = prop
-
     return r
 }
 
@@ -365,6 +418,8 @@ fun Output(mdl: Any?): MutableMap<String, Any?>? {
                 r[fk] = v.toString()
             } else if (fp.intfloat != null) {
                 // pass
+            } else if (fp.timestamp) {
+                r[fk] = (v as DateTime).timestamp
             } else {
                 if (IsModel(v.javaClass.kotlin)) {
                     r[fk] = Output(v)
