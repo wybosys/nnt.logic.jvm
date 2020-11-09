@@ -5,7 +5,6 @@ import com.nnt.core.DateTimeRange
 import com.nnt.manager.CronTask
 import com.nnt.manager.PerDay
 import com.nnt.manager.PerHour
-import java.time.Month
 
 private class _TaskToday : CronTask() {
 
@@ -22,7 +21,7 @@ private class _TaskToday : CronTask() {
 var TODAY_RANGE = DateTimeRange()
 var WEEKEND_RANGE = DateTimeRange()
 var TODAY_DAY: Int = 0
-var TODAY_MONTH: Month = Month.APRIL
+var TODAY_MONTH: Int = 0
 var TODAY_YEAR: Int = 0
 
 private class _TaskHour : CronTask() {

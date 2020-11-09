@@ -12,6 +12,17 @@ typealias Real = Double
 // 定义整数
 typealias Integer = Long
 
+// 转换成数值类型
+interface IValue {
+    fun valueOf(): Any
+}
+
+fun toValue(v: Array<*>): Array<Any?> {
+    return v.map {
+        if (it is IValue) it.valueOf() else it
+    }.toTypedArray()
+}
+
 fun toDecimal(o: Any?, def: Real = 0.0): Double {
     if (o == null)
         return def
@@ -19,7 +30,7 @@ fun toDecimal(o: Any?, def: Real = 0.0): Double {
         return o.toDouble()
     if (o is String) {
         val r = o.toDoubleOrNull()
-        return r ?: def
+        return if (r === null) def else r
     }
     return def
 }
@@ -31,7 +42,7 @@ fun toInt(o: Any?, def: Int = 0): Int {
         return o.toInt()
     if (o is String) {
         val r = o.toIntOrNull()
-        return r ?: def
+        return if (r === null) def else r
     }
     return def
 }
@@ -43,7 +54,7 @@ fun toInteger(o: Any?, def: Integer = 0): Integer {
         return o.toLong()
     if (o is String) {
         val r = o.toLongOrNull()
-        return r ?: def
+        return if (r === null) def else r
     }
     return def
 }

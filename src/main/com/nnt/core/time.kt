@@ -1,13 +1,11 @@
 package com.nnt.core
 
 import kotlinx.coroutines.*
+import org.joda.time.LocalDateTime
+import org.joda.time.chrono.ISOChronology
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.ISODateTimeFormat
-import java.sql.Timestamp
-import java.time.DayOfWeek
-import java.time.LocalDateTime
-import java.time.Month
 
 class DateTimeRange(
     var from: UnixTimestamp = 0, // 开始
@@ -135,17 +133,13 @@ class Interval(time: Seconds, proc: () -> Unit, autostart: Boolean = true) {
     }
 }
 
-fun InstanceDate(): LocalDateTime {
-    return LocalDateTime.now()
-}
-
 // UNIX时间戳精确到秒
 typealias UnixTimestamp = Long
 
 // 精确到毫秒的时间戳
 typealias FullTimestamp = Long
 
-class DateTime {
+class DateTime : IValue {
 
     constructor() : this(Current()) {
         // pass
@@ -157,7 +151,11 @@ class DateTime {
 
     constructor(dt: LocalDateTime) {
         _date = dt
-        _timestamp = java.sql.Timestamp.valueOf(_date).time / 1000
+        syncTimestamp()
+    }
+
+    protected fun syncTimestamp() {
+        _timestamp = _date!!.toDateTime().millis / 1000
     }
 
     // 未来
@@ -172,32 +170,27 @@ class DateTime {
         return this
     }
 
-    private var _changed = false
-    private var _date = InstanceDate()
-    private var _timestamp: UnixTimestamp = 0
+    private var _date: LocalDateTime? = null
+    private var _timestamp: UnixTimestamp? = null
 
     var timestamp: UnixTimestamp
         get() {
-            if (_changed) {
-                _timestamp = java.sql.Timestamp.valueOf(_date).time / 1000
-                _changed = false
-            }
-            return _timestamp
+            return _timestamp!!
         }
         set(value) {
             if (_timestamp == value)
                 return
             _timestamp = value
-            _date = java.sql.Timestamp(value * 1000).toLocalDateTime()
+            _date = LocalDateTime(value * 1000, ISOChronology.getInstance())
         }
 
     var year: Int
         get() {
-            return _date.year
+            return _date!!.year
         }
         set(value) {
-            _changed = true
-            _date = _date.withYear(value)
+            _date = _date!!.withYear(value)
+            syncTimestamp()
         }
 
     var hyear: Int
@@ -210,135 +203,135 @@ class DateTime {
 
     var month: Int
         get() {
-            return _date.month.value - 1
+            return _date!!.monthOfYear - 1
         }
         set(value) {
-            _changed = true
-            _date = _date.withMonth(value + 1)
+            _date = _date!!.withMonthOfYear(value + 1)
+            syncTimestamp()
         }
 
-    var hmonth: Month
+    var hmonth: Int
         get() {
-            return _date.month
+            return _date!!.monthOfYear
         }
         set(value) {
-            _changed = true
-            _date = _date.withMonth(value.value)
+            _date = _date!!.withMonthOfYear(value)
+            syncTimestamp()
         }
 
     var day: Int
         get() {
-            return _date.dayOfMonth - 1
+            return _date!!.dayOfMonth - 1
         }
         set(value) {
-            _changed = true
-            _date = _date.withDayOfMonth(value + 1)
+            _date = _date!!.withDayOfMonth(value + 1)
+            syncTimestamp()
         }
 
     var hday: Int
         get() {
-            return _date.dayOfMonth
+            return _date!!.dayOfMonth
         }
         set(value) {
-            _changed = true
-            _date = _date.withDayOfMonth(value)
+            _date = _date!!.withDayOfMonth(value)
+            syncTimestamp()
         }
 
     var hour: Int
         get() {
-            return _date.hour
+            return _date!!.hourOfDay
         }
         set(value) {
-            _changed = true
-            _date = _date.withHour(value)
+            _date = _date!!.withHourOfDay(value)
+            syncTimestamp()
         }
 
     var minute: Int
         get() {
-            return _date.minute
+            return _date!!.minuteOfHour
         }
         set(value) {
-            _changed = true
-            _date = _date.withMinute(value)
+            _date = _date!!.withMinuteOfHour(value)
+            syncTimestamp()
         }
 
     var second: Int
         get() {
-            return _date.second
+            return _date!!.secondOfMinute
         }
         set(value) {
-            _changed = true
-            _date = _date.withSecond(value)
+            _date = _date!!.withSecondOfMinute(value)
+            syncTimestamp()
         }
 
     val weekday: Int
         get() {
-            return _date.dayOfWeek.value - 1
+            return _date!!.dayOfWeek - 1
         }
 
-    val hweekday: DayOfWeek
+    val hweekday: Int
         get() {
-            return _date.dayOfWeek
+            return _date!!.dayOfWeek
         }
 
     /** 计算diff-year，根绝suffix的类型返回对应的类型 */
     fun <T : Number> dyears(up: Boolean = true, suffix: T? = null): Long {
-        val v = Dyears(_timestamp, up)
+        val v = Dyears(_timestamp!!, up)
         return if (suffix != null) v + suffix.toLong() else v
     }
 
     fun dyears(up: Boolean = true, suffix: String): String {
-        val v = Dyears(_timestamp, up)
+        val v = Dyears(_timestamp!!, up)
         return if (v > 0) "$v$suffix" else ""
     }
 
     fun <T : Number> dmonths(up: Boolean = true, suffix: T? = null): Long {
-        val v = Dmonths(_timestamp, up)
+        val v = Dmonths(_timestamp!!, up)
         return if (suffix != null) v + suffix.toLong() else v
     }
 
     fun dmonths(up: Boolean = true, suffix: String): String {
-        val v = Dmonths(_timestamp, up)
+        val v = Dmonths(_timestamp!!, up)
         return if (v > 0) "$v$suffix" else ""
     }
 
     fun <T : Number> ddays(up: Boolean = true, suffix: T? = null): Long {
-        val v = Ddays(_timestamp, up)
+        val v = Ddays(_timestamp!!, up)
         return if (suffix != null) v + suffix.toLong() else v
     }
 
     fun ddays(up: Boolean = true, suffix: String): String {
-        val v = Ddays(_timestamp, up)
+        val v = Ddays(_timestamp!!, up)
         return if (v > 0) "$v$suffix" else ""
     }
 
     fun <T : Number> dhours(up: Boolean = true, suffix: T? = null): Long {
-        val v = Dhours(_timestamp, up)
+        val v = Dhours(_timestamp!!, up)
         return if (suffix != null) v + suffix.toLong() else v
     }
 
     fun dhours(up: Boolean = true, suffix: String): String {
-        val v = Dhours(_timestamp, up)
+        val v = Dhours(_timestamp!!, up)
         return if (v > 0) "$v$suffix" else ""
     }
 
     fun <T : Number> dminutes(up: Boolean = true, suffix: T? = null): Long {
-        val v = Dminutes(_timestamp, up)
+        val v = Dminutes(_timestamp!!, up)
         return if (suffix != null) v + suffix.toLong() else v
     }
 
     fun dminutes(up: Boolean = true, suffix: String): String {
-        val v = Dminutes(_timestamp, up)
+        val v = Dminutes(_timestamp!!, up)
         return if (v > 0) "$v$suffix" else ""
     }
 
     fun <T : Number> dseconds(up: Boolean = true, suffix: T? = null): Long {
-        val v = Dseconds(_timestamp, up)
+        val v = Dseconds(_timestamp!!, up)
         return if (suffix != null) v + suffix.toLong() else v
     }
 
     fun dseconds(up: Boolean = true, suffix: String): String {
-        val v = Dseconds(_timestamp, up)
+        val v = Dseconds(_timestamp!!, up)
         return if (v > 0) "$v$suffix" else ""
     }
 
@@ -381,16 +374,20 @@ class DateTime {
 
     // 本月的起始
     fun monthRange(): DateTimeRange {
-        val cur = LocalDateTime.of(_date.year, _date.month, 0, 0, 0, 0)
+        val cur = LocalDateTime(_date!!.year, _date!!.monthOfYear, 0, 0, 0, 0)
         val next = cur.plusMonths(1)
         return DateTimeRange(
-            java.sql.Timestamp.valueOf(cur).time / 1000,
-            java.sql.Timestamp.valueOf(next).time / 1000 - 1
+            cur.toDateTime().millis / 1000,
+            next.toDateTime().millis / 1000 - 1
         )
     }
 
     override fun toString(): String {
         return _date.toString()
+    }
+
+    override fun valueOf(): Any {
+        return _timestamp!!
     }
 
     companion object {

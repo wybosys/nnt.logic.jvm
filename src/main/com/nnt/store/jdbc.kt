@@ -3,6 +3,7 @@ package com.nnt.store
 import com.alibaba.druid.pool.DruidDataSourceFactory
 import com.nnt.core.JsonObject
 import com.nnt.core.logger
+import com.nnt.core.toValue
 import org.springframework.dao.DataAccessException
 import org.springframework.jdbc.core.*
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
@@ -334,11 +335,11 @@ open class JdbcSession(conn: Connection, tpl: JdbcTemplate) : ISession {
     open fun <T : Any> queryForList(sql: String, args: Array<Any>, elementType: KClass<T>): List<T> {
         val ti = GetTableInfo(elementType)
         if (ti == null) {
-            return _tpl.queryForList(sql, args, elementType.java)
+            return _tpl.queryForList(sql, toValue(args), elementType.java)
         }
 
         // 模型类型
-        val r = _tpl.queryForList(sql, *args)
+        val r = _tpl.queryForList(sql, *toValue(args))
         return r.map {
             val t = elementType.constructors.first().call()
             Fill(t, it, ti)
@@ -350,11 +351,11 @@ open class JdbcSession(conn: Connection, tpl: JdbcTemplate) : ISession {
     open fun <T : Any> queryForList(sql: String, elementType: KClass<T>, vararg args: Any): List<T> {
         val ti = GetTableInfo(elementType)
         if (ti == null) {
-            return _tpl.queryForList(sql, elementType.java, *args)
+            return _tpl.queryForList(sql, elementType.java, *toValue(args))
         }
 
         // 模型类型
-        val r = _tpl.queryForList(sql, *args)
+        val r = _tpl.queryForList(sql, *toValue(args))
         return r.map {
             val t = elementType.constructors.first().call()
             Fill(t, it, ti)
