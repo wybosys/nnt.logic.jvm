@@ -1,9 +1,11 @@
 package com.nnt.core
 
 import kotlinx.coroutines.*
+import java.sql.Timestamp
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.Month
+import java.time.format.DateTimeFormatter
 
 class DateTimeRange(
     var from: UnixTimestamp = 0, // 开始
@@ -474,6 +476,20 @@ class DateTime {
                 v = ts
             }
             return v
+        }
+
+        val FMT_TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS")
+
+        fun ToUnixTimestamp(
+            str: String,
+            def: UnixTimestamp = 0,
+            fmt: DateTimeFormatter = FMT_TIMESTAMP
+        ): UnixTimestamp {
+            try {
+                return Timestamp.valueOf(LocalDateTime.parse(str, fmt)).time / 1000
+            } catch (err: Throwable) {
+                return def
+            }
         }
     }
 }

@@ -1,13 +1,15 @@
 package com.nnt.store
 
+import com.nnt.core.Null
 import com.nnt.core.ToType
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
-import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.memberProperties
 
 annotation class table(
-    val name: String
+    val name: String,
+    val parent: KClass<*> = Null::class
 )
 
 annotation class colstring(
@@ -46,13 +48,18 @@ class ColumnInfo {
     lateinit var property: KProperty<*>
 }
 
+typealias ColumnInfos = Map<String, ColumnInfo>
+
 class TableInfo {
 
     // 数据表名称
     var name: String = ""
 
+    // 继承的类
+    var parent: KClass<*>? = null
+
     // 字段
-    var columns = mapOf<String, ColumnInfo>()
+    var columns: ColumnInfos = mapOf()
 
     // 字段名
     val allfields: String
@@ -67,23 +74,11 @@ fun IsTable(clz: KClass<*>): Boolean {
     return GetTableInfo(clz) != null
 }
 
-fun UpdateTableInfo(clz: KClass<*>): TableInfo? {
-    val decl_table = clz.annotations.firstOrNull {
-        it is table
-    }
-    if (decl_table == null) {
-        _tables[clz] = null
-        return null
-    }
-
-    val ti = TableInfo()
-    ti.name = (decl_table as table).name
-
+fun UpdateTableColumnInfos(clz: KClass<*>): ColumnInfos {
     val cols = mutableMapOf<String, ColumnInfo>()
-    ti.columns = cols
 
     // 数据表不支持继承
-    clz.declaredMemberProperties.forEach { prop ->
+    clz.memberProperties.forEach { prop ->
         prop.annotations.forEach {
             when (it) {
                 is colstring -> {
@@ -125,7 +120,24 @@ fun UpdateTableInfo(clz: KClass<*>): TableInfo? {
         }
     }
 
+    return cols
+}
+
+fun UpdateTableInfo(clz: KClass<*>): TableInfo? {
+    val decl_table = clz.annotations.firstOrNull {
+        it is table
+    } as table?
+    if (decl_table == null) {
+        _tables[clz] = null
+        return null
+    }
+
+    val ti = TableInfo()
+    ti.name = decl_table.name
+    ti.parent = if (decl_table.parent == Null::class) null else decl_table.parent
+    ti.columns = UpdateTableColumnInfos(clz)
     _tables[clz] = ti
+
     return ti
 }
 
