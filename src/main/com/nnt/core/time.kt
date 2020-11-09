@@ -389,6 +389,10 @@ class DateTime {
         )
     }
 
+    override fun toString(): String {
+        return _date.toString()
+    }
+
     companion object {
 
         val MINUTE = 60L

@@ -83,7 +83,7 @@ class FieldOption {
     var file: Boolean = false
     var json: Boolean = false
     var filter: Boolean = false
-    var intfloat: Int? = null
+    var intfloat: Float? = null
     var timestamp: Boolean = false
 
     // 关联类型
@@ -243,6 +243,27 @@ annotation class type(
     val comment: String = "",
 )
 
+annotation class intfloat(
+    val id: Int,
+    val scale: Float,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
+// 百分数格式化至 0-10000之间
+annotation class percentage(
+    val id: Int,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
+// 钱格式化到 0-100 之间
+annotation class money(
+    val id: Int,
+    val options: Array<String>,
+    val comment: String = "",
+)
+
 val FIELDS_MAX = 100
 
 typealias FieldOptionStore = MutableMap<KClass<*>, MutableMap<String, FieldOption>>
@@ -307,6 +328,18 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
                 is timestamp -> {
                     fp = DefineField(ann.id, prop, ann.options, ann.comment)
                     fp.timestamp = true
+                }
+                is intfloat -> {
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
+                    fp.intfloat = ann.scale
+                }
+                is percentage -> {
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
+                    fp.intfloat = IntFloat.SCALE_PERCENTAGE
+                }
+                is money -> {
+                    fp = DefineField(ann.id, prop, ann.options, ann.comment)
+                    fp.intfloat = IntFloat.SCALE_MONEY
                 }
             }
             if (fp != null)
@@ -427,7 +460,7 @@ fun Output(mdl: Any?): MutableMap<String, Any?>? {
             } else if (fp.filter) {
                 r[fk] = v.toString()
             } else if (fp.intfloat != null) {
-                // pass
+                r[fk] = IntFloat.From(v, fp.intfloat!!).origin
             } else if (fp.timestamp) {
                 r[fk] = (v as DateTime).timestamp
             } else {
