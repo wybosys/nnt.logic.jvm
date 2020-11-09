@@ -45,4 +45,32 @@ object logger {
             fatal(str)
         }
     }
+
+    // 放在判定序列中最后一个命中提示
+
+    fun orLog(str: String, def: Boolean = false): Boolean {
+        log(str)
+        return def
+    }
+
+    fun orWarn(str: String, def: Boolean = false): Boolean {
+        warn(str)
+        return def
+    }
+
+    fun orInfo(str: String, def: Boolean = false): Boolean {
+        info(str)
+        return def
+    }
+
+    fun orFatal(str: String, def: Boolean = false): Boolean {
+        fatal(str)
+        return def
+    }
+
+    fun orError(str: String, def: Boolean = false): Boolean {
+        error(str)
+        return def
+    }
+
 }
