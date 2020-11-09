@@ -28,7 +28,7 @@ open class A {
     @integer(4, [input, optional])
     var d = 1
 
-    @double(5, [input, output, optional])
+    @decimal(5, [input, output, optional])
     var e = 1.1
 
     open fun proc() {
