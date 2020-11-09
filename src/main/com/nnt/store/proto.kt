@@ -2,6 +2,8 @@ package com.nnt.store
 
 import com.nnt.core.Null
 import com.nnt.core.ToType
+import com.nnt.core.logger
+import com.nnt.core.toJsonObject
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
@@ -32,10 +34,23 @@ annotation class coltimestamp(
     val name: String
 )
 
+annotation class coltype(
+    val type: KClass<*>
+)
+
+annotation class colenum(
+    val name: String
+)
+
+annotation class coljson(
+    val name: String,
+    val type: KClass<*> = Null::class
+)
+
 class ColumnInfo {
 
     // 字段名
-    lateinit var name: String
+    var name: String? = null
 
     // 类型
     var string: Boolean = false
@@ -43,12 +58,64 @@ class ColumnInfo {
     var decimal: Boolean = false
     var boolean: Boolean = false
     var timestamp: Boolean = false
+    var enum: Boolean = false
+    var valtype: KClass<*>? = null
+    var json: Boolean = false
 
     // 设置属性
     lateinit var property: KProperty<*>
+
+    // 二级对象属性
+    var typeproperty: KProperty<*>? = null
 }
 
-typealias ColumnInfos = Map<String, ColumnInfo>
+class ColumnInfos {
+
+    // 使用名称作为映射的字段表
+    private val _namedColumns = mutableMapOf<String, ColumnInfo>()
+
+    // 字段表(有些字段定义为类型，但是数据库中栏位是平铺处理)
+    private val _columns = mutableSetOf<ColumnInfo>()
+
+    val namedColumns: Map<String, ColumnInfo> get() = _namedColumns
+    val columns: Set<ColumnInfo> get() = _columns
+
+    fun clear() {
+        _namedColumns.clear()
+        _columns.clear()
+    }
+
+    fun merge(r: ColumnInfos) {
+        r._namedColumns.forEach {
+            _namedColumns[it.key] = it.value
+        }
+        r._columns.forEach {
+            _columns.add(it)
+        }
+    }
+
+    fun add(ci: ColumnInfo) {
+        if (ci.name != null) {
+            _namedColumns[ci.name!!] = ci
+            _columns.add(ci)
+        } else if (ci.valtype != null) {
+            val cis = UpdateTableColumnInfos(ci.valtype!!)
+            // 合并二级属性
+            cis._namedColumns.forEach { name, ci ->
+                _namedColumns[name] = ci
+            }
+            cis._columns.forEach {
+                // 有没有名字的都会出现在这里，绑定下二级prop
+                it.valtype = ci.valtype
+                it.typeproperty = ci.typeproperty
+
+                _columns.add(it)
+            }
+        } else {
+            logger.fatal("遇到未知的栏目定义")
+        }
+    }
+}
 
 class TableInfo {
 
@@ -59,12 +126,12 @@ class TableInfo {
     var parent: KClass<*>? = null
 
     // 字段
-    var columns: ColumnInfos = mapOf()
+    var columns = ColumnInfos()
 
     // 字段名
     val allfields: String
         get() {
-            return columns.keys.joinToString(",")
+            return columns.namedColumns.keys.joinToString(",")
         }
 }
 
@@ -75,7 +142,7 @@ fun IsTable(clz: KClass<*>): Boolean {
 }
 
 fun UpdateTableColumnInfos(clz: KClass<*>): ColumnInfos {
-    val cols = mutableMapOf<String, ColumnInfo>()
+    val cols = ColumnInfos()
 
     // 数据表不支持继承
     clz.memberProperties.forEach { prop ->
@@ -86,35 +153,57 @@ fun UpdateTableColumnInfos(clz: KClass<*>): ColumnInfos {
                     t.name = it.name
                     t.string = true
                     t.property = prop
-                    cols[t.name] = t
+                    cols.add(t)
                 }
                 is colinteger -> {
                     val t = ColumnInfo()
                     t.name = it.name
                     t.integer = true
                     t.property = prop
-                    cols[t.name] = t
+                    cols.add(t)
                 }
                 is coldecimal -> {
                     val t = ColumnInfo()
                     t.name = it.name
                     t.decimal = true
                     t.property = prop
-                    cols[t.name] = t
+                    cols.add(t)
                 }
                 is colboolean -> {
                     val t = ColumnInfo()
                     t.name = it.name
                     t.boolean = true
                     t.property = prop
-                    cols[t.name] = t
+                    cols.add(t)
                 }
                 is coltimestamp -> {
                     val t = ColumnInfo()
                     t.name = it.name
                     t.timestamp = true
                     t.property = prop
-                    cols[t.name] = t
+                    cols.add(t)
+                }
+                is colenum -> {
+                    val t = ColumnInfo()
+                    t.name = it.name
+                    t.enum = true
+                    t.property = prop
+                    cols.add(t)
+                }
+                is coljson -> {
+                    val t = ColumnInfo()
+                    t.name = it.name
+                    t.json = true
+                    t.property = prop
+                    if (it.type != Null::class)
+                        t.valtype = it.type
+                    cols.add(t)
+                }
+                is coltype -> {
+                    val t = ColumnInfo()
+                    t.valtype = it.type
+                    t.typeproperty = prop
+                    cols.add(t)
                 }
             }
         }
@@ -156,11 +245,44 @@ fun Fill(mdl: Any, data: Map<String, Any>) {
 }
 
 fun Fill(mdl: Any, data: Map<String, Any>, ti: TableInfo) {
-    ti.columns.forEach { name, fp ->
+    ti.columns.namedColumns.forEach { name, fp ->
         if (!data.contains(name))
             return@forEach
-        if (fp.property !is KMutableProperty<*>)
+
+        if (fp.property !is KMutableProperty<*>) {
+            logger.warn("mdl参数 ${name} 只读")
             return@forEach
-        (fp.property as KMutableProperty<*>).setter.call(mdl, ToType(data[name], fp.property.returnType))
+        }
+
+        // 如果是二级
+        if (fp.typeproperty != null) {
+            // 获得一下当前对象上二级对象是否存在，不存在需要实例化
+            var ref = fp.typeproperty!!.getter.call(mdl)
+            if (ref == null) {
+                if (fp.typeproperty !is KMutableProperty<*>) {
+                    logger.warn("mdl参数 ${fp.typeproperty!!.name} 只读")
+                    return@forEach
+                }
+
+                ref = fp.valtype!!.constructors.first().call()
+                (fp.typeproperty as KMutableProperty<*>).setter.call(mdl, ref)
+            }
+
+            // 转换到定义的类型
+            val v = ToType(data[name], fp.property.returnType)
+            (fp.property as KMutableProperty<*>).setter.call(ref, v)
+        } else {
+            if (fp.json) {
+                val p = data[name]
+                if (p is String) {
+                    val v = toJsonObject(p)?.flat()
+                    (fp.property as KMutableProperty<*>).setter.call(mdl, v)
+                }
+            } else {
+                // 转换到定义的类型
+                val v = ToType(data[name], fp.property.returnType)
+                (fp.property as KMutableProperty<*>).setter.call(mdl, v)
+            }
+        }
     }
 }

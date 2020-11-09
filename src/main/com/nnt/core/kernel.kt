@@ -24,6 +24,18 @@ fun toDecimal(o: Any?, def: Real = 0.0): Double {
     return def
 }
 
+fun toInt(o: Any?, def: Int = 0): Int {
+    if (o == null)
+        return def
+    if (o is Number)
+        return o.toInt()
+    if (o is String) {
+        val r = o.toIntOrNull()
+        return r ?: def
+    }
+    return def
+}
+
 fun toInteger(o: Any?, def: Integer = 0): Integer {
     if (o == null)
         return def

@@ -2,6 +2,7 @@ package com.nnt.server
 
 import com.nnt.core.*
 import com.nnt.session.ModelError
+import org.springframework.jdbc.UncategorizedSQLException
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.full.callSuspend
 
@@ -114,13 +115,19 @@ open class Routers {
         } catch (err: Throwable) {
             if (err is ModelError) {
                 trans.status = ToEnum(STATUS::class, err.code, STATUS.EXCEPTION)!!
-                trans.message = err.message
-            } else if (err is InvocationTargetException) {
-                trans.status = STATUS.EXCEPTION
-                trans.message = err.targetException.localizedMessage
+                trans.message = err.message ?: err.localizedMessage
             } else {
                 trans.status = STATUS.EXCEPTION
-                trans.message = err.message ?: err.localizedMessage
+                if (err is InvocationTargetException) {
+                    val tgterr = err.targetException
+                    if (tgterr is UncategorizedSQLException) {
+                        trans.message = tgterr.sqlException.localizedMessage
+                    } else {
+                        trans.message = tgterr.stackTraceToString()
+                    }
+                } else {
+                    trans.message = err.message ?: err.localizedMessage
+                }
             }
             trans.submit()
         }

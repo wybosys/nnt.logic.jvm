@@ -7,36 +7,72 @@ import kotlin.reflect.jvm.javaType
 
 // 基础对象间转换
 fun ToType(v: Any?, typ: KType): Any? {
-    if (v == null)
+    val kclzType = (typ.javaType as Class<*>).kotlin
+
+    if (v == null) {
+        if (!typ.isMarkedNullable) {
+            // 不能为null，返回内置默认值
+            when (kclzType) {
+                Int::class -> {
+                    return 0
+                }
+                Double::class -> {
+                    return 0.0
+                }
+                Short::class -> {
+                    return 0
+                }
+                Long::class -> {
+                    return 0
+                }
+                String::class -> {
+                    return ""
+                }
+                Boolean::class -> {
+                    return false
+                }
+                DateTime::class -> {
+                    return DateTime(0)
+                }
+                else -> {
+                    logger.fatal("ToType遇到空值，需要提供默认值")
+                }
+            }
+        }
         return null
+    }
 
     if (v.javaClass != typ.javaType) {
-        when (typ.javaType) {
-            Int::class.java -> {
+        when (kclzType) {
+            Int::class -> {
                 if (v is Number)
                     return v.toInt()
             }
-            Double::class.java -> {
+            Double::class -> {
                 if (v is Number)
                     return v.toDouble()
             }
-            Short::class.java -> {
+            Short::class -> {
                 if (v is Number)
                     return v.toShort()
             }
-            Long::class.java -> {
+            Long::class -> {
                 if (v is Number)
                     return v.toLong()
             }
-            java.lang.Boolean::class.java -> {
+            Boolean::class -> {
                 if (v is Byte)
                     return v != 0
             }
-            DateTime::class.java -> {
+            DateTime::class -> {
                 if (v is Long)
                     return DateTime(v / 1000)
             }
             else -> {
+                if (kclzType.java.isEnum) {
+                    return ToEnum(kclzType, toInt(v))
+                }
+
                 logger.fatal("ToType遇到未处理的类型 ${v.javaClass}")
             }
         }
