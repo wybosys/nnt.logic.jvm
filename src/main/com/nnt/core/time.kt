@@ -1,11 +1,13 @@
 package com.nnt.core
 
 import kotlinx.coroutines.*
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
+import org.joda.time.format.ISODateTimeFormat
 import java.sql.Timestamp
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.Month
-import java.time.format.DateTimeFormatter
 
 class DateTimeRange(
     var from: UnixTimestamp = 0, // 开始
@@ -478,15 +480,22 @@ class DateTime {
             return v
         }
 
-        val FMT_TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS")
+        // 标准的日期格式
+        val FMT_NORMAL = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss,SSS")
+        val FMT_NORMALH = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
+        // ISO8601
+        val FMT_ISO8601 = ISODateTimeFormat.dateTime()
+        val FMT_IOS8601H = ISODateTimeFormat.dateTimeNoMillis()
+
+        // 转换成时间戳
         fun ToUnixTimestamp(
             str: String,
+            fmt: DateTimeFormatter,
             def: UnixTimestamp = 0,
-            fmt: DateTimeFormatter = FMT_TIMESTAMP
         ): UnixTimestamp {
             try {
-                return Timestamp.valueOf(LocalDateTime.parse(str, fmt)).time / 1000
+                return fmt.parseDateTime(str).millis / 1000
             } catch (err: Throwable) {
                 return def
             }
