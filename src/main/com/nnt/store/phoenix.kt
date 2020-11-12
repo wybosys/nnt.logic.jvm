@@ -65,6 +65,9 @@ class Phoenix : Mybatis() {
         // 保活(druid不对mysql之外的数据库自动处理)
         props.setProperty("keepAlive", "true")
         props.setProperty("validationQuery", "select 1")
+        // 改一下连接池的配置
+        props.setProperty("initialSize", "0")
+        props.setProperty("minIdle", "0")
         return props
     }
 
