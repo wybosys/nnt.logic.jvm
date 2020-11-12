@@ -106,10 +106,24 @@ open class Jdbc : AbstractDbms() {
 }
 
 // jdbc业务对象
-open class JdbcSession(tpl: JdbcTemplate) : ISession {
+open class JdbcSession : ISession {
+
+    constructor(tpl: JdbcTemplate) {
+        _tpl = tpl
+    }
+
+    protected constructor() {
+        // 有些session需要特殊情况发生时才初始化tpl
+    }
 
     // 不使用 JdbcOperations by tpl 的写法是因为会造成编译器warnning
-    private val _tpl = tpl
+    protected var _tpl: JdbcTemplate? = null
+
+    protected open fun tpl(): JdbcTemplate {
+        synchronized(this) {
+            return _tpl!!
+        }
+    }
 
     override open fun close() {
         // pass
@@ -131,208 +145,208 @@ open class JdbcSession(tpl: JdbcTemplate) : ISession {
 
     @Throws(DataAccessException::class)
     open fun <T> execute(action: ConnectionCallback<T>): T {
-        return _tpl.execute(action)
+        return tpl().execute(action)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> execute(action: StatementCallback<T>): T {
-        return _tpl.execute(action)
+        return tpl().execute(action)
     }
 
     @Throws(DataAccessException::class)
     open fun execute(sql: String) {
-        _tpl.execute(sql)
+        tpl().execute(sql)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(sql: String, rse: ResultSetExtractor<T>): T {
-        return _tpl.query(sql, rse)
+        return tpl().query(sql, rse)
     }
 
     @Throws(DataAccessException::class)
     open fun query(sql: String, rch: RowCallbackHandler) {
-        _tpl.query(sql, rch)
+        tpl().query(sql, rch)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(sql: String, rowMapper: RowMapper<T>): List<T> {
-        return _tpl.query(sql, rowMapper)
+        return tpl().query(sql, rowMapper)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>): T {
-        return _tpl.queryForObject(sql, rowMapper)
+        return tpl().queryForObject(sql, rowMapper)
     }
 
     @Throws(DataAccessException::class)
     open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>): T? {
-        return _tpl.queryForObject(sql, requiredType.java)
+        return tpl().queryForObject(sql, requiredType.java)
     }
 
     @Throws(DataAccessException::class)
     open fun queryForMap(sql: String): Map<String, Any> {
-        return _tpl.queryForMap(sql)
+        return tpl().queryForMap(sql)
     }
 
     @Throws(DataAccessException::class)
     open fun <T : Any> queryForList(sql: String, elementType: KClass<T>): List<T> {
-        return _tpl.queryForList(sql, elementType.java)
+        return tpl().queryForList(sql, elementType.java)
     }
 
     @Throws(DataAccessException::class)
     open fun queryForList(sql: String): List<Map<String, Any>> {
-        return _tpl.queryForList(sql)
+        return tpl().queryForList(sql)
     }
 
     @Throws(DataAccessException::class)
     open fun queryForRowSet(sql: String): SqlRowSet {
-        return _tpl.queryForRowSet(sql)
+        return tpl().queryForRowSet(sql)
     }
 
     @Throws(DataAccessException::class)
     open fun update(sql: String): Int {
-        return _tpl.update(sql)
+        return tpl().update(sql)
     }
 
     @Throws(DataAccessException::class)
     open fun batchUpdate(vararg sql: String): IntArray {
-        return _tpl.batchUpdate(*sql)
+        return tpl().batchUpdate(*sql)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> execute(psc: PreparedStatementCreator, action: PreparedStatementCallback<T>): T {
-        return _tpl.execute(psc, action)
+        return tpl().execute(psc, action)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> execute(sql: String, action: PreparedStatementCallback<T>): T {
-        return _tpl.execute(sql, action)
+        return tpl().execute(sql, action)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(psc: PreparedStatementCreator, rse: ResultSetExtractor<T>): T {
-        return _tpl.query(psc, rse)
+        return tpl().query(psc, rse)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(sql: String, pss: PreparedStatementSetter, rse: ResultSetExtractor<T>): T {
-        return _tpl.query(sql, pss, rse)
+        return tpl().query(sql, pss, rse)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(sql: String, args: Array<Any>, argTypes: IntArray, rse: ResultSetExtractor<T>): T {
-        return _tpl.query(sql, args, argTypes, rse)
+        return tpl().query(sql, args, argTypes, rse)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(sql: String, args: Array<Any>, rse: ResultSetExtractor<T>): T {
-        return _tpl.query(sql, args, rse)
+        return tpl().query(sql, args, rse)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(sql: String, rse: ResultSetExtractor<T>, vararg args: Any): T {
-        return _tpl.query(sql, rse, *args)
+        return tpl().query(sql, rse, *args)
     }
 
     @Throws(DataAccessException::class)
     open fun query(psc: PreparedStatementCreator, rch: RowCallbackHandler) {
-        _tpl.query(psc, rch)
+        tpl().query(psc, rch)
     }
 
     @Throws(DataAccessException::class)
     open fun query(sql: String, pss: PreparedStatementSetter, rch: RowCallbackHandler) {
-        _tpl.query(sql, pss, rch)
+        tpl().query(sql, pss, rch)
     }
 
     @Throws(DataAccessException::class)
     open fun query(sql: String, args: Array<Any>, argTypes: IntArray, rch: RowCallbackHandler) {
-        _tpl.query(sql, args, argTypes, rch)
+        tpl().query(sql, args, argTypes, rch)
     }
 
     @Throws(DataAccessException::class)
     open fun query(sql: String, args: Array<Any>, rch: RowCallbackHandler) {
-        _tpl.query(sql, args, rch)
+        tpl().query(sql, args, rch)
     }
 
     @Throws(DataAccessException::class)
     open fun query(sql: String, rch: RowCallbackHandler, vararg args: Any) {
-        _tpl.query(sql, rch, *args)
+        tpl().query(sql, rch, *args)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(psc: PreparedStatementCreator, rowMapper: RowMapper<T>): List<T> {
-        return _tpl.query(psc, rowMapper)
+        return tpl().query(psc, rowMapper)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(sql: String, pss: PreparedStatementSetter, rowMapper: RowMapper<T>): List<T> {
-        return _tpl.query(sql, pss, rowMapper)
+        return tpl().query(sql, pss, rowMapper)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): List<T> {
-        return _tpl.query(sql, args, argTypes, rowMapper)
+        return tpl().query(sql, args, argTypes, rowMapper)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(sql: String, args: Array<Any>, rowMapper: RowMapper<T>): List<T> {
-        return _tpl.query(sql, args, rowMapper)
+        return tpl().query(sql, args, rowMapper)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> query(sql: String, rowMapper: RowMapper<T>, vararg args: Any): List<T> {
-        return _tpl.query(sql, rowMapper, *args)
+        return tpl().query(sql, rowMapper, *args)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): T {
-        return _tpl.queryForObject(sql, args, argTypes, rowMapper)
+        return tpl().queryForObject(sql, args, argTypes, rowMapper)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> queryForObject(sql: String, args: Array<Any>, rowMapper: RowMapper<T>): T {
-        return _tpl.queryForObject(sql, args, rowMapper)
+        return tpl().queryForObject(sql, args, rowMapper)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>, vararg args: Any): T {
-        return _tpl.queryForObject(sql, rowMapper, *args)
+        return tpl().queryForObject(sql, rowMapper, *args)
     }
 
     @Throws(DataAccessException::class)
     open fun <T : Any> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, requiredType: KClass<T>): T {
-        return _tpl.queryForObject(sql, args, argTypes, requiredType.java)
+        return tpl().queryForObject(sql, args, argTypes, requiredType.java)
     }
 
     @Throws(DataAccessException::class)
     open fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T? {
-        return _tpl.queryForObject(sql, args, requiredType.java)
+        return tpl().queryForObject(sql, args, requiredType.java)
     }
 
     @Throws(DataAccessException::class)
     open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? {
-        return _tpl.queryForObject(sql, requiredType.java, *args)
+        return tpl().queryForObject(sql, requiredType.java, *args)
     }
 
     @Throws(DataAccessException::class)
     open fun queryForMap(sql: String, args: Array<Any>, argTypes: IntArray): Map<String, Any> {
-        return _tpl.queryForMap(sql, args, argTypes)
+        return tpl().queryForMap(sql, args, argTypes)
     }
 
     @Throws(DataAccessException::class)
     open fun queryForMap(sql: String, vararg args: Any): Map<String, Any> {
-        return _tpl.queryForMap(sql, *args)
+        return tpl().queryForMap(sql, *args)
     }
 
     @Throws(DataAccessException::class)
     open fun <T : Any> queryForList(sql: String, args: Array<Any>, elementType: KClass<T>): List<T> {
         val ti = GetTableInfo(elementType)
         if (ti == null) {
-            return _tpl.queryForList(sql, toValue(args), elementType.java)
+            return tpl().queryForList(sql, toValue(args), elementType.java)
         }
 
         // 模型类型
-        val r = _tpl.queryForList(sql, *toValue(args))
+        val r = tpl().queryForList(sql, *toValue(args))
         return r.map {
             val t = elementType.constructors.first().call()
             Fill(t, it, ti)
@@ -344,11 +358,11 @@ open class JdbcSession(tpl: JdbcTemplate) : ISession {
     open fun <T : Any> queryForList(sql: String, elementType: KClass<T>, vararg args: Any): List<T> {
         val ti = GetTableInfo(elementType)
         if (ti == null) {
-            return _tpl.queryForList(sql, elementType.java, *toValue(args))
+            return tpl().queryForList(sql, elementType.java, *toValue(args))
         }
 
         // 模型类型
-        val r = _tpl.queryForList(sql, *toValue(args))
+        val r = tpl().queryForList(sql, *toValue(args))
         return r.map {
             val t = elementType.constructors.first().call()
             Fill(t, it, ti)
@@ -358,62 +372,62 @@ open class JdbcSession(tpl: JdbcTemplate) : ISession {
 
     @Throws(DataAccessException::class)
     open fun queryForList(sql: String, args: Array<Any>, argTypes: IntArray): List<Map<String, Any>> {
-        return _tpl.queryForList(sql, args, argTypes)
+        return tpl().queryForList(sql, args, argTypes)
     }
 
     @Throws(DataAccessException::class)
     open fun queryForList(sql: String, vararg args: Any): List<Map<String, Any>> {
-        return _tpl.queryForList(sql, *args)
+        return tpl().queryForList(sql, *args)
     }
 
     @Throws(DataAccessException::class)
     open fun queryForRowSet(sql: String, args: Array<Any>, argTypes: IntArray): SqlRowSet {
-        return _tpl.queryForRowSet(sql, args, argTypes)
+        return tpl().queryForRowSet(sql, args, argTypes)
     }
 
     @Throws(DataAccessException::class)
     open fun queryForRowSet(sql: String, vararg args: Any): SqlRowSet {
-        return _tpl.queryForRowSet(sql, *args)
+        return tpl().queryForRowSet(sql, *args)
     }
 
     @Throws(DataAccessException::class)
     open fun update(psc: PreparedStatementCreator): Int {
-        return _tpl.update(psc)
+        return tpl().update(psc)
     }
 
     @Throws(DataAccessException::class)
     open fun update(psc: PreparedStatementCreator, generatedKeyHolder: KeyHolder): Int {
-        return _tpl.update(psc, generatedKeyHolder)
+        return tpl().update(psc, generatedKeyHolder)
     }
 
     @Throws(DataAccessException::class)
     open fun update(sql: String, pss: PreparedStatementSetter): Int {
-        return _tpl.update(sql, pss)
+        return tpl().update(sql, pss)
     }
 
     @Throws(DataAccessException::class)
     open fun update(sql: String, args: Array<Any>, argTypes: IntArray): Int {
-        return _tpl.update(sql, args, argTypes)
+        return tpl().update(sql, args, argTypes)
     }
 
     @Throws(DataAccessException::class)
     open fun update(sql: String, vararg args: Any): Int {
-        return _tpl.update(sql, *args)
+        return tpl().update(sql, *args)
     }
 
     @Throws(DataAccessException::class)
     open fun batchUpdate(sql: String, pss: BatchPreparedStatementSetter): IntArray {
-        return _tpl.batchUpdate(sql, pss)
+        return tpl().batchUpdate(sql, pss)
     }
 
     @Throws(DataAccessException::class)
     open fun batchUpdate(sql: String, batchArgs: List<Array<Any>>): IntArray {
-        return _tpl.batchUpdate(sql, batchArgs)
+        return tpl().batchUpdate(sql, batchArgs)
     }
 
     @Throws(DataAccessException::class)
     open fun batchUpdate(sql: String, batchArgs: List<Array<Any>>, argTypes: IntArray): IntArray {
-        return _tpl.batchUpdate(sql, batchArgs, argTypes)
+        return tpl().batchUpdate(sql, batchArgs, argTypes)
     }
 
     @Throws(DataAccessException::class)
@@ -423,22 +437,22 @@ open class JdbcSession(tpl: JdbcTemplate) : ISession {
         batchSize: Int,
         pss: ParameterizedPreparedStatementSetter<T>,
     ): Array<IntArray> {
-        return _tpl.batchUpdate(sql, batchArgs, batchSize, pss)
+        return tpl().batchUpdate(sql, batchArgs, batchSize, pss)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> execute(csc: CallableStatementCreator, action: CallableStatementCallback<T>): T {
-        return _tpl.execute(csc, action)
+        return tpl().execute(csc, action)
     }
 
     @Throws(DataAccessException::class)
     open fun <T> execute(callString: String, action: CallableStatementCallback<T>): T {
-        return _tpl.execute(callString, action)
+        return tpl().execute(callString, action)
     }
 
     @Throws(DataAccessException::class)
     open fun call(csc: CallableStatementCreator, declaredParameters: List<SqlParameter>): Map<String, Any> {
-        return _tpl.call(csc, declaredParameters)
+        return tpl().call(csc, declaredParameters)
     }
 
 }

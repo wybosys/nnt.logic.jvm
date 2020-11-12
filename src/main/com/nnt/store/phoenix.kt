@@ -1,9 +1,9 @@
 package com.nnt.store
 
-import com.nnt.core.JsonObject
-import com.nnt.core.logger
+import com.nnt.core.*
 import org.springframework.jdbc.core.JdbcTemplate
 import java.util.*
+import javax.sql.DataSource
 import kotlin.reflect.KClass
 
 // phoenix queryserver 默认端口
@@ -69,8 +69,7 @@ class Phoenix : Mybatis() {
     }
 
     override fun acquireJdbc(): JdbcSession {
-        val tpl = JdbcTemplate(_dsfac)
-        return PhoenixJdbcSession(tpl)
+        return PhoenixJdbcSession(this)
     }
 
     override fun acquireSession(): ISession {
@@ -81,7 +80,29 @@ class Phoenix : Mybatis() {
 // phoenix 5.x 中时间对象需要额外处理，传入time，传出Long，否则会有timezone
 // https://developer.aliyun.com/article/684390
 
-class PhoenixJdbcSession(tpl: JdbcTemplate) : JdbcSession(tpl) {
+class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
+
+    private var _repeat: RepeatHandler
+    private var _ds: DataSource
+
+    init {
+        // phoenix thin queryserver 每5分钟需要重连一次，避免掉线，暂时没有找到原因
+
+        _ds = phoenix.openJdbc()
+        _tpl = JdbcTemplate(_ds)
+
+        _repeat = Repeat(300.0) {
+            synchronized(this) {
+                _ds = phoenix.openJdbc()
+                _tpl = JdbcTemplate(_ds)
+            }
+        }
+    }
+
+    override fun close() {
+        super.close()
+        CancelRepeat(_repeat)
+    }
 
     override fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? {
         if (requiredType == Date::class.java) {

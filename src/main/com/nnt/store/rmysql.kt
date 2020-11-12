@@ -182,7 +182,7 @@ class RMysql : AbstractRdb() {
 
     fun acquireJdbc(): JdbcSession {
         val tpl = JdbcTemplate(_dsfac)
-        return PhoenixJdbcSession(tpl)
+        return JdbcSession(tpl)
     }
 
     override fun acquireSession(): ISession {

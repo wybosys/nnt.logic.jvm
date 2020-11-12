@@ -58,12 +58,17 @@ open class Mybatis : AbstractRdb() {
     }
 
     protected lateinit var _mapfac: SqlSessionFactory
-    protected lateinit var _dsfac: DataSource
+    private lateinit var _dsfac: DataSource
+
+    // 获得数据源
+    open fun dataSource(): DataSource {
+        return _dsfac
+    }
 
     override fun open() {
-        open_jdbc()
+        _dsfac = openJdbc()
         if (verify()) {
-            open_mapper()
+            _mapfac = openMapper()
             logger.info("连接 ${id}@mybatis")
         } else {
             logger.info("连接 ${id}@mybatis 失败")
@@ -97,12 +102,12 @@ open class Mybatis : AbstractRdb() {
         return props
     }
 
-    private fun open_jdbc() {
+    open fun openJdbc(): DataSource {
         val props = propertiesForJdbc()
-        _dsfac = DruidDataSourceFactory.createDataSource(props)
+        return DruidDataSourceFactory.createDataSource(props)
     }
 
-    private fun open_mapper() {
+    open fun openMapper(): SqlSessionFactory {
         // 初始化数据源
         val fac = PooledDataSourceFactory()
         val props = Properties()
@@ -138,7 +143,7 @@ open class Mybatis : AbstractRdb() {
             }
         }
 
-        _mapfac = SqlSessionFactoryBuilder().build(conf)
+        return SqlSessionFactoryBuilder().build(conf)
     }
 
     override fun close() {
