@@ -92,8 +92,8 @@ open class Mybatis : AbstractRdb() {
         }
 
         // 设置连接数
-        props.setProperty("initialSize", "0")
-        props.setProperty("minIdle", "0")
+        props.setProperty("initialSize", "3")
+        props.setProperty("minIdle", "3")
         props.setProperty("maxActive", "512")
 
         return props
