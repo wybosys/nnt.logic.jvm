@@ -76,9 +76,8 @@ open class Jdbc : AbstractDbms() {
     }
 
     fun acquire(): JdbcSession {
-        val conn = _dsfac.connection
-        val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
-        return JdbcSession(conn, tpl)
+        val tpl = JdbcTemplate(_dsfac)
+        return JdbcSession(tpl)
     }
 
     override fun acquireSession(): ISession {
@@ -107,19 +106,13 @@ open class Jdbc : AbstractDbms() {
 }
 
 // jdbc业务对象
-open class JdbcSession(conn: Connection, tpl: JdbcTemplate) : ISession {
+open class JdbcSession(tpl: JdbcTemplate) : ISession {
 
     // 不使用 JdbcOperations by tpl 的写法是因为会造成编译器warnning
-
-    private val _conn = conn
     private val _tpl = tpl
-    private var _closed = false
 
     override open fun close() {
-        if (!_closed) {
-            _conn.close()
-            _closed = true
-        }
+        // pass
     }
 
     override open fun commit() {

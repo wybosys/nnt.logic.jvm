@@ -3,8 +3,6 @@ package com.nnt.store
 import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.datasource.SingleConnectionDataSource
-import java.sql.Connection
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -50,7 +48,7 @@ class Phoenix : Mybatis() {
     }
 
     override fun verify(): Boolean {
-        return execute { tpl, _ ->
+        return jdbc { tpl ->
             val cnt = tpl.queryForObject(
                 "select 1", Int::class.java
             )
@@ -71,9 +69,8 @@ class Phoenix : Mybatis() {
     }
 
     override fun acquireJdbc(): JdbcSession {
-        val conn = _dsfac.connection
-        val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
-        return PhoenixJdbcSession(conn, tpl)
+        val tpl = JdbcTemplate(_dsfac)
+        return PhoenixJdbcSession(tpl)
     }
 
     override fun acquireSession(): ISession {
@@ -84,7 +81,7 @@ class Phoenix : Mybatis() {
 // phoenix 5.x 中时间对象需要额外处理，传入time，传出Long，否则会有timezone
 // https://developer.aliyun.com/article/684390
 
-class PhoenixJdbcSession(conn: Connection, tpl: JdbcTemplate) : JdbcSession(conn, tpl) {
+class PhoenixJdbcSession(tpl: JdbcTemplate) : JdbcSession(tpl) {
 
     override fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? {
         if (requiredType == Date::class.java) {

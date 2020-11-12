@@ -14,8 +14,6 @@ import org.apache.ibatis.session.SqlSessionFactory
 import org.apache.ibatis.session.SqlSessionFactoryBuilder
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.datasource.SingleConnectionDataSource
-import java.sql.Connection
 import java.util.*
 import javax.sql.DataSource
 
@@ -148,7 +146,7 @@ open class Mybatis : AbstractRdb() {
     }
 
     // 使用mybatis的mapper操作orm数据
-    fun execute(
+    fun mapper(
         proc: (session: SqlSession) -> Unit,
     ): Boolean {
         var r = true
@@ -167,28 +165,23 @@ open class Mybatis : AbstractRdb() {
     }
 
     // 直接执行sql语句返回原始数据类型
-    fun execute(
-        proc: (tpl: JdbcTemplate, conn: Connection) -> Unit,
+    fun jdbc(
+        proc: (tpl: JdbcTemplate) -> Unit,
     ): Boolean {
         var r = true
-        var conn: Connection? = null
         try {
-            conn = _dsfac.connection
-            val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
-            proc(tpl, conn)
+            val tpl = JdbcTemplate(_dsfac)
+            proc(tpl)
         } catch (err: Throwable) {
             logger.exception(err.localizedMessage)
             r = false
-        } finally {
-            conn?.close()
         }
         return r
     }
 
     open fun acquireJdbc(): JdbcSession {
-        val conn = _dsfac.connection
-        val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
-        return JdbcSession(conn, tpl)
+        val tpl = JdbcTemplate(_dsfac)
+        return JdbcSession(tpl)
     }
 
     open fun acquireSql(): MybatisSession {
