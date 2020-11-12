@@ -422,8 +422,8 @@ class DateTime : IValue {
             return DateTime.Current() - __time_started
         }
 
-
-        fun Dyears(ts: UnixTimestamp, @SuppressWarnings("UnusedParameters") up: Boolean = true): Long {
+        @Suppress("UNUSED_PARAMETER")
+        fun Dyears(ts: UnixTimestamp, up: Boolean = true): Long {
             return Math.floorDiv(ts, YEAR)
         }
 

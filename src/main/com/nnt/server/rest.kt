@@ -171,16 +171,17 @@ open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHt
         }
     }
 
-    @SuppressWarnings("UnusedParameters")
+    @Suppress("UNUSED_PARAMETER")
     protected fun onBeforeInvoke(trans: Transaction) {
         // pass
     }
 
-    @SuppressWarnings("UnusedParameters")
+    @Suppress("UNUSED_PARAMETER")
     protected fun onAfterInvoke(trans: Transaction) {
         // pass
     }
 
+    @Suppress("UNUSED_PARAMETER")
     protected suspend fun doInvoke(
         t: Transaction,
         params: Map<String, Any?>,

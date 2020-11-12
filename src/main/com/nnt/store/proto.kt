@@ -101,8 +101,8 @@ class ColumnInfos {
         } else if (ci.valtype != null) {
             val cis = UpdateTableColumnInfos(ci.valtype!!)
             // 合并二级属性
-            cis._namedColumns.forEach { name, ci ->
-                _namedColumns[name] = ci
+            cis._namedColumns.forEach { name, nci ->
+                _namedColumns[name] = nci
             }
             cis._columns.forEach {
                 // 有没有名字的都会出现在这里，绑定下二级prop

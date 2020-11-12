@@ -3,6 +3,7 @@ package com.nnt
 import com.nnt.config.Apollo
 import com.nnt.core.URI
 import com.nnt.manager.App
+import com.nnt.manager.Cli
 import com.nnt.signals.kSignalChanged
 
 class Dubbo {
@@ -39,7 +40,7 @@ class Dubbo {
                 }
             }
 
-            System.`in`.read()
+            Cli.Run()
         }
     }
 }

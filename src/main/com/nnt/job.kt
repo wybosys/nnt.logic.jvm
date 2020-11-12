@@ -2,6 +2,7 @@ package com.nnt
 
 import com.nnt.core.URI
 import com.nnt.manager.App
+import com.nnt.manager.Cli
 
 class Job {
 
@@ -22,6 +23,8 @@ class Job {
             // 启动程序
             val app = App()
             app.start()
+
+            Cli.Run()
         }
     }
 }

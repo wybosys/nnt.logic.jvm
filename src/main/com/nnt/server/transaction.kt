@@ -197,7 +197,7 @@ abstract class Transaction {
     }
 
     // 同步模式会自动提交，异步模式需要手动提交
-    var implSubmit: (trans: Transaction, opt: TransactionSubmitOption?) -> Unit = { trans, opt -> }
+    var implSubmit: (trans: Transaction, opt: TransactionSubmitOption?) -> Unit = { _, _ -> }
 
     private var _submited: Boolean = false
     private var _submited_timeout: Boolean = false
@@ -235,7 +235,9 @@ abstract class Transaction {
     var hookSubmit: (suspend () -> Unit)? = null
 
     // 输出文件
-    var implOutput: (trans: Transaction, type: String, obj: Any) -> Unit = { trans, type, obj -> }
+    var implOutput: (trans: Transaction, type: String, obj: Any) -> Unit =
+        { _, _, _ -> }
+
     private var _outputed: Boolean = false
 
     open suspend fun output(type: String, obj: Any) {
@@ -297,12 +299,6 @@ abstract class Transaction {
 
     // 运行在console中
     var console: Boolean = false
-
-    // 带上此次请求事务的参数实例化一个模型
-    // 通常业务层中会对params增加一些数据，来满足trans对auth、context的需求，如果直接new对象的化，就没办法加入这些数据
-    inline fun <reified T> instance(cls: Class<T>): T {
-        return T::class.constructors.first().call()
-    }
 
     // 环境信息
     val info = TransactionInfo()
