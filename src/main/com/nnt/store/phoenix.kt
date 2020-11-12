@@ -52,9 +52,11 @@ class Phoenix : Mybatis() {
     override fun verify(): Boolean {
         return execute { tpl, _ ->
             val cnt = tpl.queryForObject(
-                "select count(*) as cnt from xaas_test", Int::class.java
+                "select 1", Int::class.java
             )
-            logger.log("hbase测试数据库共有 ${cnt} 条记录")
+            if (cnt != 1) {
+                throw Error("phoenix 查询链接可用性失败")
+            }
         }
     }
 
@@ -62,6 +64,9 @@ class Phoenix : Mybatis() {
         val props = super.propertiesForJdbc()
         // phoenix 不支持连接情况检测
         props.setProperty("testWhileIdle", "false")
+        // 保活(druid不对mysql之外的数据库自动处理)
+        props.setProperty("keepAlive", "true")
+        props.setProperty("validationQuery", "select 1")
         return props
     }
 
