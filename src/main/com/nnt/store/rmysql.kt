@@ -97,8 +97,9 @@ class RMysql : AbstractRdb() {
         }
         _dsfac = DruidDataSourceFactory.createDataSource(props)
         return jdbc { tpl ->
-            val res = tpl.query("show tables") { rs, _ -> rs.getString(1) }
-            logger.log("${id}@mysql 数据库中存在 ${res.size} 张表")
+            val cnt = tpl.queryForObject("select 1", Int::class.java)
+            if (cnt != 1)
+                throw Error("mysql连接测试失败")
         }
     }
 
