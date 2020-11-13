@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import time
+import threading
 from dubbo.test_pb2_grpc import TestStub
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import StringValue
@@ -30,5 +31,6 @@ def test():
 
 if __name__ == "__main__":
     while (1):
-        test()
+        for j in range(0, 50):
+            threading.Thread(target=test).start()
         time.sleep(1)
