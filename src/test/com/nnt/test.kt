@@ -4,6 +4,7 @@ import com.nnt.core.*
 import com.nnt.server.EmptyTransaction
 import com.nnt.server.Routers
 import com.nnt.server.Transaction
+import com.nnt.thirds.dust.DustCompiler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
@@ -136,5 +137,12 @@ class Test {
         launch {
             routers.process(trans)
         }.join()
+    }
+
+    @Test
+    fun TestTemplate() = runBlocking {
+        val tpl = DustCompiler()
+        Assertions.assertEquals(tpl.compile("{.test}", "test"), true)
+        Assertions.assertEquals(tpl.render("test", mapOf<String, Any>("test" to 123)), "123")
     }
 }

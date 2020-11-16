@@ -50,7 +50,7 @@ abstract class CronTask {
                 try {
                     main()
                 } catch (err: Exception) {
-                    logger.exception(err.localizedMessage)
+                    logger.exception(err)
                 }
             }
         })

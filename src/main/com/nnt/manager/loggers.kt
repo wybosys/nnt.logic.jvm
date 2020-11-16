@@ -44,38 +44,44 @@ object Loggers {
 
     init {
         logger.log = {
-            if (loggers.size > 0)
+            if (loggers.size > 0) {
                 output(it, Filter.LOG, LOGTYPE.LOG)
-            else
+            } else {
                 println(it)
+            }
         }
 
         logger.warn = {
-            if (loggers.size > 0)
+            if (loggers.size > 0) {
                 output(it, Filter.WARN, LOGTYPE.WARN)
-            else
+            } else {
                 println(it)
+            }
         }
 
         logger.info = {
-            if (loggers.size > 0)
+            if (loggers.size > 0) {
                 output(it, Filter.INFO, LOGTYPE.INFO)
-            else
+            } else {
                 println(it)
+            }
         }
 
         logger.fatal = {
-            if (loggers.size > 0)
+            if (loggers.size > 0) {
                 output(it, Filter.FATAL, LOGTYPE.FATAL)
-            else
+            } else {
                 println(it)
+            }
         }
 
         logger.exception = {
-            if (loggers.size > 0)
-                output(it, Filter.EXCEPTION, LOGTYPE.EXCEPTION)
-            else
+            if (loggers.size > 0) {
+                val msg = it.localizedMessage ?: it.message ?: it.toString()
+                output(msg, Filter.EXCEPTION, LOGTYPE.EXCEPTION)
+            } else {
                 println(it)
+            }
         }
     }
 

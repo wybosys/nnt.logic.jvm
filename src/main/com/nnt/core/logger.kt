@@ -32,8 +32,8 @@ object logger {
         println(it)
     }
 
-    var exception: (str: String) -> Unit = {
-        println(it)
+    var exception: (err: Throwable) -> Unit = {
+        println(it.localizedMessage ?: it.message)
     }
 
     var error: (str: String) -> Unit = {

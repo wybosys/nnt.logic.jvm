@@ -74,7 +74,7 @@ class HBase : AbstractKv() {
             conn = ConnectionFactory.createConnection(_conf)
             proc(conn)
         } catch (err: Throwable) {
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
             r = false
         } finally {
             conn?.close()

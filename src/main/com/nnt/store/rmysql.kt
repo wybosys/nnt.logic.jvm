@@ -136,7 +136,7 @@ class RMysql : AbstractRdb() {
                     )
                 builder.parse()
             } catch (err: Throwable) {
-                logger.exception(err.localizedMessage)
+                logger.exception(err)
             }
         }
 
@@ -158,7 +158,7 @@ class RMysql : AbstractRdb() {
             proc(ses)
             ses.commit()
         } catch (err: Throwable) {
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
             r = false
         } finally {
             ses?.close()
@@ -175,7 +175,7 @@ class RMysql : AbstractRdb() {
             val tpl = JdbcTemplate(_dsfac)
             proc(tpl)
         } catch (err: Throwable) {
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
             r = false
         }
         return r

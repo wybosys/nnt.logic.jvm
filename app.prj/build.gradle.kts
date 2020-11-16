@@ -30,6 +30,9 @@ buildscript {
 repositories {
     maven("https://maven.aliyun.com/repository/central")
     maven("https://maven.aliyun.com/repository/apache-snapshots")
+    flatDir {
+        dirs("libs")
+    }
 }
 
 tasks.withType<KotlinCompile>().configureEach {
@@ -78,6 +81,7 @@ dependencies {
     implementation("com.ctrip.framework.apollo:apollo-client:1.7.0")
     implementation("it.sauronsoftware.cron4j:cron4j:2.2.5")
     implementation("joda-time:joda-time:2.10.8")
+    implementation("com.eclipsesource.j2v8:j2v8_linux_x86_64:4.8.0")
 
     // http
     implementation("io.vertx:vertx-core:3.9.4")

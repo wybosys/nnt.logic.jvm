@@ -95,7 +95,7 @@ open class Jdbc : AbstractDbms() {
             val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
             proc(tpl, conn)
         } catch (err: Throwable) {
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
             r = false
         } finally {
             conn?.close()

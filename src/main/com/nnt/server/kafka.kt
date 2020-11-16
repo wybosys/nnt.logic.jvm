@@ -53,7 +53,7 @@ class Kafka : Mq() {
             }
              */
         } catch (err: Throwable) {
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
             logger.info("连接 ${id}@kafka 失败")
         }
     }
@@ -141,7 +141,7 @@ class KafkaMqClient(srv: Kafka) : MqClient {
                             try {
                                 cb(it.value(), topic)
                             } catch (err: Throwable) {
-                                logger.exception(err.localizedMessage)
+                                logger.exception(err)
                             }
                         }
                         _consumer!!.commitSync()

@@ -81,14 +81,14 @@ open class Neo4J : AbstractGraphDb() {
                 try {
                     proc(tx)
                 } catch (err: Throwable) {
-                    logger.exception(err.localizedMessage)
+                    logger.exception(err)
                     r = false
                 }
                 ""
             }
             ses.close()
         } catch (err: Throwable) {
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
             r = false
         }
         return r

@@ -221,7 +221,7 @@ abstract class Transaction {
             try {
                 hookSubmit!!()
             } catch (err: Throwable) {
-                logger.exception(err.localizedMessage)
+                logger.exception(err)
             }
         }
 
@@ -257,7 +257,7 @@ abstract class Transaction {
             try {
                 hookSubmit!!()
             } catch (err: Throwable) {
-                logger.exception(err.localizedMessage)
+                logger.exception(err)
             }
         }
 

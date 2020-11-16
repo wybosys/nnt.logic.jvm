@@ -64,12 +64,12 @@ open class KvRedis : AbstractKv() {
                 proc(t)
             } catch (err: Throwable) {
                 r = false
-                logger.exception(err.localizedMessage)
+                logger.exception(err)
             }
             t.close()
         } catch (err: Throwable) {
             r = false
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
         }
         return r
     }

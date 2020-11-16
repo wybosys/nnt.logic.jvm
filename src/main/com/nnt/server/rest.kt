@@ -165,7 +165,7 @@ open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHt
             onAfterInvoke(t)
 
         } catch (err: Throwable) {
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
             t.status = STATUS.EXCEPTION
             t.submit()
         }

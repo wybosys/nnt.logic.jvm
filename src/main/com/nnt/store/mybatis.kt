@@ -139,7 +139,7 @@ open class Mybatis : AbstractRdb() {
                     )
                 builder.parse()
             } catch (err: Throwable) {
-                logger.exception(err.localizedMessage)
+                logger.exception(err)
             }
         }
 
@@ -161,7 +161,7 @@ open class Mybatis : AbstractRdb() {
             proc(ses)
             ses.commit()
         } catch (err: Throwable) {
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
             r = false
         } finally {
             ses?.close()
@@ -178,7 +178,7 @@ open class Mybatis : AbstractRdb() {
             val tpl = JdbcTemplate(_dsfac)
             proc(tpl)
         } catch (err: Throwable) {
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
             r = false
         }
         return r
