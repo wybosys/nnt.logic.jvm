@@ -14,7 +14,7 @@ typealias Integer = Long
 
 // 转换成数值类型
 interface IValue {
-    fun valueOf(): Any
+    fun valueOf(): Any?
 }
 
 fun toValue(v: Array<*>): Array<Any?> {

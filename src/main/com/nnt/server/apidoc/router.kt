@@ -52,6 +52,15 @@ class Router : IRouter {
 
     @action(ExportApis::class, [expose], "生成api接口文件")
     suspend fun export(trans: Transaction) {
+        val m = trans.model as ExportApis
+        if (!m.node && !m.php && !m.h5g && !m.vue) {
+            trans.status = STATUS.PARAMETER_NOT_MATCH
+            trans.submit()
+            return
+        }
+
+        // 分析出的所有结构
+
         trans.submit()
     }
 }

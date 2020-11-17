@@ -20,7 +20,7 @@ enum class JsonType {
     NULL
 }
 
-class JsonObject {
+class JsonObject : IValue {
 
     val size: Int
         get() {
@@ -193,6 +193,10 @@ class JsonObject {
         // 转换成普通类型
         val t = flat()
         return ObjectMapper().writeValueAsString(t)
+    }
+
+    override fun valueOf(): Any? {
+        return flat()
     }
 
     fun flat(): Any? {

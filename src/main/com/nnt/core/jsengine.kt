@@ -23,6 +23,10 @@ class JsEngine {
         p.forEach {
             if (it == null) {
                 r.pushNull()
+            } else if (it is Array<*>) {
+                r.push(array(*it))
+            } else if (it is Map<*, *>) {
+                r.push(map(it))
             } else {
                 r.push(it)
             }
@@ -32,15 +36,20 @@ class JsEngine {
 
     fun map(ps: Map<*, *>): V8Object {
         val r = V8Object(_v8)
-        ps.forEach { k, v ->
+        ps.forEach { (k, v) ->
+            val ks = k.toString()
             if (v == null) {
-                r.addNull(k.toString())
+                r.addNull(ks)
             } else if (v is Number) {
-                r.add(k.toString(), v.toInt())
+                r.add(ks, v.toInt())
             } else if (v is String) {
-                r.add(k.toString(), v)
+                r.add(ks, v)
             } else if (v is Boolean) {
-                r.add(k.toString(), v)
+                r.add(ks, v)
+            } else if (v is Array<*>) {
+                r.add(ks, array(*v))
+            } else if (v is Map<*, *>) {
+                r.add(ks, map(v))
             }
         }
         return r

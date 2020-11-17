@@ -120,6 +120,10 @@ class Test {
 
         val ol = toJsonObject(listOf(0, 1, 2, 3, 4))!!
         Assertions.assertEquals(ol[1]!!.asInteger(), 1)
+
+        val b = B()
+        val fb = flat(b)
+        Assertions.assertTrue(fb is Map<*, *>)
     }
 
     @Test
