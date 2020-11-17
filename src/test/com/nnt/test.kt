@@ -98,7 +98,7 @@ class Test {
         Assertions.assertEquals(ToEnum(TestType::class, "XXXX"), TestType.XXXX)
 
         var d = flat(B::class)
-        println(d)
+        Assertions.assertEquals(d["this"], 123)
     }
 
     @Test
