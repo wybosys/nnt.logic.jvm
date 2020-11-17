@@ -1,7 +1,5 @@
 package com.nnt.core
 
-import com.nnt.component.TodayInit
-
 fun Init() {
 
     // 注册url请求
@@ -16,7 +14,4 @@ fun Init() {
             it.bundle = true
         }
     }
-
-    // 初始化今日日期工具
-    TodayInit()
 }

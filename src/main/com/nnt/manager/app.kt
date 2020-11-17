@@ -3,6 +3,7 @@ package com.nnt.manager
 import com.nnt.config.Apollo
 import com.nnt.core.*
 import java.util.*
+import kotlin.reflect.KClass
 
 open class App {
 
@@ -43,14 +44,14 @@ open class App {
     fun instanceEntry(entry: String): Any? {
         val fnd = findEntry(entry)
         if (fnd != null)
-            return fnd.constructors[0].newInstance()
+            return fnd.java.constructors[0].newInstance()
         return null;
     }
 
     // 查找指定类型
-    fun findEntry(entry: String): Class<*>? {
+    fun findEntry(entry: String): KClass<*>? {
         try {
-            return Class.forName(entry)
+            return Class.forName(entry).kotlin
         } catch (e: Throwable) {
             println(e)
         }
@@ -63,6 +64,7 @@ open class App {
             // 运行各模块初始化函数
             com.nnt.core.Init()
             com.nnt.acl.Init()
+            com.nnt.component.Init()
             com.nnt.server.Init()
         }
 

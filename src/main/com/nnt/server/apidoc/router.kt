@@ -1,6 +1,7 @@
 package com.nnt.server.apidoc
 
 import com.nnt.core.*
+import com.nnt.manager.App
 import com.nnt.server.IRouterable
 import com.nnt.server.Routers
 import com.nnt.server.Transaction
@@ -26,8 +27,27 @@ class Router : IRouter {
 
     override val action: String = "api"
 
+    // 导出设置的路由和模型
+    private var _routers = listOf<KClass<*>>()
+    private var _models = listOf<KClass<*>>()
+
     override fun config(node: JsonObject): Boolean {
         _page = File(URI("bundle://nnt/server/apidoc/apidoc.volt")).readText()
+
+        if (node.has("export")) {
+            try {
+                val nexp = node["export"]!!
+                _routers = nexp["router"]!!.asArray().map {
+                    App.shared.findEntry(it.asString())!!
+                }
+                _models = nexp["model"]!!.asArray().map {
+                    App.shared.findEntry(it.asString())!!
+                }
+            } catch (err: Throwable) {
+                return false
+            }
+        }
+
         return true
     }
 
@@ -60,17 +80,28 @@ class Router : IRouter {
         }
 
         // 分析出的所有结构
+        val params = ExportedParams()
+        if (m.php) {
+            val sp = params.domain.split('/')
+            params.namespace = sp[0].capitalize() + "\\" + sp[1].capitalize()
+        }
+
+        // 便利所有模型，生成模型段
+
 
         trans.submit()
     }
 }
 
+// 保存action的信息
 typealias ActionInfo = MutableMap<String, Any?>
 typealias ParameterInfo = MutableMap<String, Any?>
 
+// 避免重复分析
 private val _actioninfos = mutableMapOf<String, List<ActionInfo>>()
 
-fun ActionsInfo(routers: Routers): List<ActionInfo> {
+// 提取路由所有的动作信息
+private fun ActionsInfo(routers: Routers): List<ActionInfo> {
     val r = mutableListOf<ActionInfo>()
     routers.forEach { v, _ ->
         RouterActions(v).forEach {
@@ -80,7 +111,7 @@ fun ActionsInfo(routers: Routers): List<ActionInfo> {
     return r
 }
 
-fun RouterActions(router: IRouter): List<ActionInfo> {
+private fun RouterActions(router: IRouter): List<ActionInfo> {
     val name = router.action
 
     synchronized(_actioninfos) {
@@ -107,7 +138,8 @@ fun RouterActions(router: IRouter): List<ActionInfo> {
     return infos
 }
 
-fun ParametersInfo(clz: KClass<*>): List<ParameterInfo> {
+// 提取动作的属性信息
+private fun ParametersInfo(clz: KClass<*>): List<ParameterInfo> {
     val fps = GetAllFields(clz)!!
     val r = mutableListOf<ParameterInfo>()
     fps.forEach { name, fp ->
@@ -134,4 +166,31 @@ fun ParametersInfo(clz: KClass<*>): List<ParameterInfo> {
         r.add(t)
     }
     return r
+}
+
+// 导出api需要的数据结构
+private class ExportedParams {
+
+    val domain = Devops.GetDomain()
+    var namespace = ""
+    var clazzes = mutableListOf<ExportedClazz>()
+    var enums = mutableListOf<ExportedEnum>()
+    var consts = mutableListOf<ExportedConst>()
+    var routers = mutableListOf<ExportedRouter>()
+}
+
+private class ExportedClazz {
+
+}
+
+private class ExportedEnum {
+
+}
+
+private class ExportedConst {
+
+}
+
+private class ExportedRouter {
+
 }
