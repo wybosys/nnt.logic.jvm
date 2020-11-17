@@ -158,12 +158,12 @@ class Router : AbstractRouter() {
         }
 
         // 遍历所有接口，生成接口段
-        _routers.forEach {
-            val aps = GetAllActions(it)
+        _routers.forEach { router ->
+            val aps = GetAllActions(router)
             aps.forEach { name, ap ->
                 val t = ExportedRouter()
-                // t.name =
-                // t.action
+                t.name = router.action.capitalize() + name.capitalize()
+                t.action = router.action.capitalize() + "." + name
                 val cn = ap.clazz.simpleName!!
                 if (m.vue || m.node) {
                     t.type = cn
@@ -193,7 +193,9 @@ class Router : AbstractRouter() {
 
         if (!_dust.compiled(apis)) {
             val src = File(URI(apis)).readText()
-            _dust.compile(src, apis)
+            if (!_dust.compile(src, apis)) {
+                throw Error("编译模板失败")
+            }
         }
 
         var out = _dust.render(apis, flat(params) as Map<*, *>)
