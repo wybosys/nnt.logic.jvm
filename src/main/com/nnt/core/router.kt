@@ -158,3 +158,17 @@ fun GetAllActionNames(obj: Any): Set<String> {
 
     return aps.keys
 }
+
+fun GetAllActions(obj: Any): Map<String, ActionProto> {
+    val clz = obj.javaClass.kotlin
+    var aps = _actions[clz]
+    if (aps != null) {
+        return aps
+    }
+
+    aps = mutableMapOf()
+    _actions[clz] = aps
+    UpdateAction(clz, aps)
+
+    return aps
+}

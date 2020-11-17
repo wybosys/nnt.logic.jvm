@@ -4,6 +4,7 @@ import com.eclipsesource.v8.V8Object
 import com.nnt.core.JsEngine
 import com.nnt.core.logger
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class DustCompiler {
@@ -15,6 +16,14 @@ class DustCompiler {
     init {
         _jseng.eval(SCRIPT_DUSTJS)
         _jsdust = _jseng.get("dust")!!
+    }
+
+    fun clear() {
+        _compiled.clear()
+    }
+
+    fun compiled(idr: String): Boolean {
+        return _compiled.containsKey(idr)
     }
 
     fun compile(src: String, idr: String): Boolean {
@@ -40,7 +49,7 @@ class DustCompiler {
             _jsdust.executeVoidFunction("render",
                 _jseng.array(idr, _jseng.map(params), _jseng.callback { _, parameters ->
                     if (parameters[0] != null) {
-                        cont.resume("")
+                        cont.resumeWithException(parameters[0] as Exception)
                     } else {
                         cont.resume(parameters[1] as String)
                     }

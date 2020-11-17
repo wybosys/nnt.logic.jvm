@@ -3,8 +3,10 @@ package com.nnt.server.apidoc
 import com.nnt.core.*
 import com.nnt.manager.App
 import com.nnt.server.IRouterable
+import com.nnt.server.RespFile
 import com.nnt.server.Routers
 import com.nnt.server.Transaction
+import com.nnt.thirds.dust.DustCompiler
 import kotlin.reflect.KClass
 
 @model()
@@ -70,6 +72,9 @@ class Router : IRouter {
         }
     }
 
+    // dust生成文档模板
+    private var _dust = DustCompiler()
+
     @action(ExportApis::class, [expose], "生成api接口文件")
     suspend fun export(trans: Transaction) {
         val m = trans.model as ExportApis
@@ -132,12 +137,80 @@ class Router : IRouter {
                     }
                     if (!fp.input && !fp.output)
                         return@fps
-                    
+                    val type = FpToTypeDef(fp)
+                    val deco: String
+                    if (m.php) {
+                        deco = FpToDecoDefPHP(fp)
+                    } else {
+                        deco = FpToDecoDef(fp, "Model.")
+                    }
+                    val t = ExportedField()
+                    t.name = fname
+                    t.type = type
+                    t.optional = fp.optional
+                    t.file = fp.file
+                    t.enum = fp.enum
+                    t.input = fp.input
+                    t.deco = deco
+                    clazz.fields.add(t)
                 }
             }
         }
 
-        trans.submit()
+        // 遍历所有接口，生成接口段
+        _routers.forEach {
+            val aps = GetAllActions(it)
+            aps.forEach { name, ap ->
+                val t = ExportedRouter()
+                // t.name =
+                // t.action
+                val cn = ap.clazz.simpleName!!
+                if (m.vue || m.node) {
+                    t.type = cn
+                } else if (m.php) {
+                    t.type = "M" + cn
+                } else {
+                    t.type = "models." + cn
+                }
+                t.comment = ap.comment
+                params.routers.add(t)
+            }
+        }
+
+        // 渲染模板
+        var apis = "bundle://nnt/server/apidoc/"
+        if (m.node) {
+            apis += "apis-node.dust"
+        } else if (m.h5g) {
+            apis += "apis-h5g.dust"
+        } else if (m.vue) {
+            apis += "apis-vue.dust"
+        } else if (m.php) {
+            apis += "apis-php.dust"
+        } else {
+            apis += "apis.dust"
+        }
+
+        if (!_dust.compiled(apis)) {
+            val src = File(URI(apis)).readText()
+            _dust.compile(src, apis)
+        }
+
+        var out = _dust.render(apis, flat(params) as Map<*, *>)
+        // 需要加上php的头
+        if (m.php) {
+            out = "<?php\n" + out
+        }
+
+        var apifile = params.domain.replace("/", "-") + "-apis"
+        if (m.php) {
+            apifile += ".php"
+        } else {
+            apifile += ".ts"
+        }
+
+        // 输出到客户端
+        trans.output("text/plain", RespFile.Plain(out).asDownload(apifile));
     }
 }
 
@@ -229,7 +302,17 @@ private class ExportedParams {
 private class ExportedClazz {
     var name = ""
     var super_ = ""
-    var fields = mutableListOf<ExportedParam>()
+    var fields = mutableListOf<ExportedField>()
+}
+
+private class ExportedField {
+    var name = ""
+    var type = ""
+    var optional = false
+    var file = false
+    var enum = false
+    var input = false
+    var deco = ""
 }
 
 private class ExportedParam {
@@ -248,5 +331,8 @@ private class ExportedConst {
 }
 
 private class ExportedRouter {
-
+    var name = ""
+    var action = ""
+    var type = ""
+    var comment = ""
 }

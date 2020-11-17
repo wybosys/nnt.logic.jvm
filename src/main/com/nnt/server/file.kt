@@ -51,11 +51,19 @@ class RespFile {
     companion object {
 
         // 原始数据流
-        fun Buffer(buf: Buffer, typ: String?): RespFile {
+        fun Buffer(buf: Buffer, typ: String? = null): RespFile {
             val r = RespFile()
             r.type = typ
             r._buf = buf
             return r
         }
+
+        fun Plain(txt: String, typ: String? = null): RespFile {
+            val r = RespFile()
+            r.type = typ
+            r._buf = Buffer.buffer(txt)
+            return r
+        }
+
     }
 }
