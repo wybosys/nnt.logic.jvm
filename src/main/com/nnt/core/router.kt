@@ -16,12 +16,12 @@ abstract class AbstractRouter {
         return true
     }
 
-    // 启动
+    // 路由启动，一些持久化的事物处理必须通过start/stop关停，而不能写到init中，避免apidoc之类生成文档需要构造router实例造成多次启动
     open fun start() {
         // pass
     }
 
-    // 停止
+    // 路由停止
     open fun stop() {
         // pass
     }
