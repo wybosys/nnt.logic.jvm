@@ -29,7 +29,8 @@ class DustCompiler {
 
     fun compile(src: String, idr: String): Boolean {
         try {
-            val res = _jsdust.invoke("compile", src, idr)
+            val raw = src.replace("\n", "\\n") // 避免丢失换行
+            val res = _jsdust.invoke("compile", raw, idr)
             _compiled[idr] = res as String
             return true
         } catch (err: Throwable) {
@@ -54,7 +55,9 @@ class DustCompiler {
                         if (err != null) {
                             cont.resumeWithException(err)
                         } else {
-                            cont.resume(params[0] as String)
+                            var out = params[0] as String
+                            out = out.replace("\\n", "\n") // 恢复换行
+                            cont.resume(out)
                         }
                     }
                 }
