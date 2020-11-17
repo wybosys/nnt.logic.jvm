@@ -46,14 +46,17 @@ class B : A() {
     override fun proc() {
         println("B")
     }
+
+    companion object {
+
+        val sstr = "STATIC B STRING"
+        val this_ = 123
+    }
 }
 
-class RTest : IRouter {
-    override val action = "test"
+class RTest : AbstractRouter() {
 
-    override fun config(node: JsonObject): Boolean {
-        return true
-    }
+    override val action = "test"
 
     @action(A::class, [expose], "测试")
     suspend fun test(trans: Transaction) {
@@ -93,6 +96,9 @@ class Test {
         Assertions.assertEquals(EnumValue(TestType.XXXX), 1)
         Assertions.assertEquals(ToEnum(TestType::class, 1), TestType.XXXX)
         Assertions.assertEquals(ToEnum(TestType::class, "XXXX"), TestType.XXXX)
+
+        var d = flat(B::class)
+        println(d)
     }
 
     @Test

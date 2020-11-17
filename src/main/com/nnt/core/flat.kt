@@ -2,9 +2,13 @@ package com.nnt.core
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility
+import kotlin.reflect.full.companionObject
+import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.memberProperties
 
-fun flat(obj: Any?): Any? {
+typealias KeywordPalette = Map<String, String>
+
+fun flat(obj: Any?, kws: KeywordPalette = KEYWORDS_FLAT): Any? {
     if (obj == null)
         return null
     if (obj is Number) {
@@ -29,18 +33,32 @@ fun flat(obj: Any?): Any? {
         return r
     }
 
-    return flat(obj.javaClass.kotlin, obj)
-}
-
-fun flat(clz: KClass<*>, self: Any = clz, kws: Map<String, String> = KEYWORDS_FLAT): Map<String, Any?> {
     val r = mutableMapOf<String, Any?>()
-    clz.memberProperties.forEach {
+    obj.javaClass.kotlin.memberProperties.forEach {
         if (it.visibility != KVisibility.PUBLIC)
             return@forEach
         if (it.name.startsWith("_"))
             return@forEach
 
-        val v = it.getter.call(self)
+        val v = it.getter.call(obj)
+        val name = kws[it.name] ?: it.name
+        if (v is KClass<*>)
+            r[name] = v
+        else
+            r[name] = flat(v)
+    }
+    return r
+}
+
+fun flat(clz: KClass<*>, kws: KeywordPalette = KEYWORDS_FLAT): Map<String, Any?> {
+    val r = mutableMapOf<String, Any?>()
+    clz.companionObject?.memberProperties?.forEach {
+        if (it.visibility != KVisibility.PUBLIC)
+            return@forEach
+        if (it.name.startsWith("_"))
+            return@forEach
+
+        val v = it.getter.call(clz.companionObjectInstance)
         val name = kws[it.name] ?: it.name
         if (v is KClass<*>)
             r[name] = v
@@ -52,5 +70,8 @@ fun flat(clz: KClass<*>, self: Any = clz, kws: Map<String, String> = KEYWORDS_FL
 
 // 拍平用的关键字映射表
 val KEYWORDS_FLAT = mapOf(
-    "super" to "super_"
+    "super_" to "super",
+    "this_" to "this",
+    "fun_" to "fun",
+    "it_" to "it"
 )

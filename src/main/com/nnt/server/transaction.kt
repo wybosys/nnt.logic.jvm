@@ -145,7 +145,7 @@ abstract class Transaction {
     val time = LocalDateTime.now()
 
     // 恢复到model, 返回错误码
-    open fun modelize(r: IRouter): STATUS {
+    open fun modelize(r: AbstractRouter): STATUS {
         // 恢复模型
         val ap = FindAction(r, this.call)
         if (ap == null)

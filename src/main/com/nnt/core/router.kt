@@ -5,13 +5,26 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.declaredMemberFunctions
 
-interface IRouter {
+abstract class AbstractRouter {
 
     // router 的标记
-    val action: String
+    open val action: String = ""
 
     // 接受配置文件的设置
-    fun config(node: JsonObject): Boolean
+    open fun config(node: JsonObject): Boolean {
+        // pass
+        return true
+    }
+
+    // 启动
+    open fun start() {
+        // pass
+    }
+
+    // 停止
+    open fun stop() {
+        // pass
+    }
 }
 
 // action可用的模式

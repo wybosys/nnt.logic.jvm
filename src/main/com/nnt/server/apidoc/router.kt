@@ -25,12 +25,12 @@ class ExportApis {
     var vue: Boolean = false
 }
 
-class Router : IRouter {
+class Router : AbstractRouter() {
 
     override val action: String = "api"
 
     // 导出设置的路由和模型
-    private var _routers = listOf<KClass<*>>()
+    private var _routers = listOf<AbstractRouter>()
     private var _models = listOf<KClass<*>>()
 
     override fun config(node: JsonObject): Boolean {
@@ -40,7 +40,7 @@ class Router : IRouter {
             try {
                 val nexp = node["export"]!!
                 _routers = nexp["router"]!!.asArray().map {
-                    App.shared.findEntry(it.asString())!!
+                    App.shared.instanceEntry(it.asString()) as AbstractRouter
                 }
                 _models = nexp["model"]!!.asArray().map {
                     App.shared.findEntry(it.asString())!!
@@ -224,7 +224,7 @@ private val _actioninfos = mutableMapOf<String, List<ActionInfo>>()
 // 提取路由所有的动作信息
 private fun ActionsInfo(routers: Routers): List<ActionInfo> {
     val r = mutableListOf<ActionInfo>()
-    routers.forEach { v, _ ->
+    routers.forEach { _, v ->
         RouterActions(v).forEach {
             r.add(it)
         }
@@ -232,7 +232,7 @@ private fun ActionsInfo(routers: Routers): List<ActionInfo> {
     return r
 }
 
-private fun RouterActions(router: IRouter): List<ActionInfo> {
+private fun RouterActions(router: AbstractRouter): List<ActionInfo> {
     val name = router.action
 
     synchronized(_actioninfos) {

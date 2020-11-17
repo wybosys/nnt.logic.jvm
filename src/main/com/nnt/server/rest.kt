@@ -64,7 +64,7 @@ open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHt
                         logger.fatal("没有找到该类型 ${v.asString()}")
                         return false
                     } else {
-                        _routers.register(t as IRouter)
+                        _routers.register(t as AbstractRouter)
                     }
                 }
             } else if (router.isMap) {
@@ -74,7 +74,7 @@ open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHt
                         logger.fatal("没有找到该类型 ${key}")
                         return false
                     }
-                    val tr = t as IRouter
+                    val tr = t as AbstractRouter
                     if (!tr.config(value)) {
                         logger.fatal("类型 ${key} 配置失败")
                         return false
@@ -93,9 +93,19 @@ open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHt
     override fun start() {
         _svc = RestVerticle(this, _env)
         _env.deployVerticle(_svc)
+
+        // 调用routers的启动函数
+        _routers.forEach { name, router ->
+            router.start()
+        }
     }
 
     override fun stop() {
+        // 调用routers的停止函数
+        _routers.forEach { name, router ->
+            router.stop()
+        }
+
         // 启动后，svc会具有形如uuid的did
         // println(_svc.deploymentID())
         _env.undeploy(_svc.deploymentID())

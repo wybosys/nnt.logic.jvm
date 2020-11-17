@@ -1,20 +1,19 @@
 package com.test.app.router
 
 import com.nnt.component.TODAY_RANGE
-import com.nnt.core.*
+import com.nnt.core.AbstractRouter
+import com.nnt.core.DateTime
+import com.nnt.core.action
+import com.nnt.core.toJsonObject
 import com.nnt.store.GetTableInfo
 import com.nnt.store.JdbcSession
 import com.test.app.model.Echoo
 import com.test.app.model.Trans
 
-class RSample : IRouter {
+class RSample : AbstractRouter() {
 
     override val action = "test"
-
-    override fun config(node: JsonObject): Boolean {
-        return true
-    }
-
+    
     @action(Echoo::class)
     suspend fun echo(trans: Trans) {
         val m = trans.model as Echoo

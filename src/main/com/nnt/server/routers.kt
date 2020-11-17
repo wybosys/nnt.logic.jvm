@@ -13,14 +13,14 @@ interface IRouterable {
 
 open class Routers {
 
-    protected val _routers = mutableMapOf<String, IRouter>()
+    protected val _routers = mutableMapOf<String, AbstractRouter>()
 
     val size: Int
         get() {
             return _routers.size
         }
 
-    fun register(obj: IRouter) {
+    fun register(obj: AbstractRouter) {
         if (_routers.get(obj.action) != null) {
             logger.fatal("已经注册了一个同名的路由${obj.action}")
             return
@@ -28,7 +28,7 @@ open class Routers {
         _routers[obj.action] = obj
     }
 
-    fun find(act: String): IRouter? {
+    fun find(act: String): AbstractRouter? {
         return _routers[act]
     }
 
@@ -36,13 +36,13 @@ open class Routers {
         _routers.remove(act)
     }
 
-    fun forEach(proc: (v: IRouter, k: String) -> Unit) {
+    fun forEach(proc: (name: String, router: AbstractRouter) -> Unit) {
         _routers.forEach {
-            proc(it.value, it.key)
+            proc(it.key, it.value)
         }
     }
 
-    fun toArray(): Collection<IRouter> {
+    fun toArray(): Collection<AbstractRouter> {
         return _routers.values
     }
 
