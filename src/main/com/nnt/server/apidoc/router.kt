@@ -87,7 +87,55 @@ class Router : IRouter {
         }
 
         // 便利所有模型，生成模型段
+        _models.forEach { clz ->
+            if (!IsModel(clz)) {
+                logger.log("跳过生成 ${clz.simpleName}")
+                return@forEach
+            }
 
+            val name = clz.simpleName!!
+            val mp = FindModel(clz)!!
+            if (mp.hidden)
+                return@forEach
+            if (mp.enum) {
+                val em = ExportedEnum()
+                em.name = name
+                params.enums.add(em)
+                // 枚举得每一项定义都是静态的，所以可以直接遍历
+                EnumToMap(clz).forEach {
+                    val t = ExportedParam()
+                    t.name = it.key
+                    t.value = it.value
+                    em.defs.add(t)
+                }
+            } else if (mp.constant) {
+                flat(clz).forEach {
+                    val t = ExportedConst()
+                    t.name = name.toUpperCase() + "_" + it.key.toUpperCase()
+                    t.value = it.value
+                    params.consts.add(t)
+                }
+            } else {
+                // 判断是否有父类
+                val clazz = ExportedClazz()
+                clazz.name = name
+                clazz.super_ = mp.parent?.simpleName ?: "ApiModel"
+                params.clazzes.add(clazz)
+                // 填充fields信息
+                val fps = GetAllFields(clz)!!
+                fps.forEach fps@{ fname, fp ->
+                    if (fp.inherited)
+                        return@fps
+                    if (fp.id <= 0) {
+                        logger.warn("Model的 Field 不能 <=0 ${fname}")
+                        return@fps
+                    }
+                    if (!fp.input && !fp.output)
+                        return@fps
+                    
+                }
+            }
+        }
 
         trans.submit()
     }
@@ -170,7 +218,6 @@ private fun ParametersInfo(clz: KClass<*>): List<ParameterInfo> {
 
 // 导出api需要的数据结构
 private class ExportedParams {
-
     val domain = Devops.GetDomain()
     var namespace = ""
     var clazzes = mutableListOf<ExportedClazz>()
@@ -180,15 +227,24 @@ private class ExportedParams {
 }
 
 private class ExportedClazz {
+    var name = ""
+    var super_ = ""
+    var fields = mutableListOf<ExportedParam>()
+}
 
+private class ExportedParam {
+    var name = ""
+    var value: Any? = null
 }
 
 private class ExportedEnum {
-
+    var name = ""
+    var defs = mutableListOf<ExportedParam>()
 }
 
 private class ExportedConst {
-
+    var name = ""
+    var value: Any? = null
 }
 
 private class ExportedRouter {

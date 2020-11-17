@@ -121,6 +121,7 @@ fun <T : Any> ToEnum(clz: KClass<T>, v: Int, def: T? = null): T? {
             // pass
         }
     } catch (err: Throwable) {
+        // pass
     }
 
     return def
@@ -141,4 +142,12 @@ fun EnumValue(v: Any?, def: Int = 0): Int {
         // pass
     }
     return def
+}
+
+fun EnumToMap(clz: KClass<*>): Map<String, Any> {
+    val r = mutableMapOf<String, Any>()
+    clz.declaredMemberProperties.forEach {
+        r[it.name] = it.getter.call(clz)!!
+    }
+    return r
 }

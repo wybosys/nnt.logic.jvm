@@ -1,5 +1,6 @@
 package com.nnt.core
 
+import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
 
@@ -28,14 +29,28 @@ fun flat(obj: Any?): Any? {
         return r
     }
 
-    val r = mutableMapOf<Any, Any?>()
-    obj.javaClass.kotlin.memberProperties.forEach {
+    return flat(obj.javaClass.kotlin, obj)
+}
+
+fun flat(clz: KClass<*>, self: Any = clz, kws: Map<String, String> = KEYWORDS_FLAT): Map<String, Any?> {
+    val r = mutableMapOf<String, Any?>()
+    clz.memberProperties.forEach {
         if (it.visibility != KVisibility.PUBLIC)
             return@forEach
         if (it.name.startsWith("_"))
             return@forEach
-        val v = it.getter.call(obj)
-        r[it.name] = flat(v)
+
+        val v = it.getter.call(self)
+        val name = kws[it.name] ?: it.name
+        if (v is KClass<*>)
+            r[name] = v
+        else
+            r[name] = flat(v)
     }
     return r
 }
+
+// 拍平用的关键字映射表
+val KEYWORDS_FLAT = mapOf(
+    "super" to "super_"
+)
