@@ -382,7 +382,22 @@ fun VerticleOutput(trans: Transaction, type: String, obj: Any): Unit {
     pl.rsp.putHeader("Content-Type", type)
     if (obj is RespFile) {
         pl.rsp.statusCode = 200
-        pl.rsp.sendFile(obj.file)
+        if (obj.buffer != null) {
+            // 如果是提供下载
+            if (obj.download) {
+                pl.rsp.putHeader("Accept-Ranges", "bytes");
+                pl.rsp.putHeader("Accept-Length", obj.length.toString());
+                pl.rsp.putHeader("Content-Disposition", "attachment; filename=" + obj.file);
+                pl.rsp.putHeader("Content-Description", "File Transfer");
+                pl.rsp.putHeader("Content-Transfer-Encoding", "binary");
+            }
+            pl.rsp.end(obj.buffer)
+        } else if (obj.file != null) {
+            pl.rsp.sendFile(obj.file)
+        } else {
+            pl.rsp.statusCode = 500
+            pl.rsp.end("数据文件错误")
+        }
     } else if (obj is Buffer) {
         pl.rsp.statusCode = 200
         pl.rsp.end(obj)

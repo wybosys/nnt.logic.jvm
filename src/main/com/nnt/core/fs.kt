@@ -20,16 +20,22 @@ class File(uri: URI) {
             val stm = javaClass.classLoader.getResourceAsStream(uri.path)
             val reader = BufferedReader(InputStreamReader(stm!!))
 
-            // jar中运行时，没一行不带行尾，所以使用保护方式执行合并
+            // 检查行尾
             val lines = reader.readLines()
             var hasln = false
-            if (lines.size > 0) {
+            if (lines.isNotEmpty()) {
                 hasln = lines[0].endsWith("\n")
             }
             return lines.joinToString(if (hasln) "" else "\n")
         }
 
-        return File(uri.path).readText()
+        val lines = File(uri.path).readLines()
+        // 检查行尾
+        var hasln = false
+        if (lines.isNotEmpty()) {
+            hasln = lines[0].endsWith("\n")
+        }
+        return lines.joinToString(if (hasln) "" else "\n")
     }
 
     fun open(): InputStream? {

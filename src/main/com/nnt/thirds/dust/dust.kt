@@ -48,7 +48,8 @@ class DustCompiler {
             val tpl = _compiled[idr]
             _jsdust.invoke("loadSource", tpl)
             _jsdust.invoke("render",
-                idr, params, object : JsCallback {
+                idr, params,
+                object : JsCallback {
                     override fun invoke(err: Error?, params: List<Any?>) {
                         if (err != null) {
                             cont.resumeWithException(err)

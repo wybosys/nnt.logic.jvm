@@ -45,6 +45,15 @@ class RespFile {
         get() {
             if (_file != null)
                 return _file
+            if (this._downloadfile != null)
+                return this._downloadfile
+            return null
+        }
+
+    val buffer: Buffer?
+        get() {
+            if (_buf != null)
+                return _buf
             return null
         }
 
