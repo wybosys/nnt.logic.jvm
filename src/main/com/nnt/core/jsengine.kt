@@ -7,8 +7,8 @@ private class V8T {
 
         fun array(arr: V8Array): List<Any?> {
             val r = mutableListOf<Any?>()
-            for (i in 0..arr.length()) {
-                val e = arr[i]
+            for (i in 0 until arr.length()) {
+                r.add(arr[i])
             }
             return r
         }
@@ -25,7 +25,7 @@ private class V8T {
                 } else if (it is JsCallback) {
                     r.push(callback(v8) { _, params ->
                         val ps = array(params)
-                        it.invoke(ps[0] as Error, ps.subList(1, ps.size))
+                        it.invoke(ps[0] as Error?, ps.subList(1, ps.size))
                     })
                 } else {
                     r.push(it)
@@ -53,7 +53,7 @@ private class V8T {
                 } else if (v is JsCallback) {
                     r.add(ks, callback(v8) { _, params ->
                         val ps = array(params)
-                        v.invoke(ps[0] as Error, ps.subList(1, ps.size))
+                        v.invoke(ps[0] as Error?, ps.subList(1, ps.size))
                     })
                 }
             }

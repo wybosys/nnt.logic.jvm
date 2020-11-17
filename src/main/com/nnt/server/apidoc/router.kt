@@ -108,10 +108,7 @@ class Router : AbstractRouter() {
                 params.enums.add(em)
                 // 枚举得每一项定义都是静态的，所以可以直接遍历
                 EnumToMap(clz).forEach {
-                    val t = ExportedParam()
-                    t.name = it.key
-                    t.value = it.value
-                    em.defs.add(t)
+                    em.defs[it.key] = it.value
                 }
             } else if (mp.constant) {
                 flat(clz).forEach {
@@ -292,7 +289,7 @@ private fun ParametersInfo(clz: KClass<*>): List<ParameterInfo> {
 }
 
 // 导出api需要的数据结构
-private class ExportedParams {
+class ExportedParams {
     val domain = Devops.GetDomain()
     var namespace = ""
     var clazzes = mutableListOf<ExportedClazz>()
@@ -301,13 +298,13 @@ private class ExportedParams {
     var routers = mutableListOf<ExportedRouter>()
 }
 
-private class ExportedClazz {
+class ExportedClazz {
     var name = ""
     var super_ = ""
     var fields = mutableListOf<ExportedField>()
 }
 
-private class ExportedField {
+class ExportedField {
     var name = ""
     var type = ""
     var optional = false
@@ -317,22 +314,17 @@ private class ExportedField {
     var deco = ""
 }
 
-private class ExportedParam {
+class ExportedEnum {
+    var name = ""
+    var defs = mutableMapOf<String, Any?>()
+}
+
+class ExportedConst {
     var name = ""
     var value: Any? = null
 }
 
-private class ExportedEnum {
-    var name = ""
-    var defs = mutableListOf<ExportedParam>()
-}
-
-private class ExportedConst {
-    var name = ""
-    var value: Any? = null
-}
-
-private class ExportedRouter {
+class ExportedRouter {
     var name = ""
     var action = ""
     var type = ""
