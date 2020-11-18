@@ -128,15 +128,18 @@ class FieldOption {
 
 annotation class model(val options: Array<String> = [], val parent: KClass<*> = Null::class)
 
-typealias ModelOptionStore = MutableMap<KClass<*>, ModelOption>
+typealias ModelOptionStore = MutableMap<KClass<*>, ModelOption?>
 
+// 缓存所有查找过的模型，非模型则对应的modeloption为null
 private var _models: ModelOptionStore = mutableMapOf()
 
+// 查找类对应的模型信息
 fun FindModel(clz: KClass<*>): ModelOption? {
-    var mp = _models[clz]
-    if (mp != null)
-        return mp
+    if (_models.contains(clz)) {
+        return _models[clz]
+    }
 
+    var mp: ModelOption? = null
     clz.annotations.forEach { ann ->
         if (ann is model) {
             mp = ModelOption()
@@ -151,16 +154,11 @@ fun FindModel(clz: KClass<*>): ModelOption? {
 
             if (ann.parent != Null::class)
                 mp!!.parent = ann.parent
-            _models[clz] = mp!!
         }
     }
 
-    return _models[clz]
-}
-
-// 是否是模型
-fun IsModel(clz: KClass<*>): Boolean {
-    return _models.contains(clz)
+    _models[clz] = mp
+    return mp
 }
 
 // 是否需要登陆验证
@@ -464,7 +462,7 @@ fun Output(mdl: Any?): MutableMap<String, Any?>? {
             } else if (fp.timestamp) {
                 r[fk] = (v as DateTime).timestamp
             } else {
-                if (IsModel(v.javaClass.kotlin)) {
+                if (FindModel(v.javaClass.kotlin) != null) {
                     r[fk] = Output(v)
                 } else {
                     r[fk] = toJsonObject(v)?.flat()

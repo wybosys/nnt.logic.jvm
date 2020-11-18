@@ -146,8 +146,9 @@ fun EnumValue(v: Any?, def: Int = 0): Int {
 
 fun EnumToMap(clz: KClass<*>): Map<String, Any> {
     val r = mutableMapOf<String, Any>()
-    clz.declaredMemberProperties.forEach {
-        r[it.name] = it.getter.call(clz)!!
+    clz.java.enumConstants.forEach {
+        val e = it as Enum<*>
+        r[e.name] = EnumValue(e)
     }
     return r
 }

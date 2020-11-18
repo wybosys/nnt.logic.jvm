@@ -93,8 +93,8 @@ class Router : AbstractRouter() {
 
         // 便利所有模型，生成模型段
         _models.forEach { clz ->
-            if (!IsModel(clz)) {
-                logger.log("跳过生成 ${clz.simpleName}")
+            if (FindModel(clz) == null) {
+                logger.log("跳过生成 ${clz.simpleName}: 不是模型")
                 return@forEach
             }
 
@@ -108,7 +108,10 @@ class Router : AbstractRouter() {
                 params.enums.add(em)
                 // 枚举得每一项定义都是静态的，所以可以直接遍历
                 EnumToMap(clz).forEach {
-                    em.defs[it.key] = it.value
+                    val t = ExportedPair()
+                    t.name = it.key
+                    t.value = it.value
+                    em.defs.add(t)
                 }
             } else if (mp.constant) {
                 flat(clz).forEach {
@@ -316,7 +319,12 @@ class ExportedField {
 
 class ExportedEnum {
     var name = ""
-    var defs = mutableMapOf<String, Any?>()
+    var defs = mutableListOf<ExportedPair>()
+}
+
+class ExportedPair {
+    var name = ""
+    var value: Any? = null
 }
 
 class ExportedConst {
