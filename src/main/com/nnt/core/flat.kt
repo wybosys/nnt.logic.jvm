@@ -79,5 +79,6 @@ val KEYWORDS_FLAT = mapOf(
     "super_" to "super",
     "this_" to "this",
     "fun_" to "fun",
-    "it_" to "it"
+    "it_" to "it",
+    "package_" to "package"
 )

@@ -136,9 +136,11 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
         args: Array<Any>,
         argTypes: IntArray,
         requiredType: KClass<T>,
-    ): T {
+    ): T? {
         if (requiredType == Date::class.java) {
             val r = super.queryForObject(sql, args, argTypes, Long::class)
+            if (r == null)
+                return null
 
             @Suppress("UNCHECKED_CAST")
             return Date(r.toLong()) as T

@@ -72,6 +72,12 @@ enum class TestType(val value: Int) {
 class Test {
 
     @Test
+    fun TestJvm() {
+        val pkg = Jvm.LoadPackage("com.test.app.model")!!
+        Assertions.assertTrue(pkg.findClass("com.test.app.model.EchoType") != null)
+    }
+
+    @Test
     fun Test0() {
         var a = ByteUnit()
         a.p = 1

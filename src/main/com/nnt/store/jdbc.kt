@@ -173,14 +173,22 @@ open class JdbcSession : ISession {
         return tpl().query(sql, rowMapper)
     }
 
-    @Throws(DataAccessException::class)
-    open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>): T {
-        return tpl().queryForObject(sql, rowMapper)
+    open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>): T? {
+        try {
+            return tpl().queryForObject(sql, rowMapper)
+        } catch (err: Throwable) {
+            // pass
+        }
+        return null
     }
 
-    @Throws(DataAccessException::class)
     open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>): T? {
-        return tpl().queryForObject(sql, requiredType.java)
+        try {
+            return tpl().queryForObject(sql, requiredType.java)
+        } catch (err: Throwable) {
+            // pass
+        }
+        return null
     }
 
     @Throws(DataAccessException::class)
@@ -298,44 +306,78 @@ open class JdbcSession : ISession {
         return tpl().query(sql, rowMapper, *args)
     }
 
-    @Throws(DataAccessException::class)
-    open fun <T> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): T {
-        return tpl().queryForObject(sql, args, argTypes, rowMapper)
+    open fun <T> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): T? {
+        try {
+            return tpl().queryForObject(sql, args, argTypes, rowMapper)
+        } catch (err: Throwable) {
+            // pass
+        }
+        return null
     }
 
-    @Throws(DataAccessException::class)
-    open fun <T> queryForObject(sql: String, args: Array<Any>, rowMapper: RowMapper<T>): T {
-        return tpl().queryForObject(sql, args, rowMapper)
+    open fun <T> queryForObject(sql: String, args: Array<Any>, rowMapper: RowMapper<T>): T? {
+        try {
+            return tpl().queryForObject(sql, args, rowMapper)
+        } catch (err: Throwable) {
+            // pass
+        }
+        return null
     }
 
-    @Throws(DataAccessException::class)
-    open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>, vararg args: Any): T {
-        return tpl().queryForObject(sql, rowMapper, *args)
+    open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>, vararg args: Any): T? {
+        try {
+            return tpl().queryForObject(sql, rowMapper, *args)
+        } catch (err: Throwable) {
+            // pass
+        }
+        return null
     }
 
-    @Throws(DataAccessException::class)
-    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, requiredType: KClass<T>): T {
-        return tpl().queryForObject(sql, args, argTypes, requiredType.java)
+    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, requiredType: KClass<T>): T? {
+        try {
+            return tpl().queryForObject(sql, args, argTypes, requiredType.java)
+        } catch (err: Throwable) {
+            // pass
+        }
+        return null
     }
 
-    @Throws(DataAccessException::class)
     open fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T? {
-        return tpl().queryForObject(sql, args, requiredType.java)
+        try {
+            return tpl().queryForObject(sql, args, requiredType.java)
+        } catch (err: Throwable) {
+            // pass
+        }
+        return null
     }
 
-    @Throws(DataAccessException::class)
     open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? {
-        return tpl().queryForObject(sql, requiredType.java, *args)
+        try {
+            return tpl().queryForObject(sql, requiredType.java, *args)
+        } catch (err: Throwable) {
+            // pass
+        }
+        return null
     }
 
     @Throws(DataAccessException::class)
-    open fun queryForMap(sql: String, args: Array<Any>, argTypes: IntArray): Map<String, Any> {
-        return tpl().queryForMap(sql, args, argTypes)
+    open fun queryForMap(sql: String, args: Array<Any>, argTypes: IntArray): Map<String, Any>? {
+        try {
+            return tpl().queryForMap(sql, args, argTypes)
+        } catch (err: Throwable) {
+            // pass
+        }
+        return null
     }
 
     @Throws(DataAccessException::class)
-    open fun queryForMap(sql: String, vararg args: Any): Map<String, Any> {
-        return tpl().queryForMap(sql, *args)
+    open fun queryForMap(sql: String, vararg args: Any): Map<String, Any>? {
+        try {
+            return tpl().queryForMap(sql, *args)
+        } catch (err: Throwable) {
+            // pass
+        }
+        return null
     }
 
     @Throws(DataAccessException::class)
@@ -454,5 +496,4 @@ open class JdbcSession : ISession {
     open fun call(csc: CallableStatementCreator, declaredParameters: List<SqlParameter>): Map<String, Any> {
         return tpl().call(csc, declaredParameters)
     }
-
 }
