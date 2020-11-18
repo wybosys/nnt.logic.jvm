@@ -42,10 +42,26 @@ class Router : AbstractRouter() {
                 _routers = nexp["router"]!!.asArray().map {
                     App.shared.instanceEntry(it.asString()) as AbstractRouter
                 }
-                _models = nexp["model"]!!.asArray().map {
-                    App.shared.findEntry(it.asString())!!
+
+                val mdls = mutableListOf<KClass<*>>()
+                nexp["model"]!!.asArray().forEach {
+                    val e = it.asString()
+                    // 如果是带*号，则拉出该package下所有的model
+                    if (e.endsWith(".*")) {
+                        val pkg = Jvm.LoadPackage(e.substring(0, e.length - 2))!!
+                        pkg.filter {
+                            FindModel(it.clazz) != null
+                        }
+                        mdls.addAll(mdls.size, pkg.sorted().map {
+                            it.clazz
+                        })
+                    } else {
+                        mdls.add(App.shared.findEntry(e)!!)
+                    }
                 }
+                _models = mdls
             } catch (err: Throwable) {
+                logger.exception(err)
                 return false
             }
         }

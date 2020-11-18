@@ -20,8 +20,7 @@
               "com.test.app.router.RSample"
             ],
             "model": [
-              "com.test.app.model.EchoType",
-              "com.test.app.model.Echoo"
+              "com.test.app.model.*"
             ]
           }
         }
