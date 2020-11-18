@@ -39,9 +39,24 @@ class Router : AbstractRouter() {
         if (node.has("export")) {
             try {
                 val nexp = node["export"]!!
-                _routers = nexp["router"]!!.asArray().map {
-                    App.shared.instanceEntry(it.asString()) as AbstractRouter
+
+                val rts = mutableListOf<AbstractRouter>()
+                nexp["router"]!!.asArray().forEach {
+                    val e = it.asString()
+                    // 如果是带*号，则拉出该package下所有的router
+                    if (e.endsWith(".*")) {
+                        val pkg = Jvm.LoadPackage(e.substring(0, e.length - 2), AbstractRouter::class)!!
+                        pkg.filter {
+                            FindRouterActons(it.clazz) != null
+                        }
+                        rts.addAll(rts.size, pkg.sorted().map {
+                            App.shared.instanceEntry(it.clazz) as AbstractRouter
+                        })
+                    } else {
+                        rts.add(App.shared.instanceEntry(e) as AbstractRouter)
+                    }
                 }
+                _routers = rts
 
                 val mdls = mutableListOf<KClass<*>>()
                 nexp["model"]!!.asArray().forEach {

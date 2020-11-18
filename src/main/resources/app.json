@@ -17,7 +17,7 @@
         "com.nnt.server.apidoc.Router": {
           "export": {
             "router": [
-              "com.test.app.router.RSample"
+              "com.test.app.router.*"
             ],
             "model": [
               "com.test.app.model.*"

@@ -71,12 +71,16 @@ class ActionProto {
 
 annotation class action(val modelType: KClass<*>, val options: Array<String> = [], val comment: String = "")
 
-typealias ActionProtoStore = MutableMap<KClass<*>, MutableMap<String, ActionProto>>
+typealias ActionsProto = MutableMap<String, ActionProto>
+typealias RouterProtoStore = MutableMap<KClass<*>, ActionsProto?>
 
-private val _actions: ActionProtoStore = mutableMapOf()
+// 保存查找过的类定义，类不是router的话，保存null
+private val _routers: RouterProtoStore = mutableMapOf()
 
-// 添加action定义
-fun UpdateAction(clz: KClass<*>, aps: MutableMap<String, ActionProto>) {
+// 更新Action定义
+fun UpdateAction(clz: KClass<*>): MutableMap<String, ActionProto>? {
+    var r: MutableMap<String, ActionProto>? = null
+
     // 读取
     clz.declaredMemberFunctions.forEach { fn ->
         fn.annotations.forEach ann@{ ann ->
@@ -132,56 +136,41 @@ fun UpdateAction(clz: KClass<*>, aps: MutableMap<String, ActionProto>) {
             }
 
             // 测试通过，该action生效
-            if (pass)
-                aps[fn.name] = ap
+            if (pass) {
+                if (r == null)
+                    r = mutableMapOf()
+                r!![fn.name] = ap
+            }
         }
     }
+
+    return r
+}
+
+// 查找router定义
+fun FindRouterActons(clz: KClass<*>): ActionsProto? {
+    if (_routers.contains(clz)) {
+        return _routers[clz]
+    }
+
+    val ap = UpdateAction(clz)
+    _routers[clz] = ap
+    return ap
 }
 
 // 查找action定义
 fun FindAction(target: Any, key: String): ActionProto? {
     val clz = target.javaClass.kotlin
-    var aps = _actions[clz]
-    if (aps != null) {
-        val ap = aps[key]
-        if (ap != null)
-            return ap
-    }
-
-    if (aps == null) {
-        aps = mutableMapOf()
-        _actions[clz] = aps
-    }
-
-    UpdateAction(clz, aps)
-
-    return aps[key]
+    val ap = FindRouterActons(clz)
+    return ap?.get(key)
 }
 
-fun GetAllActionNames(obj: Any): Set<String> {
-    val clz = obj.javaClass.kotlin
-    var aps = _actions[clz]
-    if (aps != null) {
-        return aps.keys
-    }
-
-    aps = mutableMapOf()
-    _actions[clz] = aps
-    UpdateAction(clz, aps)
-
-    return aps.keys
+fun GetAllActionNames(target: Any): Set<String> {
+    val clz = target.javaClass.kotlin
+    val ap = FindRouterActons(clz)
+    return ap?.keys ?: setOf()
 }
 
-fun GetAllActions(obj: Any): Map<String, ActionProto> {
-    val clz = obj.javaClass.kotlin
-    var aps = _actions[clz]
-    if (aps != null) {
-        return aps
-    }
-
-    aps = mutableMapOf()
-    _actions[clz] = aps
-    UpdateAction(clz, aps)
-
-    return aps
+fun GetAllActions(target: Any): ActionsProto {
+    return FindRouterActons(target.javaClass.kotlin)!!
 }

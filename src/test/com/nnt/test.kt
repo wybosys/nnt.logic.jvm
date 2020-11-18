@@ -73,6 +73,7 @@ class Test {
 
     @Test
     fun TestJvm() {
+        //val pkg = Jvm.LoadPackage("com.test.app.router", AbstractRouter::class)!!
         val pkg = Jvm.LoadPackage("com.test.app.model")!!
         pkg.filter {
             FindModel(it.clazz) != null
@@ -81,6 +82,7 @@ class Test {
         Assertions.assertTrue(pkg.findClass("com.test.app.model.a.D") == null)
 
         val classes = pkg.sorted()
+        println(classes)
     }
 
     @Test

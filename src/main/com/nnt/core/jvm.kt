@@ -249,13 +249,14 @@ class Jvm {
         }
 
         // 读取包
-        fun LoadPackage(path: String): JvmPackage? {
+        fun LoadPackage(path: String, base: KClass<*> = Any::class): JvmPackage? {
             val reflections = Reflections(ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(path))
                 .setScanners(SubTypesScanner(false))
                 .filterInputsBy(FilterBuilder().includePackage(path))
             )
-            val classes = reflections.getSubTypesOf(Any::class.java)
+
+            val classes = reflections.getSubTypesOf(base.java)
             val enums = reflections.getSubTypesOf(Enum::class.java)
 
             // 组装

@@ -44,8 +44,17 @@ open class App {
     fun instanceEntry(entry: String): Any? {
         val fnd = findEntry(entry)
         if (fnd != null)
-            return fnd.java.constructors[0].newInstance()
+            return instanceEntry(fnd)
         return null;
+    }
+
+    fun instanceEntry(clz: KClass<*>): Any? {
+        try {
+            return clz.java.constructors[0].newInstance()
+        } catch (err: Exception) {
+            // pass
+        }
+        return null
     }
 
     // 查找指定类型

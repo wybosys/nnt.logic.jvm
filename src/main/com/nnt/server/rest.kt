@@ -95,14 +95,14 @@ open class Rest : AbstractServer(), IRouterable, IConsoleServer, IApiServer, IHt
         _env.deployVerticle(_svc)
 
         // 调用routers的启动函数
-        _routers.forEach { name, router ->
+        _routers.forEach { _, router ->
             router.start()
         }
     }
 
     override fun stop() {
         // 调用routers的停止函数
-        _routers.forEach { name, router ->
+        _routers.forEach { _, router ->
             router.stop()
         }
 
