@@ -165,9 +165,9 @@ class Router : AbstractRouter() {
                 if (m.vue || m.node) {
                     t.type = cn
                 } else if (m.php) {
-                    t.type = "M" + cn
+                    t.type = "M$cn"
                 } else {
-                    t.type = "models." + cn
+                    t.type = "models.$cn"
                 }
                 t.comment = ap.comment
                 params.routers.add(t)

@@ -9,8 +9,9 @@ import kotlin.reflect.full.memberProperties
 typealias KeywordPalette = Map<String, String>
 
 fun flat(obj: Any?, kws: KeywordPalette = KEYWORDS_FLAT): Any? {
-    if (obj == null)
+    if (obj == null) {
         return null
+    }
     if (obj is Number) {
         return obj
     }
@@ -21,6 +22,11 @@ fun flat(obj: Any?, kws: KeywordPalette = KEYWORDS_FLAT): Any? {
         return obj
     }
     if (obj is Array<*>) {
+        return obj.map {
+            flat(it)
+        }
+    }
+    if (obj is List<*>) {
         return obj.map {
             flat(it)
         }
