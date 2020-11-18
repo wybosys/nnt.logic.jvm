@@ -74,7 +74,13 @@ class Test {
     @Test
     fun TestJvm() {
         val pkg = Jvm.LoadPackage("com.test.app.model")!!
-        Assertions.assertTrue(pkg.findClass("com.test.app.model.EchoType") != null)
+        pkg.filter {
+            FindModel(it.clazz) != null
+        }
+        Assertions.assertTrue(pkg.findClass("com.test.app.model.a.A") != null)
+        Assertions.assertTrue(pkg.findClass("com.test.app.model.a.D") == null)
+
+        val classes = pkg.sorted()
     }
 
     @Test

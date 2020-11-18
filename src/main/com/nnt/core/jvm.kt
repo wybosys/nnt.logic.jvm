@@ -4,6 +4,9 @@ import org.reflections.Reflections
 import org.reflections.scanners.SubTypesScanner
 import org.reflections.util.ClasspathHelper
 import org.reflections.util.ConfigurationBuilder
+import org.reflections.util.FilterBuilder
+import kotlin.reflect.KClass
+import kotlin.reflect.full.allSuperclasses
 
 // File("jar:file:/home/develop/github/nnt.logic.jvm/build/libs/logic-1.0-SNAPSHOT.jar!/BOOT-INF/classes!/app.json").exists()
 
@@ -16,35 +19,188 @@ class JarInfo {
     var home: String = ""
 }
 
-class JvmClass {
+class JvmClass : Comparable<JvmClass> {
 
     // 类名称
     var name = ""
 
     // p父包
     var pkg: JvmPackage? = null
+
+    // class指针
+    lateinit var clazz: KClass<*>
+
+    // 子类列表
+    private var _children: MutableMap<KClass<*>, JvmClass>? = null
+
+    // 计算依赖
+    fun calcDepends(classes: Map<KClass<*>, JvmClass>) {
+        clazz.allSuperclasses.forEach {
+            val tgt = classes[it]
+            if (tgt == null)
+                return@forEach
+            if (tgt._children == null)
+                tgt._children = mutableMapOf()
+            tgt._children!![clazz] = this
+        }
+    }
+
+    override fun compareTo(other: JvmClass): Int {
+        val l = _children?.size ?: 0
+        val r = other._children?.size ?: 0
+        return r - l
+    }
 }
 
 class JvmPackage {
 
     // package名称
-    var name = ""
+    private var _name = ""
 
-    // 包中的类
-    val classes = mutableMapOf<String, JvmClass>()
+    var name: String
+        get() {
+            return _name
+        }
+        set(value) {
+            val iter = value.split(".").iterator()
+            var cur = this
+            cur._name = iter.next()
+            while (iter.hasNext()) {
+                val nm = iter.next()
+                var curpkg = cur._packages[nm]
+                if (curpkg == null) {
+                    curpkg = JvmPackage()
+                    curpkg._name = nm
+                    curpkg.pkg = cur
+                    cur._packages[nm] = curpkg
+                }
+                cur = curpkg
+            }
+        }
 
-    // 子包
-    val packages = mutableMapOf<String, JvmPackage>()
+    // 仅包含第一级子类
+    private val _classes = mutableMapOf<String, JvmClass>()
+    val classes: Map<String, JvmClass> get() = _classes
+
+    // 仅包含第一级子包
+    private val _packages = mutableMapOf<String, JvmPackage>()
+    val packages: Map<String, JvmPackage> get() = _packages
 
     // 父包
     var pkg: JvmPackage? = null
+
+    // 展开包名
+    fun expand(name: String): JvmPackage? {
+        val iter = name.split(".").iterator()
+        var nm = iter.next()
+        if (nm != _name)
+            return null
+        if (!iter.hasNext())
+            return null
+        nm = iter.next()
+        var cur = _packages[nm]
+        if (cur == null) {
+            cur = JvmPackage()
+            cur._name = nm
+            cur.pkg = this
+            _packages[nm] = cur
+        }
+        while (iter.hasNext()) {
+            nm = iter.next()
+            var t = cur!!._packages[nm]
+            if (t == null) {
+                t = JvmPackage()
+                t._name = nm
+                t.pkg = cur
+                cur._packages[nm] = t
+            }
+            cur = t
+        }
+        return cur
+    }
+
+    // 清空
+    fun clear() {
+        _name = ""
+        _classes.clear()
+        _packages.clear()
+    }
+
+    // 添加类
+    fun add(clz: KClass<*>) {
+        val pkg = expand(clz.java.packageName)
+        if (pkg == null)
+            return
+
+        val t = JvmClass()
+        t.name = clz.simpleName!!
+        t.clazz = clz
+        t.pkg = pkg
+        pkg._classes[t.name] = t
+    }
+
+    // 所有类
+    fun allClassesList(): List<JvmClass> {
+        val r = mutableListOf<JvmClass>()
+        r.addAll(r.size, _classes.values.toList())
+        _packages.forEach { _, sub ->
+            r.addAll(r.size, sub.allClassesList())
+        }
+        return r
+    }
+
+    fun allClassesSet(): Set<JvmClass> {
+        val r = mutableSetOf<JvmClass>()
+        r.addAll(_classes.values)
+        _packages.forEach { _, sub ->
+            r.addAll(sub.allClassesList())
+        }
+        return r
+    }
+
+    fun allClassesMap(): Map<KClass<*>, JvmClass> {
+        val r = mutableMapOf<KClass<*>, JvmClass>()
+        _classes.forEach { _, clz ->
+            r[clz.clazz] = clz
+        }
+        _packages.forEach { _, sub ->
+            sub.allClassesList().forEach {
+                r[it.clazz] = it
+            }
+        }
+        return r
+    }
+
+    // 按照依赖度排序
+    fun sorted(): List<JvmClass> {
+        val clss = allClassesMap()
+        // 计算依赖
+        clss.forEach { _, clz ->
+            clz.calcDepends(clss)
+        }
+        // 排序
+        return clss.values.sorted()
+    }
+
+    // 过滤
+    fun filter(proc: (cls: JvmClass) -> Boolean) {
+        val t = _classes.filterValues { clz ->
+            proc(clz)
+        }
+        _classes.clear()
+        _classes.putAll(t)
+
+        _packages.forEach { _, sub ->
+            sub.filter(proc)
+        }
+    }
 
     // 查找类
     fun findClass(fullname: String): JvmClass? {
         val ps = fullname.split(".")
         if (ps.size > 1) {
             val pkg = findPackage(ps.subList(0, ps.size - 1))
-            return pkg?.findClass(ps.last())
+            return pkg?._classes?.get(ps.last())
         }
         return classes[ps.first()]
     }
@@ -55,11 +211,12 @@ class JvmPackage {
     }
 
     fun findPackage(names: List<String>): JvmPackage? {
-        if (names[0] != name)
+        if (names[0] != _name)
             return null
         if (names.size == 1)
             return this
-        return findPackage(names.subList(1, names.size))
+        val sub = _packages[names[1]]
+        return sub?.findPackage(names.subList(1, names.size))
     }
 }
 
@@ -95,10 +252,22 @@ class Jvm {
         fun LoadPackage(path: String): JvmPackage? {
             val reflections = Reflections(ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(path))
-                .setScanners(SubTypesScanner())
+                .setScanners(SubTypesScanner(false))
+                .filterInputsBy(FilterBuilder().includePackage(path))
             )
-            val t = reflections.getSubTypesOf(Any::class.java)
-            return null
+            val classes = reflections.getSubTypesOf(Any::class.java)
+            val enums = reflections.getSubTypesOf(Enum::class.java)
+
+            // 组装
+            val r = JvmPackage()
+            r.name = path
+            classes.forEach {
+                r.add(it.kotlin)
+            }
+            enums.forEach {
+                r.add(it.kotlin)
+            }
+            return r
         }
     }
 }

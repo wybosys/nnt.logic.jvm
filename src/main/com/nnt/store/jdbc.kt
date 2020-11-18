@@ -360,7 +360,6 @@ open class JdbcSession : ISession {
         return null
     }
 
-    @Throws(DataAccessException::class)
     open fun queryForMap(sql: String, args: Array<Any>, argTypes: IntArray): Map<String, Any>? {
         try {
             return tpl().queryForMap(sql, args, argTypes)
@@ -370,7 +369,6 @@ open class JdbcSession : ISession {
         return null
     }
 
-    @Throws(DataAccessException::class)
     open fun queryForMap(sql: String, vararg args: Any): Map<String, Any>? {
         try {
             return tpl().queryForMap(sql, *args)
@@ -453,7 +451,7 @@ open class JdbcSession : ISession {
     }
 
     @Throws(DataAccessException::class)
-    open fun update(sql: String, vararg args: Any): Int {
+    open fun update(sql: String, vararg args: Any?): Int {
         return tpl().update(sql, *args)
     }
 
