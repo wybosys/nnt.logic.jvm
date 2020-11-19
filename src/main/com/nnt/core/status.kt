@@ -2,6 +2,7 @@ package com.nnt.core
 
 // 定义内部的错误码
 // <0的代表系统级错误，>0代表成功，但是需要额外处理，=0代表完全成功
+@model([enumm])
 enum class STATUS(val value: Int) {
 
     UNKNOWN(-1000),

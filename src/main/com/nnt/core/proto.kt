@@ -126,6 +126,7 @@ class FieldOption {
     }
 }
 
+// 定义模型
 annotation class model(val options: Array<String> = [], val parent: KClass<*> = Null::class)
 
 typealias ModelOptionStore = MutableMap<KClass<*>, ModelOption?>

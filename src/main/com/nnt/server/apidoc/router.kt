@@ -45,10 +45,9 @@ class Router : AbstractRouter() {
                     val e = it.asString()
                     // 如果是带*号，则拉出该package下所有的router
                     if (e.endsWith(".*")) {
-                        val pkg = Jvm.LoadPackage(e.substring(0, e.length - 2), AbstractRouter::class)!!
-                        pkg.filter {
-                            FindRouterActons(it.clazz) != null
-                        }
+                        val filter = JvmPackageFilter()
+                        filter.base = AbstractRouter::class
+                        val pkg = Jvm.LoadPackage(e.substring(0, e.length - 2), filter)!!
                         rts.addAll(rts.size, pkg.sorted().map {
                             App.shared.instanceEntry(it.clazz) as AbstractRouter
                         })
@@ -63,10 +62,9 @@ class Router : AbstractRouter() {
                     val e = it.asString()
                     // 如果是带*号，则拉出该package下所有的model
                     if (e.endsWith(".*")) {
-                        val pkg = Jvm.LoadPackage(e.substring(0, e.length - 2))!!
-                        pkg.filter {
-                            FindModel(it.clazz) != null
-                        }
+                        val filter = JvmPackageFilter()
+                        filter.annotation = model::class
+                        val pkg = Jvm.LoadPackage(e.substring(0, e.length - 2), filter)!!
                         mdls.addAll(mdls.size, pkg.sorted().map {
                             it.clazz
                         })

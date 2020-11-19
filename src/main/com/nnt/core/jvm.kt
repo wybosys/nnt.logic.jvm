@@ -1,7 +1,9 @@
 package com.nnt.core
 
 import org.reflections.Reflections
+import org.reflections.scanners.Scanner
 import org.reflections.scanners.SubTypesScanner
+import org.reflections.scanners.TypeAnnotationsScanner
 import org.reflections.util.ClasspathHelper
 import org.reflections.util.ConfigurationBuilder
 import org.reflections.util.FilterBuilder
@@ -133,6 +135,11 @@ class JvmPackage {
             return
 
         val t = JvmClass()
+        if (clz.simpleName == null) {
+            logger.warn("遇到一个name为null的class ${clz}")
+            return
+        }
+
         t.name = clz.simpleName!!
         t.clazz = clz
         t.pkg = pkg
@@ -220,6 +227,16 @@ class JvmPackage {
     }
 }
 
+// 用来筛选package中类的过滤器
+class JvmPackageFilter {
+
+    // 根据基类筛选
+    var base: KClass<*> = Any::class
+
+    // 根据包装筛选
+    var annotation: KClass<*>? = null
+}
+
 class Jvm {
 
     companion object {
@@ -249,15 +266,31 @@ class Jvm {
         }
 
         // 读取包
-        fun LoadPackage(path: String, base: KClass<*> = Any::class): JvmPackage? {
+        fun LoadPackage(path: String, filter: JvmPackageFilter = JvmPackageFilter()): JvmPackage? {
+            val scanners = mutableListOf<Scanner>()
+            scanners.add(SubTypesScanner(false))
+            if (filter.annotation != null) {
+                scanners.add(TypeAnnotationsScanner())
+            }
+
             val reflections = Reflections(ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(path))
-                .setScanners(SubTypesScanner(false))
+                .setScanners(*scanners.toTypedArray())
                 .filterInputsBy(FilterBuilder().includePackage(path))
             )
 
-            val classes = reflections.getSubTypesOf(base.java)
-            val enums = reflections.getSubTypesOf(Enum::class.java)
+            val classes: Set<Class<*>>
+            val enums: Set<Class<*>>
+
+            if (filter.annotation != null) {
+                @Suppress("UNCHECKED_CAST")
+                classes = reflections.getTypesAnnotatedWith(filter.annotation!!.java as Class<Annotation>)
+
+                enums = setOf()
+            } else {
+                classes = reflections.getSubTypesOf(filter.base.java)
+                enums = reflections.getSubTypesOf(Enum::class.java)
+            }
 
             // 组装
             val r = JvmPackage()

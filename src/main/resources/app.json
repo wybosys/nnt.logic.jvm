@@ -20,6 +20,7 @@
               "com.test.app.router.*"
             ],
             "model": [
+              "com.nnt.core.*",
               "com.test.app.model.*"
             ]
           }

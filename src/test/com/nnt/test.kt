@@ -73,8 +73,11 @@ class Test {
 
     @Test
     fun TestJvm() {
-        //val pkg = Jvm.LoadPackage("com.test.app.router", AbstractRouter::class)!!
-        val pkg = Jvm.LoadPackage("com.test.app.model")!!
+        val filter = JvmPackageFilter()
+        filter.base = Any::class
+        // filter.base = AbstractRouter::class
+        // filter.annotation = model::class
+        val pkg = Jvm.LoadPackage("com.test.app.model", filter)!!
         pkg.filter {
             FindModel(it.clazz) != null
         }
