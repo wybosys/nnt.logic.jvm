@@ -21,7 +21,7 @@ class JarInfo {
     var home: String = ""
 }
 
-class JvmClass : Comparable<JvmClass> {
+open class JvmClass : Comparable<JvmClass> {
 
     // 类名称
     var name = ""
@@ -33,28 +33,36 @@ class JvmClass : Comparable<JvmClass> {
     lateinit var clazz: KClass<*>
 
     // 子类列表
-    private var _children: MutableMap<KClass<*>, JvmClass>? = null
+    var children: MutableMap<KClass<*>, JvmClass>? = null
+
+    // 依赖类列表
+    var depends: MutableSet<JvmClass>? = null
 
     // 计算依赖
-    fun calcDepends(classes: Map<KClass<*>, JvmClass>) {
+    open fun calcDepends(classes: Map<KClass<*>, JvmClass>) {
+        // 处理继承
         clazz.allSuperclasses.forEach {
             val tgt = classes[it]
             if (tgt == null)
                 return@forEach
-            if (tgt._children == null)
-                tgt._children = mutableMapOf()
-            tgt._children!![clazz] = this
+            if (tgt.children == null)
+                tgt.children = mutableMapOf()
+            tgt.children!![clazz] = this
         }
     }
 
     override fun compareTo(other: JvmClass): Int {
-        val l = _children?.size ?: 0
-        val r = other._children?.size ?: 0
+        val lh = (children?.size ?: 0).shl(16)
+        val rh = (other.children?.size ?: 0).shl(16)
+        val ll = (depends?.size ?: 0)
+        val rl = (other.depends?.size ?: 0)
+        val l = lh.or(ll)
+        val r = rh.or(rl)
         return r - l
     }
 }
 
-class JvmPackage {
+open class JvmPackage {
 
     // package名称
     private var _name = ""
@@ -71,7 +79,7 @@ class JvmPackage {
                 val nm = iter.next()
                 var curpkg = cur._packages[nm]
                 if (curpkg == null) {
-                    curpkg = JvmPackage()
+                    curpkg = instancePackage()
                     curpkg._name = nm
                     curpkg.pkg = cur
                     cur._packages[nm] = curpkg
@@ -102,7 +110,7 @@ class JvmPackage {
         nm = iter.next()
         var cur = _packages[nm]
         if (cur == null) {
-            cur = JvmPackage()
+            cur = instancePackage()
             cur._name = nm
             cur.pkg = this
             _packages[nm] = cur
@@ -111,7 +119,7 @@ class JvmPackage {
             nm = iter.next()
             var t = cur!!._packages[nm]
             if (t == null) {
-                t = JvmPackage()
+                t = instancePackage()
                 t._name = nm
                 t.pkg = cur
                 cur._packages[nm] = t
@@ -128,13 +136,22 @@ class JvmPackage {
         _packages.clear()
     }
 
+    // 实例化子对象，用于给外面覆盖提供接口
+    protected open fun instancePackage(): JvmPackage {
+        return JvmPackage()
+    }
+
+    protected open fun instanceClass(): JvmClass {
+        return JvmClass()
+    }
+
     // 添加类
     fun add(clz: KClass<*>) {
         val pkg = expand(clz.java.packageName)
         if (pkg == null)
             return
 
-        val t = JvmClass()
+        val t = instanceClass()
         if (clz.simpleName == null) {
             logger.warn("遇到一个name为null的class ${clz}")
             return
@@ -266,17 +283,22 @@ class Jvm {
         }
 
         // 读取包
-        fun LoadPackage(path: String, filter: JvmPackageFilter = JvmPackageFilter()): JvmPackage? {
+        fun LoadPackage(
+            path: String,
+            filter: JvmPackageFilter = JvmPackageFilter(),
+            r: JvmPackage = JvmPackage()
+        ): JvmPackage? {
             val scanners = mutableListOf<Scanner>()
             scanners.add(SubTypesScanner(false))
             if (filter.annotation != null) {
                 scanners.add(TypeAnnotationsScanner())
             }
 
-            val reflections = Reflections(ConfigurationBuilder()
-                .setUrls(ClasspathHelper.forPackage(path))
-                .setScanners(*scanners.toTypedArray())
-                .filterInputsBy(FilterBuilder().includePackage(path))
+            val reflections = Reflections(
+                ConfigurationBuilder()
+                    .setUrls(ClasspathHelper.forPackage(path))
+                    .setScanners(*scanners.toTypedArray())
+                    .filterInputsBy(FilterBuilder().includePackage(path))
             )
 
             val classes: Set<Class<*>>
@@ -293,7 +315,6 @@ class Jvm {
             }
 
             // 组装
-            val r = JvmPackage()
             r.name = path
             classes.forEach {
                 r.add(it.kotlin)

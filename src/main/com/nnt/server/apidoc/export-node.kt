@@ -40,6 +40,10 @@ open class ExportNode : Export() {
             return "Object"
         if (fp.intfloat != null)
             return "number"
+        if (fp.timestamp)
+            return "number"
+        if (fp.filter)
+            return "any"
         return fp.valtype?.simpleName ?: "undecl"
     }
 
@@ -113,6 +117,8 @@ open class ExportNode : Export() {
             deco = "@Model.filter(" + fp.id + ", " + fieldOptions(fp) + fieldComment(fp) + ")"
         } else if (fp.json) {
             deco = "@Model.json(" + fp.id + ", " + fieldOptions(fp) + fieldComment(fp) + ")"
+        } else if (fp.timestamp) {
+            deco = "@Model.integer(" + fp.id + ", " + fieldOptions(fp) + fieldComment(fp) + ")";
         } else {
             deco = "@Model.type(" + fp.id + ", " + fieldTypes(fp) + ", " + fieldOptions(fp) + fieldComment(fp) + ")"
         }

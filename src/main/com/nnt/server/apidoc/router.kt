@@ -64,7 +64,7 @@ class Router : AbstractRouter() {
                     if (e.endsWith(".*")) {
                         val filter = JvmPackageFilter()
                         filter.annotation = model::class
-                        val pkg = Jvm.LoadPackage(e.substring(0, e.length - 2), filter)!!
+                        val pkg = Jvm.LoadPackage(e.substring(0, e.length - 2), filter, JvmProtoPackage())!!
                         mdls.addAll(mdls.size, pkg.sorted().map {
                             it.clazz
                         })
