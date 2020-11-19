@@ -352,6 +352,7 @@ fun GetAllFields(proto: KClass<*>): MutableMap<String, FieldOption>? {
         val pfps = GetAllFields(mp.parent!!)
         pfps!!.forEach { name, fp ->
             val nfp = fp.clone()
+            nfp.inherited = true
             nfp.id *= FIELDS_MAX // 每一次继承，id后面x100，即一个类参数最大数量不能超过100
             fps[name] = nfp
         }
