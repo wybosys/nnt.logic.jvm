@@ -89,7 +89,7 @@ open class ExportNode : Export() {
     }
 
     override fun field(fp: FieldOption): String {
-        var deco = ""
+        var deco: String
         if (fp.string) {
             deco = "@Model.string(" + fp.id + ", " + fieldOptions(fp) + fieldComment(fp) + ")"
         } else if (fp.integer) {
@@ -105,7 +105,8 @@ open class ExportNode : Export() {
         } else if (fp.map) {
             deco = "@Model.map(" + fp.id + ", " + fieldTypes(fp) + ", " + fieldOptions(fp) + fieldComment(fp) + ")"
         } else if (fp.enum) {
-            deco = "@Model.enumerate(" + fp.id + ", " + fieldTypes(fp) + ", " + fieldOptions(fp) + fieldComment(fp) + ")";
+            deco =
+                "@Model.enumerate(" + fp.id + ", " + fieldTypes(fp) + ", " + fieldOptions(fp) + fieldComment(fp) + ")";
         } else if (fp.file) {
             deco = "@Model.file(" + fp.id + ", " + fieldOptions(fp) + fieldComment(fp) + ")"
         } else if (fp.filter) {

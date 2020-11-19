@@ -10,7 +10,7 @@ abstract class SafeSinkFunction<T> : RichSinkFunction<T>() {
         try {
             super.invoke(value, context)
         } catch (err: Throwable) {
-            logger.exception(err.localizedMessage)
+            logger.exception(err)
         }
     }
 

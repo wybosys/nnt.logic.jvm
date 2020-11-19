@@ -52,7 +52,6 @@ class Router : AbstractRouter() {
                             App.shared.instanceEntry(it.clazz) as AbstractRouter
                         })
                     } else {
-                        val t = App.shared.instanceEntry(e)
                         rts.add(App.shared.instanceEntry(e) as AbstractRouter)
                     }
                 }

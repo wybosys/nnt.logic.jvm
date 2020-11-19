@@ -93,7 +93,7 @@ open class ExportPHP : Export() {
     }
 
     override fun field(fp: FieldOption): String {
-        var deco = ""
+        var deco: String
         if (fp.string) {
             deco = "@Api(" + fp.id + ", [string], " + fieldOptions(fp) + fieldComment(fp) + ")";
             deco += "\n\t* @var string"

@@ -1,3 +1,4 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -63,6 +64,14 @@ sourceSets {
     }
 }
 
+fun <T : Any> OsUse(win: () -> T, unix: () -> T, mac: () -> T): T {
+    if (Os.isFamily(Os.FAMILY_WINDOWS))
+        return win()
+    if (Os.isFamily(Os.FAMILY_MAC))
+        return mac()
+    return unix()
+}
+
 dependencies {
 
     // kotlin
@@ -75,6 +84,8 @@ dependencies {
     implementation("com.ctrip.framework.apollo:apollo-client:1.7.0")
     implementation("it.sauronsoftware.cron4j:cron4j:2.2.5")
     implementation("joda-time:joda-time:2.10.8")
+    implementation("com.eclipsesource.j2v8:j2v8_${OsUse({ "windows" }, { "linux" }, { "mac" })}_x86_64:4.8.0")
+    implementation("org.reflections:reflections:0.9.12")
 
     // http
     compileOnly("io.vertx:vertx-core:3.9.4")

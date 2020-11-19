@@ -20,7 +20,7 @@ class IntFloat(ori: Int = 0, s: Int = 1) : Number(), Comparable<Float>, Cloneabl
     }
 
     override fun toByte(): Byte {
-        return _value.toByte()
+        return _value.toInt().toByte()
     }
 
     override fun toChar(): Char {
@@ -40,7 +40,7 @@ class IntFloat(ori: Int = 0, s: Int = 1) : Number(), Comparable<Float>, Cloneabl
     }
 
     override fun toShort(): Short {
-        return _value.toShort()
+        return _value.toInt().toShort()
     }
 
     fun toBoolean(): Boolean {

@@ -59,8 +59,8 @@ private class V8T {
                     r.add(ks, map(v8, v))
                 } else if (v is JsCallback) {
                     r.add(ks, callback(v8) { _, params ->
-                        val ps = array(params)
-                        v.invoke(ps[0] as Error?, ps.subList(1, ps.size))
+                        val args = array(params)
+                        v.invoke(args[0] as Error?, args.subList(1, ps.size))
                     })
                 }
             }
