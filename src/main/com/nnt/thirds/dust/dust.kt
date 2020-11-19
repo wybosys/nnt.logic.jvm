@@ -1,9 +1,6 @@
 package com.nnt.thirds.dust
 
-import com.nnt.core.JsCallback
-import com.nnt.core.JsEngine
-import com.nnt.core.JsObject
-import com.nnt.core.logger
+import com.nnt.core.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -15,7 +12,8 @@ class DustCompiler {
     private val _compiled = mutableMapOf<String, String>()
 
     init {
-        _jseng.eval(SCRIPT_DUSTJS)
+        val script = File(URI("bundle://nnt/server/apidoc/dust-full.min.js")).readText()
+        _jseng.eval(script)
         _jsdust = _jseng.get("dust")
     }
 

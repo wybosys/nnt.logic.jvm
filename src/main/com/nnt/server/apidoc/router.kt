@@ -6,7 +6,6 @@ import com.nnt.server.IRouterable
 import com.nnt.server.RespFile
 import com.nnt.server.Routers
 import com.nnt.server.Transaction
-import com.nnt.thirds.dust.DustCompiler
 import kotlin.reflect.KClass
 
 @model()
@@ -100,9 +99,6 @@ class Router : AbstractRouter() {
             trans.submit()
         }
     }
-
-    // dust生成文档模板
-    private var _dust = DustCompiler()
 
     @action(ExportApis::class, [expose], "生成api接口文件")
     suspend fun export(trans: Transaction) {
