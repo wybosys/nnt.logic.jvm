@@ -3,6 +3,7 @@ package com.nnt.server.apidoc
 import com.nnt.core.ActionProto
 import com.nnt.core.FieldOption
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 open class ExportPHP : Export() {
 
@@ -21,27 +22,74 @@ open class ExportPHP : Export() {
     }
 
     override fun type(typ: KClass<*>): String {
-        TODO("Not yet implemented")
+        if (typ.isSubclassOf(String::class)) {
+            return "string"
+        }
+        if (typ.isSubclassOf(Number::class)) {
+            return "number"
+        }
+        if (typ.isSubclassOf(Boolean::class)) {
+            return "boolean"
+        }
+        return typ.simpleName ?: "undecl"
     }
 
     override fun type(fp: FieldOption): String {
-        TODO("Not yet implemented")
+        if (fp.string)
+            return "string"
+        if (fp.integer || fp.decimal)
+            return "number"
+        if (fp.boolean)
+            return "boolean"
+        if (fp.array)
+            return "Array<" + type(fp.valtype!!) + ">"
+        if (fp.map)
+            return "Map<" + type(fp.keytype!!) + ", " + type(fp.valtype!!) + ">"
+        if (fp.json)
+            return "Object"
+        return fp.valtype?.simpleName ?: "undecl"
     }
 
     override fun fieldType(typ: KClass<*>): String {
-        TODO("Not yet implemented")
+        if (typ.isSubclassOf(String::class)) {
+            return "Model.string_t"
+        }
+        if (typ.isSubclassOf(Int::class) || typ.isSubclassOf(Long::class) || typ.isSubclassOf(Short::class)) {
+            return "Model.integer_t"
+        }
+        if (typ.isSubclassOf(Float::class) || typ.isSubclassOf(Double::class)) {
+            return "Model.double_t"
+        }
+        if (typ.isSubclassOf(Boolean::class)) {
+            return "Model.boolean_t"
+        }
+        return typ.simpleName ?: "undecl"
     }
 
     override fun fieldTypes(fp: FieldOption): String {
-        TODO("Not yet implemented")
+        val t = mutableListOf<String>()
+        if (fp.keytype != null) {
+            t.add(fieldType(fp.keytype!!))
+        }
+        if (fp.valtype != null) {
+            t.add(fieldType(fp.valtype!!))
+        }
+        return t.joinToString(", ")
     }
 
     override fun fieldOptions(fp: FieldOption): String {
-        TODO("Not yet implemented")
+        val r = mutableListOf<String>()
+        if (fp.input)
+            r.add("Model.input")
+        if (fp.output)
+            r.add("Model.output")
+        if (fp.optional)
+            r.add("Model.optional")
+        return "[" + r.joinToString(", ") + "]"
     }
 
     override fun fieldComment(fp: FieldOption): String {
-        TODO("Not yet implemented")
+        return if (fp.comment.isEmpty()) "" else """, "${fp.comment}""""
     }
 
     override fun field(fp: FieldOption): String {
