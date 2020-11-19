@@ -47,4 +47,7 @@ class Echoo {
 
     @string(11, [com.nnt.core.input, com.nnt.core.output])
     var content: String = ""
+
+    @money(12, [com.nnt.core.input, com.nnt.core.output])
+    var money: IntFloat? = null
 }

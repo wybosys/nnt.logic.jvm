@@ -38,6 +38,8 @@ open class ExportNode : Export() {
             return "Map<" + type(fp.keytype!!) + ", " + type(fp.valtype!!) + ">"
         if (fp.json)
             return "Object"
+        if (fp.intfloat != null)
+            return "number"
         return fp.valtype?.simpleName ?: "undecl"
     }
 
@@ -48,6 +50,9 @@ open class ExportNode : Export() {
         }
         if (fp.valtype != null) {
             t.add(fieldType(fp.valtype!!))
+        }
+        if (fp.intfloat != null) {
+            t.add(fp.intfloat!!.toString())
         }
         return t.joinToString(", ")
     }

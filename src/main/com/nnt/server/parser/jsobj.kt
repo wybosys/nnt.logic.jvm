@@ -154,6 +154,8 @@ class Jsobj : AbstractParser() {
                 return DateTime(toInteger(v))
             } else if (fp.filter) {
                 return Filter.Parse(asString(v))
+            } else if (fp.intfloat != null) {
+                return IntFloat.From(toDecimal(v), fp.intfloat!!)
             } else {
                 return v
             }

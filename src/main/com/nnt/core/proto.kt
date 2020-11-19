@@ -83,7 +83,7 @@ class FieldOption {
     var file: Boolean = false
     var json: Boolean = false
     var filter: Boolean = false
-    var intfloat: Float? = null
+    var intfloat: Int? = null
     var timestamp: Boolean = false
 
     // 关联类型
@@ -244,7 +244,7 @@ annotation class type(
 
 annotation class intfloat(
     val id: Int,
-    val scale: Float,
+    val scale: Int,
     val options: Array<String>,
     val comment: String = "",
 )
