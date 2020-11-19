@@ -4,6 +4,7 @@ import com.nnt.manager.Config
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.declaredMemberFunctions
+import kotlin.reflect.full.isSubclassOf
 
 abstract class AbstractRouter {
 
@@ -79,7 +80,10 @@ private val _routers: RouterProtoStore = mutableMapOf()
 
 // 更新Action定义
 fun UpdateAction(clz: KClass<*>): MutableMap<String, ActionProto>? {
-    var r: MutableMap<String, ActionProto>? = null
+    if (!clz.isSubclassOf(AbstractRouter::class))
+        return null
+
+    val r = mutableMapOf<String, ActionProto>()
 
     // 读取
     clz.declaredMemberFunctions.forEach { fn ->
@@ -137,9 +141,7 @@ fun UpdateAction(clz: KClass<*>): MutableMap<String, ActionProto>? {
 
             // 测试通过，该action生效
             if (pass) {
-                if (r == null)
-                    r = mutableMapOf()
-                r!![fn.name] = ap
+                r[fn.name] = ap
             }
         }
     }
