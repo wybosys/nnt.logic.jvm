@@ -52,6 +52,7 @@ class Router : AbstractRouter() {
                             App.shared.instanceEntry(it.clazz) as AbstractRouter
                         })
                     } else {
+                        val t = App.shared.instanceEntry(e)
                         rts.add(App.shared.instanceEntry(e) as AbstractRouter)
                     }
                 }
@@ -107,141 +108,28 @@ class Router : AbstractRouter() {
     @action(ExportApis::class, [expose], "生成api接口文件")
     suspend fun export(trans: Transaction) {
         val m = trans.model as ExportApis
-        if (!m.node && !m.php && !m.h5g && !m.vue) {
+
+        val exp: Export
+        if (m.node) {
+            exp = ExportNode()
+        } else if (m.php) {
+            exp = ExportPHP()
+        } else if (m.h5g) {
+            exp = ExportH5G()
+        } else if (m.vue) {
+            exp = ExportVue()
+        } else {
             trans.status = STATUS.PARAMETER_NOT_MATCH
             trans.submit()
             return
         }
 
-        // 分析出的所有结构
-        val params = ExportedParams()
-        if (m.php) {
-            val sp = params.domain.split('/')
-            params.namespace = sp[0].capitalize() + "\\" + sp[1].capitalize()
-        }
-
-        // 便利所有模型，生成模型段
-        _models.forEach { clz ->
-            if (FindModel(clz) == null) {
-                logger.log("跳过生成 ${clz.simpleName}: 不是模型")
-                return@forEach
-            }
-
-            val name = clz.simpleName!!
-            val mp = FindModel(clz)!!
-            if (mp.hidden)
-                return@forEach
-            if (mp.enum) {
-                val em = ExportedEnum()
-                em.name = name
-                params.enums.add(em)
-                // 枚举得每一项定义都是静态的，所以可以直接遍历
-                EnumToMap(clz).forEach {
-                    val t = ExportedPair()
-                    t.name = it.key
-                    t.value = it.value
-                    em.defs.add(t)
-                }
-            } else if (mp.constant) {
-                flat(clz).forEach {
-                    val t = ExportedConst()
-                    t.name = name.toUpperCase() + "_" + it.key.toUpperCase()
-                    t.value = it.value
-                    params.consts.add(t)
-                }
-            } else {
-                // 判断是否有父类
-                val clazz = ExportedClazz()
-                clazz.name = name
-                clazz.super_ = mp.parent?.simpleName ?: "ApiModel"
-                params.clazzes.add(clazz)
-                // 填充fields信息
-                val fps = GetAllFields(clz)!!
-                fps.forEach fps@{ fname, fp ->
-                    if (fp.inherited)
-                        return@fps
-                    if (fp.id <= 0) {
-                        logger.warn("Model的 Field 不能 <=0 ${fname}")
-                        return@fps
-                    }
-                    if (!fp.input && !fp.output)
-                        return@fps
-                    val type = FpToTypeDef(fp)
-                    val deco: String
-                    if (m.php) {
-                        deco = FpToDecoDefPHP(fp)
-                    } else {
-                        deco = FpToDecoDef(fp, "Model.")
-                    }
-                    val t = ExportedField()
-                    t.name = fname
-                    t.type = type
-                    t.optional = fp.optional
-                    t.file = fp.file
-                    t.enum = fp.enum
-                    t.input = fp.input
-                    t.deco = deco
-                    clazz.fields.add(t)
-                }
-            }
-        }
-
-        // 遍历所有接口，生成接口段
-        _routers.forEach { router ->
-            val aps = GetAllActions(router)
-            aps.forEach { name, ap ->
-                val t = ExportedRouter()
-                t.name = router.action.capitalize() + name.capitalize()
-                t.action = router.action.capitalize() + "." + name
-                val cn = ap.clazz.simpleName!!
-                if (m.vue || m.node) {
-                    t.type = cn
-                } else if (m.php) {
-                    t.type = "M$cn"
-                } else {
-                    t.type = "models.$cn"
-                }
-                t.comment = ap.comment
-                params.routers.add(t)
-            }
-        }
-
-        // 渲染模板
-        var apis = "bundle://nnt/server/apidoc/"
-        if (m.node) {
-            apis += "apis-node.dust"
-        } else if (m.h5g) {
-            apis += "apis-h5g.dust"
-        } else if (m.vue) {
-            apis += "apis-vue.dust"
-        } else if (m.php) {
-            apis += "apis-php.dust"
-        } else {
-            apis += "apis.dust"
-        }
-
-        if (!_dust.compiled(apis)) {
-            val src = File(URI(apis)).readText()
-            if (!_dust.compile(src, apis)) {
-                throw Error("编译模板失败")
-            }
-        }
-
-        var out = _dust.render(apis, flat(params) as Map<*, *>)
-        // 需要加上php的头
-        if (m.php) {
-            out = "<?php\n" + out
-        }
-
-        var apifile = params.domain.replace("/", "-") + "-apis"
-        if (m.php) {
-            apifile += ".php"
-        } else {
-            apifile += ".ts"
-        }
+        exp.processModels(_models)
+        exp.processRouters(_routers)
+        val out = exp.render()
 
         // 输出到客户端
-        trans.output("text/plain", RespFile.Plain(out).asDownload(apifile));
+        trans.output("text/plain", RespFile.Plain(out).asDownload(exp.params.filename))
     }
 }
 
@@ -318,52 +206,4 @@ private fun ParametersInfo(clz: KClass<*>): List<ParameterInfo> {
         r.add(t)
     }
     return r
-}
-
-// 导出api需要的数据结构
-class ExportedParams {
-    val domain = Devops.GetDomain()
-    var namespace = ""
-    var clazzes = mutableListOf<ExportedClazz>()
-    var enums = mutableListOf<ExportedEnum>()
-    var consts = mutableListOf<ExportedConst>()
-    var routers = mutableListOf<ExportedRouter>()
-}
-
-class ExportedClazz {
-    var name = ""
-    var super_ = ""
-    var fields = mutableListOf<ExportedField>()
-}
-
-class ExportedField {
-    var name = ""
-    var type = ""
-    var optional = false
-    var file = false
-    var enum = false
-    var input = false
-    var deco = ""
-}
-
-class ExportedEnum {
-    var name = ""
-    var defs = mutableListOf<ExportedPair>()
-}
-
-class ExportedPair {
-    var name = ""
-    var value: Any? = null
-}
-
-class ExportedConst {
-    var name = ""
-    var value: Any? = null
-}
-
-class ExportedRouter {
-    var name = ""
-    var action = ""
-    var type = ""
-    var comment = ""
 }
