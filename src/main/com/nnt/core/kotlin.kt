@@ -66,7 +66,7 @@ fun ToType(v: Any?, typ: KType): Any? {
             }
             DateTime::class -> {
                 if (v is Long)
-                    return DateTime(v / 1000)
+                    return DateTime(v)
             }
             else -> {
                 if (kclzType.java.isEnum) {
