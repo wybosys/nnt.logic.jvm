@@ -9,11 +9,11 @@ import java.time.format.DateTimeFormatter
 class Criteria {
 
     val sql: String get() = _sql
-    val param: Any? get() = _param
+    val param: Array<*> get() = _param.toTypedArray()
 
     private var _empty = true
     private var _sql: String = ""
-    private var _param: Any? = null
+    private var _param = mutableListOf<Any?>()
 
     fun andWhere(sql: String, param: Any?) {
         if (_empty) {
@@ -23,7 +23,7 @@ class Criteria {
             _sql += " and ${sql}"
         }
 
-        _param = param
+        _param.add(param)
     }
 
     fun orWhere(sql: String, param: Any?) {
@@ -34,7 +34,7 @@ class Criteria {
             _sql += " or ${sql}"
         }
 
-        _param = param
+        _param.add(param)
     }
 }
 
