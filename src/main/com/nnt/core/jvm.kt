@@ -147,7 +147,7 @@ open class JvmPackage {
 
     // 添加类
     fun add(clz: KClass<*>) {
-        val pkg = expand(clz.java.packageName)
+        val pkg = expand(clz.java.`package`.name)
         if (pkg == null)
             return
 
