@@ -7,10 +7,19 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.ISODateTimeFormat
 
-class DateTimeRange(
+class TimestampRange(
     var from: UnixTimestamp = 0, // 开始
     var to: UnixTimestamp = 0, // 结束，比如小时 [0, 60)
-) {}
+) {
+
+    operator fun plus(v: UnixTimestamp): TimestampRange {
+        return TimestampRange(from + v, to + v)
+    }
+
+    operator fun minus(v: UnixTimestamp): TimestampRange {
+        return TimestampRange(from - v, to - v)
+    }
+}
 
 suspend fun Sleep(seconds: Seconds) {
     delay((seconds * 1000).toLong())
@@ -139,7 +148,7 @@ typealias UnixTimestamp = Long
 // 精确到毫秒的时间戳
 typealias FullTimestamp = Long
 
-class DateTime : IValue {
+class DateTime : IValue, Cloneable {
 
     constructor() : this(Current()) {
         // pass
@@ -336,47 +345,47 @@ class DateTime : IValue {
     }
 
     // 当前分钟的起始
-    fun minuteRange(): DateTimeRange {
+    fun minuteRange(): TimestampRange {
         val from = this.timestamp - this.second
-        return DateTimeRange(
+        return TimestampRange(
             from,
             from + 60 - 1 // 整数算在下一刻
         )
     }
 
     // 当前小时的起始
-    fun hourRange(): DateTimeRange {
+    fun hourRange(): TimestampRange {
         val from = this.timestamp - this.minute * DateTime.MINUTE - this.second
-        return DateTimeRange(
+        return TimestampRange(
             from,
             from + DateTime.HOUR - 1
         )
     }
 
     // 一天的起始
-    fun dayRange(): DateTimeRange {
+    fun dayRange(): TimestampRange {
         val from = this.timestamp - this.hour * DateTime.HOUR - this.minute * DateTime.MINUTE - this.second
-        return DateTimeRange(
+        return TimestampRange(
             from,
             from + DateTime.DAY - 1
         )
     }
 
     // 本周的起始
-    fun weekRange(): DateTimeRange {
+    fun weekRange(): TimestampRange {
         val from =
             this.timestamp - this.weekday * DateTime.DAY - this.hour * DateTime.HOUR - this.minute * DateTime.MINUTE - this.second
-        return DateTimeRange(
+        return TimestampRange(
             from,
             from + DateTime.WEEK - 1
         )
     }
 
     // 本月的起始
-    fun monthRange(): DateTimeRange {
+    fun monthRange(): TimestampRange {
         val cur = LocalDateTime(_date!!.year, _date!!.monthOfYear, 0, 0, 0, 0)
         val next = cur.plusMonths(1)
-        return DateTimeRange(
+        return TimestampRange(
             cur.toDateTime().millis / 1000,
             next.toDateTime().millis / 1000 - 1
         )
@@ -388,6 +397,10 @@ class DateTime : IValue {
 
     override fun valueOf(): Any {
         return _timestamp!!
+    }
+
+    public override fun clone(): DateTime {
+        return DateTime(_timestamp!!)
     }
 
     companion object {
