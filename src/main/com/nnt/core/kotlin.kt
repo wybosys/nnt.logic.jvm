@@ -62,7 +62,7 @@ fun ToType(v: Any?, typ: KType): Any? {
             }
             Boolean::class -> {
                 if (v is Byte)
-                    return v != 0
+                    return v.toInt() != 0
             }
             DateTime::class -> {
                 if (v is Long)
