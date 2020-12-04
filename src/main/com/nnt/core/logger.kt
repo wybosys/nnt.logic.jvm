@@ -14,6 +14,10 @@ enum class Level(val v: Int) {
     EMERGENCY(0)
 }
 
+fun GetExceptionMessage(err: Throwable): String {
+    return err.message ?: err.stackTraceToString()
+}
+
 object logger {
 
     var log: (str: String) -> Unit = {
@@ -33,7 +37,7 @@ object logger {
     }
 
     var exception: (err: Throwable) -> Unit = {
-        println(it.message)
+        println(GetExceptionMessage(it))
     }
 
     var error: (str: String) -> Unit = {

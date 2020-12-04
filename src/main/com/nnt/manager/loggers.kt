@@ -1,6 +1,7 @@
 package com.nnt.manager
 
 import com.nnt.config.NodeIsEnable
+import com.nnt.core.GetExceptionMessage
 import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import com.nnt.logger.AbstractLogger
@@ -77,7 +78,7 @@ object Loggers {
 
         logger.exception = {
             if (loggers.size > 0) {
-                val msg = it.localizedMessage ?: it.message ?: it.toString()
+                val msg = GetExceptionMessage(it)
                 output(msg, Filter.EXCEPTION, LOGTYPE.EXCEPTION)
             } else {
                 println(it)
