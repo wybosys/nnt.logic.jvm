@@ -21,8 +21,8 @@ class TimestampRange(
     }
 }
 
-suspend fun Sleep(seconds: Seconds) {
-    delay((seconds * 1000).toLong())
+suspend fun <T : Number> Sleep(seconds: T) {
+    delay((seconds.toDouble() * 1000).toLong())
 }
 
 abstract class DelayHandler(job: Job) {
@@ -33,9 +33,9 @@ private class _DelayHandler(job: Job) : DelayHandler(job) {
     val job: Job get() = _job
 }
 
-fun Delay(seconds: Seconds, proc: () -> Unit): DelayHandler {
+fun <T : Number> Delay(seconds: T, proc: () -> Unit): DelayHandler {
     val job = GlobalScope.launch {
-        Sleep(seconds)
+        Sleep(seconds.toDouble())
         if (isActive) {
             proc()
         }
@@ -56,10 +56,10 @@ private class _RepeatHandler(job: Job) : RepeatHandler(job) {
     val job: Job get() = _job
 }
 
-fun Repeat(seconds: Seconds, proc: () -> Unit): RepeatHandler {
+fun <T : Number> Repeat(seconds: T, proc: () -> Unit): RepeatHandler {
     val job = GlobalScope.launch {
         while (isActive) {
-            Sleep(seconds)
+            Sleep(seconds.toDouble())
             if (isActive) {
                 proc()
             }
@@ -73,9 +73,9 @@ fun CancelRepeat(hdl: RepeatHandler) {
     h.job.cancel()
 }
 
-class Timeout(time: Seconds, proc: () -> Unit, autostart: Boolean = true) {
+class Timeout<T : Number>(time: T, proc: () -> Unit, autostart: Boolean = true) {
 
-    private val _time = time
+    private val _time: Seconds = time.toDouble()
     private val _proc = proc
     private val _as = autostart
 
@@ -108,9 +108,9 @@ class Timeout(time: Seconds, proc: () -> Unit, autostart: Boolean = true) {
     }
 }
 
-class Interval(time: Seconds, proc: () -> Unit, autostart: Boolean = true) {
+class Interval<T : Number>(time: T, proc: () -> Unit, autostart: Boolean = true) {
 
-    private val _time = time
+    private val _time: Seconds = time.toDouble()
     private val _proc = proc
     private val _as = autostart
 
