@@ -5,6 +5,7 @@ import com.nnt.core.File
 import com.nnt.core.JsonObject
 import com.nnt.core.URI
 import com.nnt.core.logger
+import com.nnt.store.reflect.TableInfo
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
 import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory
 import org.apache.ibatis.mapping.Environment
@@ -27,6 +28,37 @@ class RMysql : AbstractRdb() {
     var pwd: String = ""
     var scheme: String = ""
     var maps = listOf<URI>()
+
+    override fun tables(): Map<String, TableInfo> {
+        val r = mutableMapOf<String, TableInfo>()
+        jdbc {
+            val res = it.queryForList(
+                "show tables"
+            )
+            res.forEach {
+                val nm = it.values.first()
+                val ti = TableInfo()
+                ti.name = nm as String
+                r[ti.name] = ti
+            }
+        }
+        return r
+    }
+
+    override fun table(name: String): TableInfo? {
+        var ti: TableInfo? = null
+        jdbc {
+            val res = it.queryForList(
+                "describe ${name}"
+            )
+
+            if (res.size != 0) {
+                ti = TableInfo()
+                ti!!.name = name
+            }
+        }
+        return ti
+    }
 
     override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
@@ -96,8 +128,11 @@ class RMysql : AbstractRdb() {
                 props.setProperty("password", pwd)
         }
         _dsfac = DruidDataSourceFactory.createDataSource(props)
-        return jdbc { tpl ->
-            val cnt = tpl.queryForObject("select 1", Int::class.java)
+        return jdbc { ses ->
+            val cnt = ses.queryForObject(
+                "select 1",
+                Int::class
+            )
             if (cnt != 1)
                 throw Error("mysql连接测试失败")
         }
@@ -168,12 +203,13 @@ class RMysql : AbstractRdb() {
 
     // 直接执行sql语句返回原始数据类型
     fun jdbc(
-        proc: (tpl: JdbcTemplate) -> Unit,
+        proc: (ses: JdbcSession) -> Unit,
     ): Boolean {
         var r = true
         try {
-            val tpl = JdbcTemplate(_dsfac)
-            proc(tpl)
+            val ses = JdbcSession(JdbcTemplate(_dsfac))
+            proc(ses)
+            ses.close()
         } catch (err: Throwable) {
             logger.exception(err)
             r = false

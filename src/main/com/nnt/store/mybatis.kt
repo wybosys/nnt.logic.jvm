@@ -5,6 +5,7 @@ import com.nnt.core.File
 import com.nnt.core.JsonObject
 import com.nnt.core.URI
 import com.nnt.core.logger
+import com.nnt.store.reflect.TableInfo
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
 import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory
 import org.apache.ibatis.mapping.Environment
@@ -24,6 +25,15 @@ open class Mybatis : AbstractRdb() {
     var pwd: String = ""
     var driver: String = ""
     var maps = listOf<URI>()
+
+    // 纯mybatis不支持获得数据库信息
+    override fun tables(): Map<String, TableInfo> {
+        return mutableMapOf()
+    }
+
+    override fun table(name: String): TableInfo? {
+        return null
+    }
 
     override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
@@ -171,12 +181,13 @@ open class Mybatis : AbstractRdb() {
 
     // 直接执行sql语句返回原始数据类型
     fun jdbc(
-        proc: (tpl: JdbcTemplate) -> Unit,
+        proc: (ses: JdbcSession) -> Unit,
     ): Boolean {
         var r = true
         try {
-            val tpl = JdbcTemplate(_dsfac)
-            proc(tpl)
+            val ses = JdbcSession(JdbcTemplate(_dsfac))
+            proc(ses)
+            ses.close()
         } catch (err: Throwable) {
             logger.exception(err)
             r = false

@@ -1,19 +1,16 @@
 package com.test.app.router
 
 import com.nnt.component.TODAY_RANGE
-import com.nnt.core.AbstractRouter
-import com.nnt.core.DateTime
-import com.nnt.core.action
-import com.nnt.core.toJsonObject
-import com.nnt.store.GetTableInfo
-import com.nnt.store.JdbcSession
+import com.nnt.core.*
+import com.nnt.manager.Dbms
+import com.nnt.store.*
 import com.test.app.model.Echoo
 import com.test.app.model.Trans
 
 class RSample : AbstractRouter() {
 
     override val action = "test"
-    
+
     @action(Echoo::class)
     suspend fun echo(trans: Trans) {
         val m = trans.model as Echoo
@@ -32,6 +29,42 @@ class RSample : AbstractRouter() {
         m.array = listOf(0.0, 1.0, 2.0, 3.0)
 
         trans.submit()
+    }
+
+    @action(Null::class)
+    suspend fun mysql(trans: Trans) {
+        trans.submit()
+
+        val mysql = Dbms.Find("mysql") as RMysql
+
+        mysql.tables()
+        mysql.table("echoo")
+    }
+
+    @action(Null::class)
+    suspend fun phoenix(trans: Trans) {
+        trans.submit()
+
+        var cur = 0
+        val phoenix = Dbms.Find("phoenix") as Phoenix
+        val ses = phoenix.acquireSession() as PhoenixJdbcSession
+
+        phoenix.schemes()
+        phoenix.scheme("xaas")
+        phoenix.tables("xaas")
+        phoenix.table("nnt-sample", "test")
+
+        // 测试时关闭自动维持连接
+        ses.stopKeepAlive()
+
+        // 创建测试表
+
+        // 测试phoenix-queryserver链接可靠性
+        Repeat(1) {
+            cur += 1
+        }
+
+        ses.close()
     }
 
 }
