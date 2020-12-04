@@ -180,7 +180,7 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
         if (_repeat != null)
             return
 
-        _repeat = Repeat(300.0) {
+        _repeat = Repeat(300) {
             synchronized(this) {
                 _ds = _phoenix.openJdbc()
                 _tpl = JdbcTemplate(_ds)
