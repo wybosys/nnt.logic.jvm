@@ -33,7 +33,7 @@ object logger {
     }
 
     var exception: (err: Throwable) -> Unit = {
-        println(it.message ?: it.localizedMessage + "\n" + it.stackTraceToString())
+        println(it.message)
     }
 
     var error: (str: String) -> Unit = {
