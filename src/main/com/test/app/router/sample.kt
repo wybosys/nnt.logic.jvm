@@ -42,49 +42,58 @@ class RSample : AbstractRouter() {
         mysql.table("echoo")
     }
 
-    @action(Null::class)
-    suspend fun phoenix(trans: Trans) {
-        trans.submit()
-
-        var cur = 0
-        val phoenix = Dbms.Find("phoenix") as Phoenix
+    fun test_phoenix(phoenix: Phoenix, interval: Long) {
         val ses = phoenix.acquireSession() as PhoenixJdbcSession
 
         // 测试时关闭自动维持连接
         ses.stopKeepAlive()
 
         if (phoenix.table("test") != null) {
-            ses.execute("drop table ${ses.scheme}.test")
+            ses.execute("drop table ${ses.scheme}.test${interval}")
         }
 
         // 创建测试表
-        ses.execute("create table ${ses.scheme}.test (id integer primary key, random_value integer)")
+        ses.execute("create table ${ses.scheme}.test${interval} (id integer primary key, random_value integer)")
+
+        var cur = 0
 
         // 测试phoenix-queryserver链接可靠性
-        Repeat(1) {
+        Repeat(interval) {
 
             // 写入测试数据
             val cnt = ses.queryForObject(
-                "select count(*) from ${ses.scheme}.test",
+                "select count(*) from ${ses.scheme}.test${interval}",
                 Long::class
             )!!
 
             ses.update(
-                "upsert into ${ses.scheme}.test (id, random_value) values (?, ?)",
+                "upsert into ${ses.scheme}.test${interval} (id, random_value) values (?, ?)",
                 cur++, Random.nextInt(0, 10000000)
             )
 
             val cnt2 = ses.queryForObject(
-                "select count(*) from ${ses.scheme}.test",
+                "select count(*) from ${ses.scheme}.test${interval}",
                 Long::class
             )!!
 
             if (cnt != cnt2 - 1) {
-                logger.fatal("写入phoenix数据失败 ${cur}")
+                logger.fatal("${interval}: 写入phoenix数据失败 ${cur}")
             } else {
-                logger.log("写入phoenix成功 ${cur}")
+                logger.log("${interval}: 写入phoenix成功 ${cur}")
             }
         }
+    }
+
+    @action(Null::class)
+    suspend fun phoenix(trans: Trans) {
+        trans.submit()
+
+        val phoenix = Dbms.Find("phoenix") as Phoenix
+        test_phoenix(phoenix, 10)
+        test_phoenix(phoenix, 60)
+        test_phoenix(phoenix, 60 * 5)
+        test_phoenix(phoenix, 60 * 10)
+        test_phoenix(phoenix, 60 * 60)
     }
 
 }
