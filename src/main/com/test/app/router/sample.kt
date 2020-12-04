@@ -6,6 +6,7 @@ import com.nnt.manager.Dbms
 import com.nnt.store.*
 import com.test.app.model.Echoo
 import com.test.app.model.Trans
+import kotlin.random.Random
 
 class RSample : AbstractRouter() {
 
@@ -49,22 +50,41 @@ class RSample : AbstractRouter() {
         val phoenix = Dbms.Find("phoenix") as Phoenix
         val ses = phoenix.acquireSession() as PhoenixJdbcSession
 
-        phoenix.schemes()
-        phoenix.scheme("xaas")
-        phoenix.tables("xaas")
-        phoenix.table("nnt-sample", "test")
-
         // 测试时关闭自动维持连接
         ses.stopKeepAlive()
 
+        if (phoenix.table("test") != null) {
+            ses.execute("drop table ${ses.scheme}.test")
+        }
+
         // 创建测试表
+        ses.execute("create table ${ses.scheme}.test (id integer primary key, random_value integer)")
 
         // 测试phoenix-queryserver链接可靠性
         Repeat(1) {
-            cur += 1
-        }
 
-        ses.close()
+            // 写入测试数据
+            val cnt = ses.queryForObject(
+                "select count(*) from ${ses.scheme}.test",
+                Long::class
+            )!!
+
+            ses.update(
+                "upsert into ${ses.scheme}.test (id, random_value) values (?, ?)",
+                cur++, Random.nextInt(0, 10000000)
+            )
+
+            val cnt2 = ses.queryForObject(
+                "select count(*) from ${ses.scheme}.test",
+                Long::class
+            )!!
+
+            if (cnt != cnt2 - 1) {
+                logger.fatal("写入phoenix数据失败 ${cur}")
+            } else {
+                logger.log("写入phoenix成功 ${cur}")
+            }
+        }
     }
 
 }

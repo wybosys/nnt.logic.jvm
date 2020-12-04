@@ -174,6 +174,8 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
         startKeepAlive()
     }
 
+    val scheme: String get() = _phoenix.scheme
+
     fun startKeepAlive() {
         if (_repeat != null)
             return

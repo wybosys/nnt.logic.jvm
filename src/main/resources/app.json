@@ -63,7 +63,7 @@
     {
       "id": "phoenix",
       "thin": "localhost:8765",
-      "scheme": "xaas",
+      "scheme": "nntlogic",
       "entry": "com.nnt.store.Phoenix"
     }
   ],
