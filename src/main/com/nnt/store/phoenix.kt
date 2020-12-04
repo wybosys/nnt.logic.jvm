@@ -180,10 +180,12 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
         if (_repeat != null)
             return
 
-        _repeat = Repeat(3600) {
+        _repeat = Repeat(60) {
             synchronized(this) {
-                _ds = _phoenix.openJdbc()
-                _tpl = JdbcTemplate(_ds)
+                // _ds = _phoenix.openJdbc()
+                // _tpl = JdbcTemplate(_ds)
+                _tpl!!.execute("select 1")
+                // logger.log("phoenix keepalive")
             }
         }
     }

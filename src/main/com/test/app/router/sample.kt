@@ -45,9 +45,6 @@ class RSample : AbstractRouter() {
     fun test_phoenix(phoenix: Phoenix, interval: Long) {
         val ses = phoenix.acquireSession() as PhoenixJdbcSession
 
-        // 测试时关闭自动维持连接
-        ses.stopKeepAlive()
-
         if (phoenix.table("test") != null) {
             ses.execute("drop table ${ses.scheme}.test${interval}")
         }
