@@ -93,4 +93,9 @@ class RSample : AbstractRouter() {
         test_phoenix(phoenix, 60 * 60)
     }
 
+    @action(Null::class)
+    suspend fun any(trans: Trans) {
+        trans.submit()
+    }
+
 }
