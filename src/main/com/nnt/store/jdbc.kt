@@ -4,6 +4,7 @@ import com.alibaba.druid.pool.DruidDataSourceFactory
 import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import com.nnt.core.toValue
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.*
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
 import org.springframework.jdbc.support.KeyHolder
@@ -142,39 +143,11 @@ open class JdbcSession : ISession {
 
     // 代理
 
-    open fun <T> execute(action: ConnectionCallback<T>): T? {
-        try {
-            return tpl().execute(action)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return null
-    }
-
-    open fun <T> execute(action: StatementCallback<T>): T? {
-        try {
-            return tpl().execute(action)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return null
-    }
-
-    open fun execute(sql: String): Boolean {
-        try {
-            tpl().execute(sql)
-            return true
-        } catch (err: Throwable) {
-            // pass
-        }
-        return false
-    }
-
     open fun <T> query(sql: String, rse: ResultSetExtractor<T>): T? {
         try {
             return tpl().query(sql, rse)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return null
     }
@@ -184,7 +157,7 @@ open class JdbcSession : ISession {
             tpl().query(sql, rch)
             return true
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return false
     }
@@ -193,43 +166,16 @@ open class JdbcSession : ISession {
         try {
             return tpl().query(sql, rowMapper)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return listOf()
-    }
-
-    open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>): T? {
-        try {
-            return tpl().queryForObject(sql, rowMapper)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return null
-    }
-
-    open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>): T? {
-        try {
-            return tpl().queryForObject(sql, requiredType.java)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return null
-    }
-
-    open fun queryForMap(sql: String): Map<String, Any>? {
-        try {
-            return tpl().queryForMap(sql)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return null
     }
 
     open fun <T : Any> queryForList(sql: String, elementType: KClass<T>): List<T> {
         try {
             return tpl().queryForList(sql, elementType.java)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return listOf()
     }
@@ -238,70 +184,16 @@ open class JdbcSession : ISession {
         try {
             return tpl().queryForList(sql)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return listOf()
-    }
-
-    open fun queryForRowSet(sql: String): SqlRowSet? {
-        try {
-            return tpl().queryForRowSet(sql)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return null
-    }
-
-    open fun update(sql: String): Int {
-        try {
-            return tpl().update(sql)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return 0
-    }
-
-    open fun batchUpdate(vararg sql: String): IntArray {
-        try {
-            return tpl().batchUpdate(*sql)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return intArrayOf()
-    }
-
-    open fun <T> execute(psc: PreparedStatementCreator, action: PreparedStatementCallback<T>): T? {
-        try {
-            return tpl().execute(psc, action)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return null
-    }
-
-    open fun <T> execute(sql: String, action: PreparedStatementCallback<T>): T? {
-        try {
-            return tpl().execute(sql, action)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return null
-    }
-
-    open fun <T> query(psc: PreparedStatementCreator, rse: ResultSetExtractor<T>): T? {
-        try {
-            return tpl().query(psc, rse)
-        } catch (err: Throwable) {
-            // pass
-        }
-        return null
     }
 
     open fun <T> query(sql: String, pss: PreparedStatementSetter, rse: ResultSetExtractor<T>): T? {
         try {
             return tpl().query(sql, pss, rse)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return null
     }
@@ -310,7 +202,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().query(sql, args, argTypes, rse)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return null
     }
@@ -319,7 +211,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().query(sql, args, rse)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return null
     }
@@ -328,7 +220,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().query(sql, rse, *args)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return null
     }
@@ -338,7 +230,7 @@ open class JdbcSession : ISession {
             tpl().query(psc, rch)
             return true
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return false
     }
@@ -348,7 +240,7 @@ open class JdbcSession : ISession {
             tpl().query(sql, pss, rch)
             return true
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return false
     }
@@ -358,7 +250,7 @@ open class JdbcSession : ISession {
             tpl().query(sql, args, argTypes, rch)
             return true
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return false
     }
@@ -368,7 +260,7 @@ open class JdbcSession : ISession {
             tpl().query(sql, args, rch)
             return true
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return false
     }
@@ -378,7 +270,7 @@ open class JdbcSession : ISession {
             tpl().query(sql, rch, *args)
             return true
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return false
     }
@@ -387,7 +279,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().query(psc, rowMapper)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return listOf()
     }
@@ -396,7 +288,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().query(sql, pss, rowMapper)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return listOf()
     }
@@ -405,7 +297,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().query(sql, args, argTypes, rowMapper)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return listOf()
     }
@@ -414,7 +306,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().query(sql, args, rowMapper)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return listOf()
     }
@@ -423,16 +315,40 @@ open class JdbcSession : ISession {
         try {
             return tpl().query(sql, rowMapper, *args)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return listOf()
+    }
+
+    open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>): T? {
+        try {
+            return tpl().queryForObject(sql, rowMapper)
+        } catch (err: EmptyResultDataAccessException) {
+            // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return null
+    }
+
+    open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>): T? {
+        try {
+            return tpl().queryForObject(sql, requiredType.java)
+        } catch (err: EmptyResultDataAccessException) {
+            // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return null
     }
 
     open fun <T> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): T? {
         try {
             return tpl().queryForObject(sql, args, argTypes, rowMapper)
-        } catch (err: Throwable) {
+        } catch (err: EmptyResultDataAccessException) {
             // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
         }
         return null
     }
@@ -440,8 +356,10 @@ open class JdbcSession : ISession {
     open fun <T> queryForObject(sql: String, args: Array<Any>, rowMapper: RowMapper<T>): T? {
         try {
             return tpl().queryForObject(sql, args, rowMapper)
-        } catch (err: Throwable) {
+        } catch (err: EmptyResultDataAccessException) {
             // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
         }
         return null
     }
@@ -449,8 +367,10 @@ open class JdbcSession : ISession {
     open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>, vararg args: Any): T? {
         try {
             return tpl().queryForObject(sql, rowMapper, *args)
-        } catch (err: Throwable) {
+        } catch (err: EmptyResultDataAccessException) {
             // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
         }
         return null
     }
@@ -458,8 +378,10 @@ open class JdbcSession : ISession {
     open fun <T : Any> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, requiredType: KClass<T>): T? {
         try {
             return tpl().queryForObject(sql, args, argTypes, requiredType.java)
-        } catch (err: Throwable) {
+        } catch (err: EmptyResultDataAccessException) {
             // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
         }
         return null
     }
@@ -467,8 +389,10 @@ open class JdbcSession : ISession {
     open fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T? {
         try {
             return tpl().queryForObject(sql, args, requiredType.java)
-        } catch (err: Throwable) {
+        } catch (err: EmptyResultDataAccessException) {
             // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
         }
         return null
     }
@@ -476,8 +400,21 @@ open class JdbcSession : ISession {
     open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? {
         try {
             return tpl().queryForObject(sql, requiredType.java, *args)
-        } catch (err: Throwable) {
+        } catch (err: EmptyResultDataAccessException) {
             // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return null
+    }
+
+    open fun queryForMap(sql: String): Map<String, Any>? {
+        try {
+            return tpl().queryForMap(sql)
+        } catch (err: EmptyResultDataAccessException) {
+            // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
         }
         return null
     }
@@ -485,8 +422,10 @@ open class JdbcSession : ISession {
     open fun queryForMap(sql: String, args: Array<Any>, argTypes: IntArray): Map<String, Any>? {
         try {
             return tpl().queryForMap(sql, args, argTypes)
-        } catch (err: Throwable) {
+        } catch (err: EmptyResultDataAccessException) {
             // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
         }
         return null
     }
@@ -494,8 +433,10 @@ open class JdbcSession : ISession {
     open fun queryForMap(sql: String, vararg args: Any): Map<String, Any>? {
         try {
             return tpl().queryForMap(sql, *args)
-        } catch (err: Throwable) {
+        } catch (err: EmptyResultDataAccessException) {
             // pass
+        } catch (err: Throwable) {
+            logger.exception(err)
         }
         return null
     }
@@ -544,7 +485,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().queryForList(sql, args, argTypes)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return listOf()
     }
@@ -553,16 +494,25 @@ open class JdbcSession : ISession {
         try {
             return tpl().queryForList(sql, *args)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return listOf()
+    }
+
+    open fun queryForRowSet(sql: String): SqlRowSet? {
+        try {
+            return tpl().queryForRowSet(sql)
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return null
     }
 
     open fun queryForRowSet(sql: String, args: Array<Any>, argTypes: IntArray): SqlRowSet? {
         try {
             return tpl().queryForRowSet(sql, args, argTypes)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return null
     }
@@ -571,16 +521,25 @@ open class JdbcSession : ISession {
         try {
             return tpl().queryForRowSet(sql, *args)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return null
+    }
+
+    open fun update(sql: String): Int {
+        try {
+            return tpl().update(sql)
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return 0
     }
 
     open fun update(psc: PreparedStatementCreator): Int {
         try {
             return tpl().update(psc)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return 0
     }
@@ -589,7 +548,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().update(psc, generatedKeyHolder)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return 0
     }
@@ -598,7 +557,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().update(sql, pss)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return 0
     }
@@ -607,7 +566,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().update(sql, args, argTypes)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return 0
     }
@@ -616,16 +575,25 @@ open class JdbcSession : ISession {
         try {
             return tpl().update(sql, *args)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return 0
+    }
+
+    open fun batchUpdate(vararg sql: String): IntArray {
+        try {
+            return tpl().batchUpdate(*sql)
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return intArrayOf()
     }
 
     open fun batchUpdate(sql: String, pss: BatchPreparedStatementSetter): IntArray {
         try {
             return tpl().batchUpdate(sql, pss)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return intArrayOf()
     }
@@ -634,7 +602,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().batchUpdate(sql, batchArgs)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return intArrayOf()
     }
@@ -643,7 +611,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().batchUpdate(sql, batchArgs, argTypes)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return intArrayOf()
     }
@@ -657,16 +625,44 @@ open class JdbcSession : ISession {
         try {
             return tpl().batchUpdate(sql, batchArgs, batchSize, pss)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return arrayOf()
+    }
+
+    open fun <T> execute(action: ConnectionCallback<T>): T? {
+        try {
+            return tpl().execute(action)
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return null
+    }
+
+    open fun <T> execute(action: StatementCallback<T>): T? {
+        try {
+            return tpl().execute(action)
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return null
+    }
+
+    open fun execute(sql: String): Boolean {
+        try {
+            tpl().execute(sql)
+            return true
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return false
     }
 
     open fun <T> execute(csc: CallableStatementCreator, action: CallableStatementCallback<T>): T? {
         try {
             return tpl().execute(csc, action)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return null
     }
@@ -675,7 +671,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().execute(callString, action)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return null
     }
@@ -684,7 +680,7 @@ open class JdbcSession : ISession {
         try {
             return tpl().call(csc, declaredParameters)
         } catch (err: Throwable) {
-            // pass
+            logger.exception(err)
         }
         return mapOf()
     }

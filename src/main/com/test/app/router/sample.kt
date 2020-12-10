@@ -40,6 +40,14 @@ class RSample : AbstractRouter() {
 
         mysql.tables()
         mysql.table("echoo")
+
+        mysql.jdbc {
+            val res = it.queryForObject(
+                "select count(*) from echoo",
+                Long::class
+            )
+            logger.info(res.toString())
+        }
     }
 
     fun test_phoenix(phoenix: Phoenix, interval: Long) {
