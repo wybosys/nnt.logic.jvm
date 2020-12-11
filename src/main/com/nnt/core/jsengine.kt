@@ -18,21 +18,43 @@ private class V8T {
         fun array(v8: V8, vararg p: Any?): V8Array {
             val r = V8Array(v8)
             p.forEach {
-                if (it == null) {
-                    r.pushNull()
-                } else if (it is Array<*>) {
-                    r.push(array(v8, *it))
-                } else if (it is List<*>) {
-                    r.push(array(v8, *it.toTypedArray()))
-                } else if (it is Map<*, *>) {
-                    r.push(map(v8, it))
-                } else if (it is JsCallback) {
-                    r.push(callback(v8) { _, params ->
-                        val ps = array(params)
-                        it.invoke(ps[0] as Error?, ps.subList(1, ps.size))
-                    })
-                } else {
-                    r.push(it)
+                when {
+                    it == null -> {
+                        r.pushNull()
+                    }
+                    it is Array<*> -> {
+                        r.push(array(v8, *it))
+                    }
+                    it is List<*> -> {
+                        r.push(array(v8, *it.toTypedArray()))
+                    }
+                    it is Map<*, *> -> {
+                        r.push(map(v8, it))
+                    }
+                    it is JsCallback -> {
+                        r.push(callback(v8) { _, params ->
+                            val ps = array(params)
+                            it.invoke(ps[0] as Error?, ps.subList(1, ps.size))
+                        })
+                    }
+                    it is Boolean -> {
+                        r.push(it)
+                    }
+                    it is Double -> {
+                        r.push(it)
+                    }
+                    it is Int -> {
+                        r.push(it)
+                    }
+                    it is String -> {
+                        r.push(it)
+                    }
+                    it is V8Value -> {
+                        r.push(it)
+                    }
+                    else -> {
+                        logger.fatal("J2V8 遇到不支持的类型 ${it}")
+                    }
                 }
             }
             return r
