@@ -100,7 +100,14 @@ dependencies {
     implementation("com.ctrip.framework.apollo:apollo-client:1.7.0")
     implementation("it.sauronsoftware.cron4j:cron4j:2.2.5")
     implementation("joda-time:joda-time:2.10.8")
-    implementation("com.eclipsesource.j2v8:j2v8_${OsUse({ "windows" }, { "linux" }, { "mac" })}_x86_64:4.8.0")
+    implementation(
+        "com.eclipsesource.j2v8:j2v8_${
+            OsUse(
+                { "win32_x86_64" },
+                { "linux_x86_64" },
+                { "macosx_x86_64" })
+        }:4.6.0"
+    )
     implementation("org.reflections:reflections:0.9.11")
 
     // http
