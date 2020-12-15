@@ -117,11 +117,11 @@ class Test {
         var d = flat(B::class)
         Assertions.assertEquals(d["this"], 123)
 
-        var id = IntFloat(0, 10)
-        var id2 = id + 1
-        id = id + 2
-        Assertions.assertEquals(id2.origin, 10)
-        Assertions.assertEquals(id.origin, 20)
+        // var id = IntFloat(0, 10)
+        // var id2 = id + 1
+        // id = id + 2
+        // Assertions.assertEquals(id2.origin, 10)
+        // Assertions.assertEquals(id.origin, 20)
     }
 
     @Test
