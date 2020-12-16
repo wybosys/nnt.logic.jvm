@@ -2,6 +2,7 @@ package com.nnt
 
 import com.nnt.core.*
 import com.nnt.manager.App
+import com.nnt.script.Lua
 import com.nnt.server.EmptyTransaction
 import com.nnt.server.Routers
 import com.nnt.server.Transaction
@@ -183,5 +184,11 @@ class Test {
         val tpl = DustCompiler()
         Assertions.assertEquals(tpl.compile("{.test}", "test"), true)
         Assertions.assertEquals(tpl.render("test", mapOf<String, Any>("test" to 123)), "123")
+    }
+
+    @Test
+    fun TestLua() {
+        val lua = Lua()
+        Assertions.assertTrue(lua.loadfile("lua/main.lua"))
     }
 }

@@ -1,0 +1,1 @@
+print("lua test test")
