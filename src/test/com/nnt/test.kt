@@ -1,6 +1,7 @@
 package com.nnt
 
 import com.nnt.core.*
+import com.nnt.manager.App
 import com.nnt.server.EmptyTransaction
 import com.nnt.server.Routers
 import com.nnt.server.Transaction
@@ -70,6 +71,11 @@ enum class TestType(val value: Int) {
 }
 
 class Test {
+
+    @Test
+    fun TestInit() {
+        App()
+    }
 
     @Test
     fun TestJvm() {
