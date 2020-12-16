@@ -29,7 +29,7 @@ class Lua {
      * 添加查找package的目录
      */
     fun addPackgePath(dir: String) {
-        _package_paths.add("${dir}\\?.lua")
+        _package_paths.add("${dir}/?.lua")
         set("package.path", _package_paths.joinToString(";"))
     }
 
