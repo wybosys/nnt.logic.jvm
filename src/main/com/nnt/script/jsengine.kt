@@ -1,6 +1,7 @@
-package com.nnt.core
+package com.nnt.script
 
 import com.eclipsesource.v8.*
+import com.nnt.core.logger
 
 private class V8T {
     companion object {

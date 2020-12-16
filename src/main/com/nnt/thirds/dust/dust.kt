@@ -1,6 +1,9 @@
 package com.nnt.thirds.dust
 
 import com.nnt.core.*
+import com.nnt.script.JsCallback
+import com.nnt.script.JsEngine
+import com.nnt.script.JsObject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine

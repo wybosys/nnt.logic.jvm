@@ -92,6 +92,7 @@ dependencies {
     implementation("joda-time:joda-time:2.10.8")
     implementation("com.eclipsesource.j2v8:j2v8_${OsUse({ "win32_x86_64" }, { "linux_x86_64" }, { "macosx_x86_64" })}:4.6.0")
     implementation("org.reflections:reflections:0.9.11")
+    implementation("org.luaj:luaj-jse:3.0.1")
 
     // http
     implementation("io.vertx:vertx-core:3.9.4")
