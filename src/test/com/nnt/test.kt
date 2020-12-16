@@ -189,6 +189,7 @@ class Test {
     @Test
     fun TestLua() {
         val lua = Lua()
+        lua.addPackgePath("lua")
         Assertions.assertTrue(lua.loadfile("lua/main.lua"))
     }
 }
