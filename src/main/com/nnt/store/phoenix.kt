@@ -5,6 +5,7 @@ import com.nnt.store.reflect.SchemeInfo
 import org.springframework.jdbc.core.JdbcTemplate
 import java.util.*
 import javax.sql.DataSource
+import kotlin.random.Random
 import kotlin.reflect.KClass
 
 // phoenix queryserver 默认端口
@@ -55,6 +56,7 @@ class Phoenix : Mybatis() {
 
     override fun verify(): Boolean {
         return jdbc { ses ->
+            // 执行测试脚本
             val cnt = ses.queryForObject(
                 "select 1",
                 Int::class
@@ -62,6 +64,10 @@ class Phoenix : Mybatis() {
             if (cnt != 1) {
                 throw Error("phoenix 查询链接可用性失败")
             }
+
+            // 创建用于维持连接的数据库
+            ses.execute("create table if not exists nnt.logic_phoenix_alive(id integer primary key, val integer)")
+            ses.execute("upsert into nnt.logic_phoenix_alive (id, val) values (1, 0)")
         }
     }
 
@@ -181,10 +187,33 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
             return
 
         _repeat = Repeat(60) {
+            val tpl = _tpl!!
             synchronized(this) {
                 // _ds = _phoenix.openJdbc()
                 // _tpl = JdbcTemplate(_ds)
-                _tpl!!.execute("select 1")
+
+                val old = tpl.queryForObject(
+                    "select val from nnt.logic_phoenix_alive where id=1",
+                    Long::class.java
+                )
+
+                tpl.update(
+                    "upsert into nnt.logic_phoenix_alive (id, val) values (1, ?)",
+                    Random.nextLong(999999999)
+                )
+
+                val now = tpl.queryForObject(
+                    "select val from nnt.logic_phoenix_alive where id=1",
+                    Long::class.java
+                )
+
+                if (old == now) {
+                    logger.error("phoenix出现写入失败, 重新建立链接")
+
+                    _ds = _phoenix.openJdbc()
+                    _tpl = JdbcTemplate(_ds)
+                }
+
                 // logger.log("phoenix keepalive")
             }
         }
