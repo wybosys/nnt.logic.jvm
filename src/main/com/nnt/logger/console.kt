@@ -18,6 +18,10 @@ class Console : AbstractLogger() {
         println(msg)
     }
 
+    override fun error(msg: String, status: STATUS?) {
+        println(msg)
+    }
+
     override fun fatal(msg: String, status: STATUS?) {
         println(msg)
     }

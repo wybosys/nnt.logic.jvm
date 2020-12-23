@@ -105,6 +105,10 @@ class Log4j : AbstractLogger() {
         _logger.info(msg)
     }
 
+    override fun error(msg: String, status: STATUS?) {
+        _logger.error(msg)
+    }
+
     override fun fatal(msg: String, status: STATUS?) {
         _logger.fatal(msg)
     }
@@ -112,5 +116,6 @@ class Log4j : AbstractLogger() {
     override fun exception(msg: String, status: STATUS?) {
         _logger.error(msg)
     }
+
 
 }

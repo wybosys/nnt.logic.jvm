@@ -10,6 +10,7 @@ class Filter {
         val LOG = "log"
         val WARN = "warn"
         val INFO = "info"
+        val ERROR = "error"
         val FATAL = "fatal"
         val EXCEPTION = "exception"
         val ALL = "all"
@@ -22,6 +23,7 @@ class Filter {
                     LOG,
                     WARN,
                     INFO,
+                    ERROR,
                     FATAL,
                     EXCEPTION
                 )
@@ -63,6 +65,7 @@ abstract class AbstractLogger {
     abstract fun log(msg: String, status: STATUS? = null)
     abstract fun warn(msg: String, status: STATUS? = null)
     abstract fun info(msg: String, status: STATUS? = null)
+    abstract fun error(msg: String, status: STATUS? = null)
     abstract fun fatal(msg: String, status: STATUS? = null)
     abstract fun exception(msg: String, status: STATUS? = null)
 }

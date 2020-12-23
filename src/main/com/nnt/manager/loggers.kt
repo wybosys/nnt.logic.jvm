@@ -11,6 +11,7 @@ enum class LOGTYPE {
     LOG,
     WARN,
     INFO,
+    ERROR,
     FATAL,
     EXCEPTION
 }
@@ -33,6 +34,12 @@ fun output(msg: String, filter: String, typ: LOGTYPE) {
             }
             LOGTYPE.EXCEPTION -> {
                 it.exception(msg)
+            }
+            LOGTYPE.ERROR -> {
+                it.error(msg)
+            }
+            LOGTYPE.FATAL -> {
+                it.fatal(msg)
             }
             else -> {
                 it.fatal(msg)
@@ -63,6 +70,14 @@ object Loggers {
         logger.info = {
             if (loggers.size > 0) {
                 output(it, Filter.INFO, LOGTYPE.INFO)
+            } else {
+                println(it)
+            }
+        }
+
+        logger.error = {
+            if (loggers.size > 0) {
+                output(it, Filter.ERROR, LOGTYPE.ERROR)
             } else {
                 println(it)
             }
