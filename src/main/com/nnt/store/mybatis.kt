@@ -1,11 +1,11 @@
 package com.nnt.store
 
-import com.alibaba.druid.pool.DruidDataSourceFactory
 import com.nnt.core.File
 import com.nnt.core.JsonObject
 import com.nnt.core.URI
 import com.nnt.core.logger
 import com.nnt.store.reflect.TableInfo
+import com.zaxxer.hikari.HikariDataSource
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
 import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory
 import org.apache.ibatis.mapping.Environment
@@ -90,31 +90,27 @@ open class Mybatis : AbstractRdb() {
         return true
     }
 
-    protected open fun propertiesForJdbc(): Properties {
-        val props = Properties()
-        props.setProperty("url", url)
+    protected open fun propertiesForJdbc(): JdbcProperties {
+        val props = Jdbc.DefaultJdbcProperties()
+        props.jdbcUrl = url
+        props.poolName = "nnt.logic"
 
         // 有些特殊情况下，不使用driverClassName设置jdbc的driver
         if (!driver.isEmpty())
-            props.setProperty("driverClassName", driver)
+            props.driverClassName = driver
 
         if (!user.isEmpty()) {
-            props.setProperty("username", user)
+            props.username = user
             if (!pwd.isEmpty())
-                props.setProperty("password", pwd)
+                props.password = pwd
         }
-
-        // 设置连接数
-        props.setProperty("initialSize", "3")
-        props.setProperty("minIdle", "3")
-        props.setProperty("maxActive", "512")
 
         return props
     }
 
     open fun openJdbc(): DataSource {
         val props = propertiesForJdbc()
-        return DruidDataSourceFactory.createDataSource(props)
+        return HikariDataSource(props)
     }
 
     open fun openMapper(): SqlSessionFactory {

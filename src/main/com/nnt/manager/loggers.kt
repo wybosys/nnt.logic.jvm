@@ -41,9 +41,6 @@ fun output(msg: String, filter: String, typ: LOGTYPE) {
             LOGTYPE.FATAL -> {
                 it.fatal(msg)
             }
-            else -> {
-                it.fatal(msg)
-            }
         }
     }
 }

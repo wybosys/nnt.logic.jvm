@@ -70,20 +70,7 @@ class Phoenix : Mybatis() {
             ses.execute("upsert into nnt.logic_phoenix_alive (id, val) values (1, 0)")
         }
     }
-
-    override fun propertiesForJdbc(): Properties {
-        val props = super.propertiesForJdbc()
-        // phoenix 不支持连接情况检测
-        props.setProperty("testWhileIdle", "false")
-        // 保活(druid不对mysql之外的数据库自动处理)
-        props.setProperty("keepAlive", "true")
-        props.setProperty("validationQuery", "select 1")
-        // 改一下连接池的配置
-        props.setProperty("initialSize", "0")
-        props.setProperty("minIdle", "0")
-        return props
-    }
-
+    
     override fun acquireJdbc(): JdbcSession {
         return PhoenixJdbcSession(this)
     }

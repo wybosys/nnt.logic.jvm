@@ -1,18 +1,20 @@
 package com.nnt.store
 
-import com.alibaba.druid.pool.DruidDataSourceFactory
 import com.nnt.core.JsonObject
 import com.nnt.core.logger
 import com.nnt.core.toValue
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.*
 import org.springframework.jdbc.datasource.SingleConnectionDataSource
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.jdbc.support.rowset.SqlRowSet
 import java.sql.Connection
-import java.util.*
 import javax.sql.DataSource
 import kotlin.reflect.KClass
+
+typealias JdbcProperties = HikariConfig
 
 open class Jdbc : AbstractDbms() {
 
@@ -47,27 +49,21 @@ open class Jdbc : AbstractDbms() {
 
     private lateinit var _dsfac: DataSource
 
-    protected open fun propertiesForJdbc(): Properties {
-        val props = Properties()
-        props.setProperty("driverClassName", driver)
-        props.setProperty("url", url)
+    protected open fun propertiesForJdbc(): JdbcProperties {
+        val props = DefaultJdbcProperties()
+        props.driverClassName = driver
+        props.jdbcUrl = url
         if (!user.isEmpty()) {
-            props.setProperty("username", user)
+            props.username = user
             if (!pwd.isEmpty())
-                props.setProperty("password", pwd)
+                props.password = pwd
         }
-
-        // 设置连接数
-        props.setProperty("initialSize", "0")
-        props.setProperty("minIdle", "0")
-        props.setProperty("maxActive", "512")
-
         return props
     }
 
     override fun open() {
         val props = propertiesForJdbc()
-        _dsfac = DruidDataSourceFactory.createDataSource(props)
+        _dsfac = HikariDataSource(props)
         logger.info("打开 ${id}@jdbc")
     }
 
@@ -101,6 +97,18 @@ open class Jdbc : AbstractDbms() {
             conn?.close()
         }
         return r
+    }
+
+    companion object {
+
+        fun DefaultJdbcProperties(): JdbcProperties {
+            val props = JdbcProperties()
+            props.poolName = "nnt.logic"
+            props.minimumIdle = 0
+            props.maximumPoolSize = 512
+            props.connectionTestQuery = "select 1"
+            return props
+        }
     }
 
 }
