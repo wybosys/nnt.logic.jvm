@@ -101,6 +101,7 @@ dependencies {
     // db
     implementation("org.mybatis:mybatis:3.5.5")
     implementation("com.alibaba:druid:1.1.24")
+    implementation("com.zaxxer:HikariCP:3.4.5")
     implementation("mysql:mysql-connector-java:8.0.21")
     implementation("redis.clients:jedis:3.3.0")
     implementation("org.neo4j.driver:neo4j-java-driver:4.1.1")
