@@ -14,8 +14,33 @@ enum class Level(val v: Int) {
     EMERGENCY(0)
 }
 
+fun GetStackElementMessage(err: StackTraceElement): String {
+    return "${err.methodName}@${err.className}::${err.fileName}#${err.lineNumber})"
+}
+
 fun GetExceptionMessage(err: Throwable): String {
-    return err.message ?: err.stackTraceToString()
+    val arr = mutableListOf<String>()
+
+    // 基础报错信息
+    val str = err.message
+    if (str != null)
+        arr.add(str)
+
+    /*
+    // 只输出前两行
+    val sck = err.stackTrace
+    if (sck.size > 0) {
+        sb.append(GetStackElementMessage(sck[0])).append("; ")
+    }
+    if (sck.size > 1) {
+        sb.append(GetStackElementMessage(sck[1])).append("; ")
+    }
+    */
+
+    // 输出完整堆栈
+    arr.add(err.stackTraceToString())
+
+    return arr.joinToString("; ")
 }
 
 object logger {
@@ -51,7 +76,6 @@ object logger {
     }
 
     // 放在判定序列中最后一个命中提示
-
     fun orLog(str: String, def: Boolean = false): Boolean {
         log(str)
         return def
