@@ -2,10 +2,12 @@ package com.nnt
 
 import com.nnt.core.*
 import com.nnt.manager.App
+import com.nnt.manager.Dbms
 import com.nnt.script.Lua
 import com.nnt.server.EmptyTransaction
 import com.nnt.server.Routers
 import com.nnt.server.Transaction
+import com.nnt.store.KvRedis
 import com.nnt.thirds.dust.DustCompiler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -75,7 +77,17 @@ class Test {
 
     @Test
     fun TestInit() {
+        // 初始化
         App()
+
+        // 加载配置
+        val appcfg = URI("bundle://app.json")
+        val devcfg = URI("bundle://devops.json")
+        App.LoadConfig(appcfg, devcfg)
+
+        // 加载数据库
+        val cfg = App.CurrentConfig!!
+        Dbms.Start(cfg["dbms"]!!)
     }
 
     @Test
@@ -191,5 +203,23 @@ class Test {
         val lua = Lua()
         lua.addPackgePath("lua")
         Assertions.assertTrue(lua.loadfile("lua/main.lua"))
+    }
+
+    @Test
+    fun TestRedis() {
+        val kv = Dbms.Find("kv") as KvRedis
+        val ses = kv.acquire()
+        ses.info()
+        ses.info("xxx")
+        Assertions.assertTrue(ses.ping())
+        Assertions.assertTrue(ses.set("abc", 123))
+        Assertions.assertEquals(ses.get("abcd"), null)
+        // ses.hset("abc", "test", 123)
+        ses.hset("habc", "test", 123)
+        // Assertions.assertNull(ses.hget("abc", "null"))
+        ses.hmget("habc", "123", "456")
+        ses.hgetall("xxxxxxx")
+        ses.geoadd("test_geo", 180.0, 180.0, "haha")
+        ses.close()
     }
 }

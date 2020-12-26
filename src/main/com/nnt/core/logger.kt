@@ -18,6 +18,10 @@ fun GetStackElementMessage(err: StackTraceElement): String {
     return "${err.methodName}@${err.className}::${err.fileName}#${err.lineNumber})"
 }
 
+fun GetErrorMessage(err: Throwable): String {
+    return err.message ?: err.stackTraceToString()
+}
+
 fun GetExceptionMessage(err: Throwable): String {
     val arr = mutableListOf<String>()
 
@@ -73,6 +77,26 @@ object logger {
         if (!v) {
             fatal(str)
         }
+    }
+
+    fun log(err: Throwable) {
+        log(GetErrorMessage(err))
+    }
+
+    fun warn(err: Throwable) {
+        warn(GetErrorMessage(err))
+    }
+
+    fun info(err: Throwable) {
+        info(GetErrorMessage(err))
+    }
+
+    fun fatal(err: Throwable) {
+        fatal(GetErrorMessage(err))
+    }
+
+    fun error(err: Throwable) {
+        error(GetErrorMessage(err))
     }
 
     // 放在判定序列中最后一个命中提示

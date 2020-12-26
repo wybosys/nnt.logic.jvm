@@ -45,7 +45,7 @@
     {
       "id": "kv",
       "host": "localhost:6379",
-      "prefix": "nnt-logic-sample",
+      "prefix": "nnt-logic-sample:",
       "entry": "com.nnt.store.KvRedis"
     },
     {

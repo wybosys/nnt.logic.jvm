@@ -1,91 +1,103 @@
 package com.nnt.store
 
+import com.nnt.core.logger
 import redis.clients.jedis.*
 import redis.clients.jedis.params.GeoRadiusParam
 import redis.clients.jedis.params.SetParams
 import redis.clients.jedis.params.ZAddParams
 import redis.clients.jedis.params.ZIncrByParams
 
+enum class RedisValueType(value: Int) {
+    NONE(0),
+    STRING(1),
+    LIST(2),
+    SET(3),
+    ZSET(4),
+    HASH(5)
+}
+
 interface RedisClientOperations {
-    fun ping(message: String): String
-    fun ping(): String
-    fun quit(): String
-    fun auth(password: String): String
-    fun auth(user: String, password: String): String
-    fun info(): String
-    fun info(section: String): String
-    fun set(key: String, value: String, params: SetParams? = null): String
-    fun get(key: String): String
+
+    // 健康检查
+    fun ping(message: String? = null): Boolean
+
+    // 断开当前链接
+    fun quit()
+
+    // 登录
+    fun auth(password: String, user: String? = null): Boolean
+
+    // 获得服务器信息
+    fun info(section: String? = null): String?
+
+    // 基础命令
+    fun set(key: String, value: Any, params: SetParams? = null): Boolean
+    fun get(key: String, def: String? = null): String?
     fun exists(key: String): Boolean
-    fun persist(key: String): Long
-    fun type(key: String): String
-    fun expire(key: String, seconds: Int): Long
-    fun pexpire(key: String, milliseconds: Long): Long
-    fun expireAt(key: String, unixTime: Long): Long
-    fun pexpireAt(key: String, millisecondsTimestamp: Long): Long
+    fun persist(key: String): Boolean
+    fun type(key: String): RedisValueType
+    fun expire(key: String, seconds: Int): Boolean
+    fun pexpire(key: String, milliseconds: Long): Boolean
+    fun expireAt(key: String, unixTime: Long): Boolean
+    fun pexpireAt(key: String, millisecondsTimestamp: Long): Boolean
     fun ttl(key: String): Long
     fun pttl(key: String): Long
-    fun touch(key: String): Long
-    fun setbit(key: String, offset: Long, value: Boolean): Boolean
-    fun setbit(key: String, offset: Long, value: String): Boolean
-    fun getbit(key: String, offset: Long): Boolean
-    fun setrange(key: String, offset: Long, value: String?): Long
-    fun getrange(key: String, startOffset: Long, endOffset: Long): String
-    fun getSet(key: String, value: String?): String
-    fun setnx(key: String, value: String?): Long
-    fun setex(key: String, seconds: Int, value: String?): String
-    fun psetex(key: String, milliseconds: Long, value: String?): String
-    fun decrBy(key: String, decrement: Long): Long
-    fun decr(key: String): Long
-    fun incrBy(key: String, increment: Long): Long
-    fun incrByFloat(key: String, increment: Double): Double
+    fun getset(key: String, value: Any): String?
+    fun setnx(key: String, value: Any): Boolean
+    fun setex(key: String, seconds: Int, value: Any): Boolean
+    fun psetex(key: String, milliseconds: Long, value: Any): Boolean
+    fun decr(key: String, decrement: Long? = null): Long
+    fun incr(key: String, increment: Long): Long
+    fun incr(key: String, increment: Double): Double
     fun incr(key: String): Long
-    fun append(key: String, value: String?): Long
-    fun substr(key: String, start: Int, end: Int): String
-    fun hset(key: String, field: String?, value: String?): Long
-    fun hset(key: String, hash: MutableMap<String, String>?): Long
-    fun hget(key: String, field: String?): String
-    fun hsetnx(key: String, field: String?, value: String?): Long
-    fun hmset(key: String, hash: MutableMap<String, String>?): String
-    fun hmget(key: String, vararg fields: String?): MutableList<String>
-    fun hincrBy(key: String, field: String?, value: Long): Long
-    fun hincrByFloat(key: String, field: String?, value: Double): Double
-    fun hexists(key: String, field: String?): Boolean
-    fun hdel(key: String, vararg fields: String?): Long
+
+    // hash
+    fun hset(key: String, field: String, value: Any)
+    fun hset(key: String, hash: MutableMap<String, String>)
+    fun hget(key: String, field: String): String?
+    fun hsetnx(key: String, field: String, value: Any): Boolean
+    fun hmset(key: String, hash: MutableMap<String, String>): Boolean
+    fun hmget(key: String, vararg fields: String): MutableList<String>
+    fun hincr(key: String, field: String, value: Long): Long
+    fun hincr(key: String, field: String, value: Double): Double
+    fun hexists(key: String, field: String): Boolean
+    fun hdel(key: String, vararg fields: String)
     fun hlen(key: String): Long
     fun hkeys(key: String): MutableSet<String>
     fun hvals(key: String): MutableList<String>
-    fun hgetAll(key: String): MutableMap<String, String>
-    fun rpush(key: String, vararg strings: String?): Long
-    fun lpush(key: String, vararg strings: String?): Long
+    fun hgetall(key: String): MutableMap<String, String>
+
+    // list
+    fun rpush(key: String, vararg strings: String): Long
+    fun lpush(key: String, vararg strings: String): Long
     fun llen(key: String): Long
     fun lrange(key: String, start: Long, stop: Long): MutableList<String>
-    fun ltrim(key: String, start: Long, stop: Long): String
+    fun ltrim(key: String, start: Long, stop: Long): Boolean
     fun lindex(key: String, index: Long): String
-    fun lset(key: String, index: Long, value: String?): String
-    fun lrem(key: String, count: Long, value: String?): Long
+    fun lset(key: String, index: Long, value: Any): Boolean
+    fun lrem(key: String, count: Long, value: Any): Long
     fun lpop(key: String): String
     fun rpop(key: String): String
-    fun sadd(key: String, vararg members: String?): Long
+
+    // set
+    fun sadd(key: String, vararg members: String): Long
     fun smembers(key: String): MutableSet<String>
-    fun srem(key: String, vararg members: String?): Long
+    fun srem(key: String, vararg members: String): Long
     fun spop(key: String): String
     fun spop(key: String, count: Long): MutableSet<String>
     fun scard(key: String): Long
-    fun sismember(key: String, member: String?): Boolean
+    fun sismember(key: String, member: String): Boolean
     fun srandmember(key: String): String
     fun srandmember(key: String, count: Int): MutableList<String>
-    fun strlen(key: String): Long
-    fun zadd(key: String, score: Double, member: String?): Long
-    fun zadd(key: String, score: Double, member: String?, params: ZAddParams?): Long
-    fun zadd(key: String, scoreMembers: MutableMap<String, Double>?): Long
-    fun zadd(key: String, scoreMembers: MutableMap<String, Double>?, params: ZAddParams?): Long
+
+    // ordered-set
+    fun zadd(key: String, score: Double, member: String, params: ZAddParams? = null): Long
+    fun zadd(key: String, scoreMembers: MutableMap<String, Double>, params: ZAddParams? = null): Long
     fun zrange(key: String, start: Long, stop: Long): MutableSet<String>
-    fun zrem(key: String, vararg members: String?): Long
-    fun zincrby(key: String, increment: Double, member: String?): Double
-    fun zincrby(key: String, increment: Double, member: String?, params: ZIncrByParams?): Double
-    fun zrank(key: String, member: String?): Long
-    fun zrevrank(key: String, member: String?): Long
+    fun zrem(key: String, vararg members: String): Long
+    fun zincr(key: String, increment: Double, member: String, params: ZIncrByParams? = null): Double
+    fun zrank(key: String, member: String): Long
+    fun zrevrank(key: String, member: String): Long
     fun zrevrange(key: String, start: Long, stop: Long): MutableSet<String>
     fun zrangeWithScores(key: String, start: Long, stop: Long): MutableSet<Tuple>
     fun zrevrangeWithScores(key: String, start: Long, stop: Long): MutableSet<Tuple>
@@ -113,7 +125,7 @@ interface RedisClientOperations {
         max: String?,
         min: String?,
         offset: Int,
-        count: Int
+        count: Int,
     ): MutableSet<String>
 
     fun zrangeByScoreWithScores(key: String, min: Double, max: Double): MutableSet<Tuple>
@@ -123,7 +135,7 @@ interface RedisClientOperations {
         min: Double,
         max: Double,
         offset: Int,
-        count: Int
+        count: Int,
     ): MutableSet<Tuple>
 
     fun zrangeByScoreWithScores(
@@ -131,7 +143,7 @@ interface RedisClientOperations {
         min: String?,
         max: String?,
         offset: Int,
-        count: Int
+        count: Int,
     ): MutableSet<Tuple>
 
     fun zrevrangeByScoreWithScores(key: String, max: Double, min: Double): MutableSet<Tuple>
@@ -140,7 +152,7 @@ interface RedisClientOperations {
         max: Double,
         min: Double,
         offset: Int,
-        count: Int
+        count: Int,
     ): MutableSet<Tuple>
 
     fun zrevrangeByScoreWithScores(
@@ -148,7 +160,7 @@ interface RedisClientOperations {
         max: String?,
         min: String?,
         offset: Int,
-        count: Int
+        count: Int,
     ): MutableSet<Tuple>
 
     fun zrevrangeByScoreWithScores(key: String, max: String?, min: String?): MutableSet<Tuple>
@@ -172,19 +184,13 @@ interface RedisClientOperations {
     fun bitcount(key: String, start: Long, end: Long): Long
     fun pfadd(key: String, vararg elements: String?): Long
     fun pfcount(key: String): Long
+
+    // geo
     fun geoadd(key: String, longitude: Double, latitude: Double, member: String): Long
-    fun geoadd(key: String, memberCoordinateMap: MutableMap<String, GeoCoordinate>? = null): Long
-    fun geodist(key: String, member1: String, member2: String): Double
+    fun geoadd(key: String, memberCoordinateMap: MutableMap<String, GeoCoordinate>): Long
     fun geodist(key: String, member1: String, member2: String, unit: GeoUnit?): Double
-    fun geohash(key: String, vararg members: String?): MutableList<String>
-    fun geopos(key: String, vararg members: String?): MutableList<GeoCoordinate>
-    fun georadius(
-        key: String,
-        longitude: Double,
-        latitude: Double,
-        radius: Double,
-        unit: GeoUnit?
-    ): MutableList<GeoRadiusResponse>
+    fun geohash(key: String, vararg members: String): MutableList<String>
+    fun geopos(key: String, vararg members: String): MutableList<GeoCoordinate>
 
     fun georadius(
         key: String,
@@ -192,15 +198,7 @@ interface RedisClientOperations {
         latitude: Double,
         radius: Double,
         unit: GeoUnit?,
-        param: GeoRadiusParam?
-    ): MutableList<GeoRadiusResponse>
-
-    fun georadiusReadonly(
-        key: String,
-        longitude: Double,
-        latitude: Double,
-        radius: Double,
-        unit: GeoUnit?
+        param: GeoRadiusParam?,
     ): MutableList<GeoRadiusResponse>
 
     fun georadiusReadonly(
@@ -209,14 +207,7 @@ interface RedisClientOperations {
         latitude: Double,
         radius: Double,
         unit: GeoUnit?,
-        param: GeoRadiusParam?
-    ): MutableList<GeoRadiusResponse>
-
-    fun georadiusByMember(
-        key: String,
-        member: String?,
-        radius: Double,
-        unit: GeoUnit?
+        param: GeoRadiusParam?,
     ): MutableList<GeoRadiusResponse>
 
     fun georadiusByMember(
@@ -224,14 +215,7 @@ interface RedisClientOperations {
         member: String?,
         radius: Double,
         unit: GeoUnit?,
-        param: GeoRadiusParam?
-    ): MutableList<GeoRadiusResponse>
-
-    fun georadiusByMemberReadonly(
-        key: String,
-        member: String?,
-        radius: Double,
-        unit: GeoUnit?
+        param: GeoRadiusParam?,
     ): MutableList<GeoRadiusResponse>
 
     fun georadiusByMemberReadonly(
@@ -239,14 +223,15 @@ interface RedisClientOperations {
         member: String?,
         radius: Double,
         unit: GeoUnit?,
-        param: GeoRadiusParam?
+        param: GeoRadiusParam?,
     ): MutableList<GeoRadiusResponse>
 
+    // iterator
     fun hscan(key: String, cursor: String?): ScanResult<MutableMap.MutableEntry<String, String>>
     fun hscan(
         key: String,
         cursor: String?,
-        params: ScanParams?
+        params: ScanParams?,
     ): ScanResult<MutableMap.MutableEntry<String, String>>
 
     fun sscan(key: String, cursor: String?): ScanResult<String>
@@ -262,6 +247,8 @@ interface RedisClientOperations {
     fun renamenx(oldkey: String, newkey: String): Long
     fun rpoplpush(srckey: String, dstkey: String): String
     fun smove(srckey: String, dstkey: String, member: String?): Long
+
+    // close
     fun close()
 }
 
@@ -276,41 +263,58 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         return "${prefix}${key}"
     }
 
-    override fun ping(message: String): String {
-        return _hdl.ping(message)
+    override fun ping(message: String?): Boolean {
+        if (message == null) {
+            return _hdl.ping() == "PONG"
+        }
+        return _hdl.ping(message) == message
     }
 
-    override fun ping(): String {
-        return _hdl.ping()
+    override fun quit() {
+        _hdl.quit()
     }
 
-    override fun quit(): String {
-        return _hdl.quit()
+    override fun auth(password: String, user: String?): Boolean {
+        try {
+            val res: String
+            if (user == null) {
+                res = _hdl.auth(user, password)
+            } else {
+                res = _hdl.auth(password)
+            }
+            if (res == "OK") {
+                return true
+            }
+            logger.error(res)
+            return false
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return false
     }
 
-    override fun auth(password: String): String {
-        return _hdl.auth(password)
+    override fun info(section: String?): String? {
+        try {
+            if (section == null)
+                return _hdl.info()
+            return _hdl.info(section)
+        } catch (err: Throwable) {
+            logger.exception(err)
+        }
+        return null
     }
 
-    override fun auth(user: String, password: String): String {
-        return _hdl.auth(user, password)
+    override fun set(key: String, value: Any, params: SetParams?): Boolean {
+        val res: String
+        if (params != null) {
+            res = _hdl.set(safeKey(key), value.toString(), params)
+        } else {
+            res = _hdl.set(safeKey(key), value.toString())
+        }
+        return res == "OK"
     }
 
-    override fun info(): String {
-        return _hdl.info()
-    }
-
-    override fun info(section: String): String {
-        return _hdl.info(section)
-    }
-
-    override fun set(key: String, value: String, params: SetParams?): String {
-        if (params != null)
-            return _hdl.set(safeKey(key), value, params)
-        return _hdl.set(safeKey(key), value)
-    }
-
-    override fun get(key: String): String {
+    override fun get(key: String, def: String?): String? {
         return _hdl.get(safeKey(key))
     }
 
@@ -318,28 +322,49 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         return _hdl.exists(safeKey(key))
     }
 
-    override fun persist(key: String): Long {
-        return _hdl.persist(safeKey(key))
+    override fun persist(key: String): Boolean {
+        return _hdl.persist(safeKey(key)) == 1L
     }
 
-    override fun type(key: String): String {
-        return _hdl.type(safeKey(key))
+    override fun type(key: String): RedisValueType {
+        val typ = _hdl.type(safeKey(key))
+        when (typ) {
+            "none" -> {
+                return RedisValueType.NONE
+            }
+            "string" -> {
+                return RedisValueType.STRING
+            }
+            "list" -> {
+                return RedisValueType.LIST
+            }
+            "set" -> {
+                return RedisValueType.SET
+            }
+            "zset" -> {
+                return RedisValueType.ZSET
+            }
+            "hash" -> {
+                return RedisValueType.HASH
+            }
+        }
+        return RedisValueType.NONE
     }
 
-    override fun expire(key: String, seconds: Int): Long {
-        return _hdl.expire(safeKey(key), seconds)
+    override fun expire(key: String, seconds: Int): Boolean {
+        return _hdl.expire(safeKey(key), seconds) == 1L
     }
 
-    override fun pexpire(key: String, milliseconds: Long): Long {
-        return _hdl.pexpire(safeKey(key), milliseconds)
+    override fun pexpire(key: String, milliseconds: Long): Boolean {
+        return _hdl.pexpire(safeKey(key), milliseconds) == 1L
     }
 
-    override fun expireAt(key: String, unixTime: Long): Long {
-        return _hdl.expireAt(safeKey(key), unixTime)
+    override fun expireAt(key: String, unixTime: Long): Boolean {
+        return _hdl.expireAt(safeKey(key), unixTime) == 1L
     }
 
-    override fun pexpireAt(key: String, millisecondsTimestamp: Long): Long {
-        return _hdl.pexpireAt(safeKey(key), millisecondsTimestamp)
+    override fun pexpireAt(key: String, millisecondsTimestamp: Long): Boolean {
+        return _hdl.pexpireAt(safeKey(key), millisecondsTimestamp) == 1L
     }
 
     override fun ttl(key: String): Long {
@@ -350,59 +375,36 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         return _hdl.pttl(safeKey(key))
     }
 
-    override fun touch(key: String): Long {
-        return _hdl.touch(safeKey(key))
+    override fun getset(key: String, value: Any): String? {
+        return _hdl.getSet(safeKey(key), value.toString())
     }
 
-    override fun setbit(key: String, offset: Long, value: Boolean): Boolean {
-        return _hdl.setbit(safeKey(key), offset, value)
+    override fun setnx(key: String, value: Any): Boolean {
+        return _hdl.setnx(safeKey(key), value.toString()) == 1L
     }
 
-    override fun setbit(key: String, offset: Long, value: String): Boolean {
-        return _hdl.setbit(safeKey(key), offset, value)
+    override fun setex(key: String, seconds: Int, value: Any): Boolean {
+        val res = _hdl.setex(safeKey(key), seconds, value.toString())
+        return res == "OK"
     }
 
-    override fun getbit(key: String, offset: Long): Boolean {
-        return _hdl.getbit(safeKey(key), offset)
+    override fun psetex(key: String, milliseconds: Long, value: Any): Boolean {
+        val res = _hdl.psetex(safeKey(key), milliseconds, value.toString())
+        return res == "OK"
     }
 
-    override fun setrange(key: String, offset: Long, value: String?): Long {
-        return _hdl.setrange(safeKey(key), offset, value)
-    }
-
-    override fun getrange(key: String, startOffset: Long, endOffset: Long): String {
-        return _hdl.getrange(safeKey(key), startOffset, endOffset)
-    }
-
-    override fun getSet(key: String, value: String?): String {
-        return _hdl.getSet(safeKey(key), value)
-    }
-
-    override fun setnx(key: String, value: String?): Long {
-        return _hdl.setnx(safeKey(key), value)
-    }
-
-    override fun setex(key: String, seconds: Int, value: String?): String {
-        return _hdl.setex(safeKey(key), seconds, value)
-    }
-
-    override fun psetex(key: String, milliseconds: Long, value: String?): String {
-        return _hdl.psetex(safeKey(key), milliseconds, value)
-    }
-
-    override fun decrBy(key: String, decrement: Long): Long {
+    override fun decr(key: String, decrement: Long?): Long {
+        if (decrement == null) {
+            return _hdl.decr(safeKey(key))
+        }
         return _hdl.decrBy(safeKey(key), decrement)
     }
 
-    override fun decr(key: String): Long {
-        return _hdl.decr(safeKey(key))
-    }
-
-    override fun incrBy(key: String, increment: Long): Long {
+    override fun incr(key: String, increment: Long): Long {
         return _hdl.incrBy(safeKey(key), increment)
     }
 
-    override fun incrByFloat(key: String, increment: Double): Double {
+    override fun incr(key: String, increment: Double): Double {
         return _hdl.incrByFloat(safeKey(key), increment)
     }
 
@@ -410,52 +412,46 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         return _hdl.incr(safeKey(key))
     }
 
-    override fun append(key: String, value: String?): Long {
-        return _hdl.append(safeKey(key), value)
+    override fun hset(key: String, field: String, value: Any) {
+        _hdl.hset(safeKey(key), field, value.toString())
     }
 
-    override fun substr(key: String, start: Int, end: Int): String {
-        return _hdl.substr(safeKey(key), start, end)
+    override fun hset(key: String, hash: MutableMap<String, String>) {
+        _hdl.hset(safeKey(key), hash)
     }
 
-    override fun hset(key: String, field: String?, value: String?): Long {
-        return _hdl.hset(safeKey(key), field, value)
-    }
-
-    override fun hset(key: String, hash: MutableMap<String, String>?): Long {
-        return _hdl.hset(safeKey(key), hash)
-    }
-
-    override fun hget(key: String, field: String?): String {
+    override fun hget(key: String, field: String): String? {
         return _hdl.hget(safeKey(key), field)
     }
 
-    override fun hsetnx(key: String, field: String?, value: String?): Long {
-        return _hdl.hsetnx(safeKey(key), field, value)
+    override fun hsetnx(key: String, field: String, value: Any): Boolean {
+        val res = _hdl.hsetnx(safeKey(key), field, value.toString())
+        return res == 1L
     }
 
-    override fun hmset(key: String, hash: MutableMap<String, String>?): String {
-        return _hdl.hmset(safeKey(key), hash)
+    override fun hmset(key: String, hash: MutableMap<String, String>): Boolean {
+        val res = _hdl.hmset(safeKey(key), hash)
+        return res == "OK"
     }
 
-    override fun hmget(key: String, vararg fields: String?): MutableList<String> {
+    override fun hmget(key: String, vararg fields: String): MutableList<String> {
         return _hdl.hmget(safeKey(key), *fields)
     }
 
-    override fun hincrBy(key: String, field: String?, value: Long): Long {
+    override fun hincr(key: String, field: String, value: Long): Long {
         return _hdl.hincrBy(safeKey(key), field, value)
     }
 
-    override fun hincrByFloat(key: String, field: String?, value: Double): Double {
+    override fun hincr(key: String, field: String, value: Double): Double {
         return _hdl.hincrByFloat(safeKey(key), field, value)
     }
 
-    override fun hexists(key: String, field: String?): Boolean {
+    override fun hexists(key: String, field: String): Boolean {
         return _hdl.hexists(safeKey(key), field)
     }
 
-    override fun hdel(key: String, vararg fields: String?): Long {
-        return _hdl.hdel(safeKey(key), *fields)
+    override fun hdel(key: String, vararg fields: String) {
+        _hdl.hdel(safeKey(key), *fields)
     }
 
     override fun hlen(key: String): Long {
@@ -470,15 +466,15 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         return _hdl.hvals(safeKey(key))
     }
 
-    override fun hgetAll(key: String): MutableMap<String, String> {
+    override fun hgetall(key: String): MutableMap<String, String> {
         return _hdl.hgetAll(safeKey(key))
     }
 
-    override fun rpush(key: String, vararg strings: String?): Long {
+    override fun rpush(key: String, vararg strings: String): Long {
         return _hdl.rpush(safeKey(key), *strings)
     }
 
-    override fun lpush(key: String, vararg strings: String?): Long {
+    override fun lpush(key: String, vararg strings: String): Long {
         return _hdl.lpush(safeKey(key), *strings)
     }
 
@@ -490,20 +486,22 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         return _hdl.lrange(safeKey(key), start, stop)
     }
 
-    override fun ltrim(key: String, start: Long, stop: Long): String {
-        return _hdl.ltrim(safeKey(key), start, stop)
+    override fun ltrim(key: String, start: Long, stop: Long): Boolean {
+        val res = _hdl.ltrim(safeKey(key), start, stop)
+        return res == "OK"
     }
 
     override fun lindex(key: String, index: Long): String {
         return _hdl.lindex(safeKey(key), index)
     }
 
-    override fun lset(key: String, index: Long, value: String?): String {
-        return _hdl.lset(safeKey(key), index, value)
+    override fun lset(key: String, index: Long, value: Any): Boolean {
+        val res = _hdl.lset(safeKey(key), index, value.toString())
+        return res == "OK"
     }
 
-    override fun lrem(key: String, count: Long, value: String?): Long {
-        return _hdl.lrem(safeKey(key), count, value)
+    override fun lrem(key: String, count: Long, value: Any): Long {
+        return _hdl.lrem(safeKey(key), count, value.toString())
     }
 
     override fun lpop(key: String): String {
@@ -514,7 +512,7 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         return _hdl.rpop(safeKey(key))
     }
 
-    override fun sadd(key: String, vararg members: String?): Long {
+    override fun sadd(key: String, vararg members: String): Long {
         return _hdl.sadd(safeKey(key), *members)
     }
 
@@ -522,7 +520,7 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         return _hdl.smembers(safeKey(key))
     }
 
-    override fun srem(key: String, vararg members: String?): Long {
+    override fun srem(key: String, vararg members: String): Long {
         return _hdl.srem(safeKey(key), *members)
     }
 
@@ -538,7 +536,7 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         return _hdl.scard(safeKey(key))
     }
 
-    override fun sismember(key: String, member: String?): Boolean {
+    override fun sismember(key: String, member: String): Boolean {
         return _hdl.sismember(safeKey(key), member)
     }
 
@@ -550,47 +548,49 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         return _hdl.srandmember(safeKey(key), count)
     }
 
-    override fun strlen(key: String): Long {
-        return _hdl.strlen(safeKey(key))
+    override fun zadd(key: String, score: Double, member: String, params: ZAddParams?): Long {
+        val res: Long
+        if (params == null) {
+            res = _hdl.zadd(safeKey(key), score, member)
+        } else {
+            res = _hdl.zadd(safeKey(key), score, member, params)
+        }
+        return res
     }
 
-    override fun zadd(key: String, score: Double, member: String?): Long {
-        return _hdl.zadd(safeKey(key), score, member)
-    }
-
-    override fun zadd(key: String, score: Double, member: String?, params: ZAddParams?): Long {
-        return _hdl.zadd(safeKey(key), score, member, params)
-    }
-
-    override fun zadd(key: String, scoreMembers: MutableMap<String, Double>?): Long {
-        return _hdl.zadd(safeKey(key), scoreMembers)
-    }
-
-    override fun zadd(key: String, scoreMembers: MutableMap<String, Double>?, params: ZAddParams?): Long {
-        return _hdl.zadd(safeKey(key), scoreMembers, params)
+    override fun zadd(key: String, scoreMembers: MutableMap<String, Double>, params: ZAddParams?): Long {
+        val res: Long
+        if (params == null) {
+            res = _hdl.zadd(safeKey(key), scoreMembers)
+        } else {
+            res = _hdl.zadd(safeKey(key), scoreMembers, params)
+        }
+        return res
     }
 
     override fun zrange(key: String, start: Long, stop: Long): MutableSet<String> {
         return _hdl.zrange(safeKey(key), start, stop)
     }
 
-    override fun zrem(key: String, vararg members: String?): Long {
+    override fun zrem(key: String, vararg members: String): Long {
         return _hdl.zrem(safeKey(key), *members)
     }
 
-    override fun zincrby(key: String, increment: Double, member: String?): Double {
-        return _hdl.zincrby(safeKey(key), increment, member)
+    override fun zincr(key: String, increment: Double, member: String, params: ZIncrByParams?): Double {
+        val res: Double
+        if (params == null) {
+            res = _hdl.zincrby(safeKey(key), increment, member)
+        } else {
+            res = _hdl.zincrby(safeKey(key), increment, member, params)
+        }
+        return res
     }
 
-    override fun zincrby(key: String, increment: Double, member: String?, params: ZIncrByParams?): Double {
-        return _hdl.zincrby(safeKey(key), increment, member, params)
-    }
-
-    override fun zrank(key: String, member: String?): Long {
+    override fun zrank(key: String, member: String): Long {
         return _hdl.zrank(safeKey(key), member)
     }
 
-    override fun zrevrank(key: String, member: String?): Long {
+    override fun zrevrank(key: String, member: String): Long {
         return _hdl.zrevrank(safeKey(key), member)
     }
 
@@ -687,7 +687,7 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         max: String?,
         min: String?,
         offset: Int,
-        count: Int
+        count: Int,
     ): MutableSet<String> {
         return _hdl.zrevrangeByScore(safeKey(key), max, min, offset, count)
     }
@@ -705,7 +705,7 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         min: Double,
         max: Double,
         offset: Int,
-        count: Int
+        count: Int,
     ): MutableSet<Tuple> {
         return _hdl.zrangeByScoreWithScores(safeKey(key), min, max, offset, count)
     }
@@ -715,7 +715,7 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         min: String?,
         max: String?,
         offset: Int,
-        count: Int
+        count: Int,
     ): MutableSet<Tuple> {
         return _hdl.zrangeByScoreWithScores(safeKey(key), min, max, offset, count)
     }
@@ -729,7 +729,7 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         max: Double,
         min: Double,
         offset: Int,
-        count: Int
+        count: Int,
     ): MutableSet<Tuple> {
         return _hdl.zrevrangeByScoreWithScores(safeKey(key), max, min, offset, count)
     }
@@ -739,7 +739,7 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         max: String?,
         min: String?,
         offset: Int,
-        count: Int
+        count: Int,
     ): MutableSet<Tuple> {
         return _hdl.zrevrangeByScoreWithScores(safeKey(key), max, min, offset, count)
     }
@@ -829,26 +829,36 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
     }
 
     override fun geoadd(key: String, longitude: Double, latitude: Double, member: String): Long {
-        return _hdl.geoadd(safeKey(key), longitude, latitude, member)
+        try {
+            return _hdl.geoadd(safeKey(key), longitude, latitude, member)
+        } catch (err: Throwable) {
+            // logger.exception(err)
+            logger.error(err)
+        }
+        return 0
     }
 
-    override fun geoadd(key: String, memberCoordinateMap: MutableMap<String, GeoCoordinate>?): Long {
-        return _hdl.geoadd(safeKey(key), memberCoordinateMap)
-    }
-
-    override fun geodist(key: String, member1: String, member2: String): Double {
-        return _hdl.geodist(safeKey(key), member1, member2)
+    override fun geoadd(key: String, memberCoordinateMap: MutableMap<String, GeoCoordinate>): Long {
+        try {
+            return _hdl.geoadd(safeKey(key), memberCoordinateMap)
+        } catch (err: Throwable) {
+            // logger.exception(err)
+            logger.error(err)
+        }
+        return 0
     }
 
     override fun geodist(key: String, member1: String, member2: String, unit: GeoUnit?): Double {
+        if (unit == null)
+            return _hdl.geodist(safeKey(key), member1, member2)
         return _hdl.geodist(safeKey(key), member1, member2, unit)
     }
 
-    override fun geohash(key: String, vararg members: String?): MutableList<String> {
+    override fun geohash(key: String, vararg members: String): MutableList<String> {
         return _hdl.geohash(safeKey(key), *members)
     }
 
-    override fun geopos(key: String, vararg members: String?): MutableList<GeoCoordinate> {
+    override fun geopos(key: String, vararg members: String): MutableList<GeoCoordinate> {
         return _hdl.geopos(safeKey(key), *members)
     }
 
@@ -857,19 +867,11 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         longitude: Double,
         latitude: Double,
         radius: Double,
-        unit: GeoUnit?
-    ): MutableList<GeoRadiusResponse> {
-        return _hdl.georadius(safeKey(key), longitude, latitude, radius, unit)
-    }
-
-    override fun georadius(
-        key: String,
-        longitude: Double,
-        latitude: Double,
-        radius: Double,
         unit: GeoUnit?,
-        param: GeoRadiusParam?
+        param: GeoRadiusParam?,
     ): MutableList<GeoRadiusResponse> {
+        if (param == null)
+            return _hdl.georadius(safeKey(key), longitude, latitude, radius, unit)
         return _hdl.georadius(safeKey(key), longitude, latitude, radius, unit, param)
     }
 
@@ -878,19 +880,11 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         longitude: Double,
         latitude: Double,
         radius: Double,
-        unit: GeoUnit?
-    ): MutableList<GeoRadiusResponse> {
-        return _hdl.georadiusReadonly(safeKey(key), longitude, latitude, radius, unit)
-    }
-
-    override fun georadiusReadonly(
-        key: String,
-        longitude: Double,
-        latitude: Double,
-        radius: Double,
         unit: GeoUnit?,
-        param: GeoRadiusParam?
+        param: GeoRadiusParam?,
     ): MutableList<GeoRadiusResponse> {
+        if (param == null)
+            return _hdl.georadiusReadonly(safeKey(key), longitude, latitude, radius, unit)
         return _hdl.georadiusReadonly(safeKey(key), longitude, latitude, radius, unit, param)
     }
 
@@ -898,18 +892,11 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         key: String,
         member: String?,
         radius: Double,
-        unit: GeoUnit?
-    ): MutableList<GeoRadiusResponse> {
-        return _hdl.georadiusByMember(safeKey(key), member, radius, unit)
-    }
-
-    override fun georadiusByMember(
-        key: String,
-        member: String?,
-        radius: Double,
         unit: GeoUnit?,
-        param: GeoRadiusParam?
+        param: GeoRadiusParam?,
     ): MutableList<GeoRadiusResponse> {
+        if (param == null)
+            return _hdl.georadiusByMember(safeKey(key), member, radius, unit)
         return _hdl.georadiusByMember(safeKey(key), member, radius, unit, param)
     }
 
@@ -917,18 +904,11 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
         key: String,
         member: String?,
         radius: Double,
-        unit: GeoUnit?
-    ): MutableList<GeoRadiusResponse> {
-        return _hdl.georadiusByMemberReadonly(safeKey(key), member, radius, unit)
-    }
-
-    override fun georadiusByMemberReadonly(
-        key: String,
-        member: String?,
-        radius: Double,
         unit: GeoUnit?,
-        param: GeoRadiusParam?
+        param: GeoRadiusParam?,
     ): MutableList<GeoRadiusResponse> {
+        if (param == null)
+            return _hdl.georadiusByMemberReadonly(safeKey(key), member, radius, unit)
         return _hdl.georadiusByMemberReadonly(safeKey(key), member, radius, unit, param)
     }
 
@@ -939,7 +919,7 @@ class RedisClient(jedis: Jedis, kv: KvRedis) : RedisClientOperations {
     override fun hscan(
         key: String,
         cursor: String?,
-        params: ScanParams?
+        params: ScanParams?,
     ): ScanResult<MutableMap.MutableEntry<String, String>> {
         return _hdl.hscan(safeKey(key), cursor, params)
     }
