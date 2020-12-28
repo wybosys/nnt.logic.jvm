@@ -7,7 +7,7 @@ import redis.clients.jedis.params.SetParams
 import redis.clients.jedis.params.ZAddParams
 import redis.clients.jedis.params.ZIncrByParams
 
-enum class RedisValueType(value: Int) {
+enum class RedisValueType(val value: Int) {
     NONE(0),
     STRING(1),
     LIST(2),
