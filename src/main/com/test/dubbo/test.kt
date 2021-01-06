@@ -46,7 +46,10 @@ class Test : ITest, TestGrpc.TestImplBase() {
         /*
         val mysql = Dbms.Find("mysql") as RMysql
         mysql.mapper { ses ->
-            ses.selectOne<Echoo>("listEchoo")
+            var res = ses.selectOne<Echoo>("listEchoo")
+            ses.autoClearCache = true
+            res = ses.selectOne<Echoo>("listEchoo")
+            println(res)
         }
          */
 

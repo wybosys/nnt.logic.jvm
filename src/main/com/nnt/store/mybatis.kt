@@ -7,6 +7,7 @@ import com.nnt.core.logger
 import com.nnt.store.reflect.TableInfo
 import com.zaxxer.hikari.HikariDataSource
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
+import org.apache.ibatis.cursor.Cursor
 import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory
 import org.apache.ibatis.mapping.Environment
 import org.apache.ibatis.session.*
@@ -229,18 +230,123 @@ open class MybatisSession(sql: SqlSession) : ISession {
         close()
     }
 
-    fun <T : Any> selectOne(statement: String, parameters: T? = null): T? {
-        if (parameters == null)
-            return _sql.selectOne(statement)
+    // 在mybatis框架中，在SqlSession未关闭之前，在一个session里面，如果执行相同的select语句，mybatis不会重新查询数据库，而是直接返回缓存在内存中的查询结果，这个是与MyBatis的Cache配置无关的，更改配置文件不起作用，要调用SqlSession.clearCache()函数才可以
+    fun clearCache() {
+        _sql.clearCache()
+    }
+
+    // 自动清除缓存，默认为false，保持和mybatis的通用规则
+    var autoClearCache = false
+
+    private fun _beforeSelect() {
+        if (autoClearCache)
+            _sql.clearCache()
+    }
+
+    fun <T : Any> selectOne(statement: String): T? {
+        _beforeSelect()
+        return _sql.selectOne(statement)
+    }
+
+    fun <T : Any> selectOne(statement: String, parameters: T): T? {
+        _beforeSelect()
         return _sql.selectOne(statement, parameters)
     }
 
-    fun <T : Any> selectList(statement: String, parameters: T? = null, rowbounds: RowBounds? = null): List<T> {
-        if (parameters == null)
-            return _sql.selectList(statement)
-        if (rowbounds == null)
-            return _sql.selectList(statement, parameters)
+    fun <T : Any> selectList(statement: String): List<T> {
+        _beforeSelect()
+        return _sql.selectList(statement)
+    }
+
+    fun <T : Any> selectList(statement: String, parameters: T): List<T> {
+        _beforeSelect()
+        return _sql.selectList(statement, parameters)
+    }
+
+    fun <T : Any> selectList(statement: String, parameters: T, rowbounds: RowBounds): List<T> {
+        _beforeSelect()
         return _sql.selectList(statement, parameters, rowbounds)
+    }
+
+    fun <K, V : Any> selectMap(statement: String, mapkey: String): Map<K, V> {
+        _beforeSelect()
+        return _sql.selectMap(statement, mapkey)
+    }
+
+    fun <K, V : Any> selectMap(statement: String, parameters: V, mapkey: String): Map<K, V> {
+        _beforeSelect()
+        return _sql.selectMap(statement, parameters, mapkey)
+    }
+
+    fun <K, V : Any> selectMap(statement: String, parameters: V, mapkey: String, rowbounds: RowBounds): Map<K, V> {
+        _beforeSelect()
+        return _sql.selectMap(statement, parameters, mapkey, rowbounds)
+    }
+
+    fun <T> selectCursor(statement: String): Cursor<T> {
+        _beforeSelect()
+        return _sql.selectCursor(statement)
+    }
+
+    fun <T : Any> selectCursor(statement: String, parameters: T): Cursor<T> {
+        _beforeSelect()
+        return _sql.selectCursor(statement, parameters)
+    }
+
+    fun <T : Any> selectCursor(statement: String, parameters: T, rowbounds: RowBounds): Cursor<T> {
+        _beforeSelect()
+        return _sql.selectCursor(statement, parameters, rowbounds)
+    }
+
+    fun <T> select(statement: String, proc: (ctx: ResultContext<out T>) -> Unit) {
+        _beforeSelect()
+        _sql.select(statement, object : ResultHandler<T> {
+            override fun handleResult(resultContext: ResultContext<out T>) {
+                proc(resultContext)
+            }
+        })
+    }
+
+    fun <T : Any> select(statement: String, parameters: T, proc: (ctx: ResultContext<out T>) -> Unit) {
+        _beforeSelect()
+        _sql.select(statement, parameters, object : ResultHandler<T> {
+            override fun handleResult(resultContext: ResultContext<out T>) {
+                proc(resultContext)
+            }
+        })
+    }
+
+    fun <T : Any> select(statement: String, parameters: T, rowbounds: RowBounds, proc: (ctx: ResultContext<out T>) -> Unit) {
+        _beforeSelect()
+        _sql.select(statement, parameters, rowbounds, object : ResultHandler<T> {
+            override fun handleResult(resultContext: ResultContext<out T>) {
+                proc(resultContext)
+            }
+        })
+    }
+
+    fun insert(statement: String): Int {
+        return _sql.insert(statement)
+    }
+
+    fun <T : Any> insert(statement: String, parameters: T): Int {
+        return _sql.insert(statement, parameters)
+    }
+
+    fun update(statement: String): Int {
+        return _sql.update(statement)
+    }
+
+    fun <T : Any> update(statement: String, parameters: T): Int {
+        return _sql.update(statement, parameters)
+    }
+
+    fun delete(statement: String): Int {
+        return _sql.delete(statement)
+    }
+
+    fun <T : Any> delete(statement: String, parameters: T): Int {
+        return _sql.delete(statement, parameters)
     }
 
     fun <T : Any> getMapper(clz: KClass<T>): T {
