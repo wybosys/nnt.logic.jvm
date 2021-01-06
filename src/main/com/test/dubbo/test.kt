@@ -43,6 +43,13 @@ class Test : ITest, TestGrpc.TestImplBase() {
     override fun hello(request: Empty, responseObserver: StreamObserver<TestOuterClass.TestReply>) {
         logger.info("调用 grpc-hello")
 
+        /*
+        val mysql = Dbms.Find("mysql") as RMysql
+        mysql.mapper { ses ->
+            ses.selectOne<Echoo>("listEchoo")
+        }
+         */
+
         val reply = TestOuterClass.TestReply.newBuilder().setMessage("hello grpc").build()
         responseObserver.onNext(reply)
         responseObserver.onCompleted()
@@ -53,7 +60,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
 
         val mysql = Dbms.Find("mysql") as RMysql
         mysql.mapper { ses ->
-            val map = ses.getMapper(Sample::class.java)
+            val map = ses.getMapper(Sample::class)
             val res = map.listEchoo()
             val reply = Dao.Echoos.newBuilder()
             res.forEach() {
@@ -79,7 +86,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
             m.input = request.value
             m.output = request.value
 
-            val map = ses.getMapper(Sample::class.java)
+            val map = ses.getMapper(Sample::class)
             map.echoo(m)
 
             val reply = Dao.Echoo.newBuilder()
@@ -97,7 +104,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
 
         val mysql = Dbms.Find("mysql") as RMysql
         mysql.mapper { ses ->
-            val map = ses.getMapper(Sample::class.java)
+            val map = ses.getMapper(Sample::class)
             val m = Echoo()
             m.id = request.id
             m.input = request.input
@@ -114,7 +121,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
 
         val mysql = Dbms.Find("mysql") as RMysql
         mysql.mapper { ses ->
-            val map = ses.getMapper(Sample::class.java)
+            val map = ses.getMapper(Sample::class)
             val rows = map.clearEchoo()
 
             responseObserver.onNext(Int32Value.of(rows))

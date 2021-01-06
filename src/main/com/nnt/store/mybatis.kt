@@ -9,14 +9,12 @@ import com.zaxxer.hikari.HikariDataSource
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
 import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory
 import org.apache.ibatis.mapping.Environment
-import org.apache.ibatis.session.Configuration
-import org.apache.ibatis.session.SqlSession
-import org.apache.ibatis.session.SqlSessionFactory
-import org.apache.ibatis.session.SqlSessionFactoryBuilder
+import org.apache.ibatis.session.*
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 import org.springframework.jdbc.core.JdbcTemplate
 import java.util.*
 import javax.sql.DataSource
+import kotlin.reflect.KClass
 
 open class Mybatis : AbstractRdb() {
 
@@ -158,13 +156,13 @@ open class Mybatis : AbstractRdb() {
 
     // 使用mybatis的mapper操作orm数据
     fun mapper(
-        proc: (session: SqlSession) -> Unit,
+        proc: (session: MybatisSession) -> Unit,
     ): Boolean {
         var r = true
         var ses: SqlSession? = null
         try {
             ses = _mapfac.openSession(false)
-            proc(ses)
+            proc(MybatisSession(ses))
             ses.commit()
         } catch (err: Throwable) {
             logger.exception(err)
@@ -207,7 +205,7 @@ open class Mybatis : AbstractRdb() {
 }
 
 // mybatis业务对象
-class MybatisSession(sql: SqlSession) : SqlSession by sql {
+open class MybatisSession(sql: SqlSession) : ISession {
 
     private val _sql = sql
     private var _closed = false
@@ -219,7 +217,33 @@ class MybatisSession(sql: SqlSession) : SqlSession by sql {
         }
     }
 
+    override fun commit() {
+        _sql.commit()
+    }
+
+    override fun rollback() {
+        _sql.rollback()
+    }
+
     protected fun finalize() {
         close()
+    }
+
+    fun <T : Any> selectOne(statement: String, parameters: T? = null): T? {
+        if (parameters == null)
+            return _sql.selectOne(statement)
+        return _sql.selectOne(statement, parameters)
+    }
+
+    fun <T : Any> selectList(statement: String, parameters: T? = null, rowbounds: RowBounds? = null): List<T> {
+        if (parameters == null)
+            return _sql.selectList(statement)
+        if (rowbounds == null)
+            return _sql.selectList(statement, parameters)
+        return _sql.selectList(statement, parameters, rowbounds)
+    }
+
+    fun <T : Any> getMapper(clz: KClass<T>): T {
+        return _sql.getMapper(clz.java)
     }
 }

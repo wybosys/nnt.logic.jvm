@@ -184,13 +184,13 @@ class RMysql : AbstractRdb() {
 
     // 使用mybatis的mapper操作orm数据
     fun mapper(
-        proc: (session: SqlSession) -> Unit,
+        proc: (session: MybatisSession) -> Unit,
     ): Boolean {
         var r = true
         var ses: SqlSession? = null
         try {
             ses = _mapfac.openSession(false)
-            proc(ses)
+            proc(MybatisSession(ses))
             ses.commit()
         } catch (err: Throwable) {
             logger.exception(err)
