@@ -1,11 +1,16 @@
 package com.nnt.core
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
 import org.joda.time.LocalDateTime
 import org.joda.time.chrono.ISOChronology
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.ISODateTimeFormat
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.concurrent.scheduleAtFixedRate
+
+val TIMER_THREAD = "nnt-timer"
 
 class TimestampRange(
     var from: UnixTimestamp = 0, // 开始
@@ -25,52 +30,60 @@ suspend fun <T : Number> Sleep(seconds: T) {
     delay((seconds.toDouble() * 1000).toLong())
 }
 
-abstract class DelayHandler(job: Job) {
-    protected var _job = job
+abstract class DelayHandler(tmr: Timer) {
+    protected var _tmr = tmr
 }
 
-private class _DelayHandler(job: Job) : DelayHandler(job) {
-    val job: Job get() = _job
+private class _DelayHandler(tmr: Timer) : DelayHandler(tmr) {
+    val tmr: Timer get() = _tmr
 }
 
+// 延迟执行
 fun <T : Number> Delay(seconds: T, proc: () -> Unit): DelayHandler {
-    val job = GlobalScope.launch {
-        Sleep(seconds.toDouble())
-        if (isActive) {
-            proc()
-        }
+    val tmr = Timer()
+    val ms = (seconds.toDouble() * 1000).toLong()
+    tmr.schedule(ms) {
+        proc()
     }
-    return _DelayHandler(job)
+    return _DelayHandler(tmr)
 }
 
 fun CancelDelay(hdl: DelayHandler) {
     val h = hdl as _DelayHandler
-    h.job.cancel()
+    h.tmr.cancel()
 }
 
-abstract class RepeatHandler(job: Job) {
-    protected var _job = job
+abstract class RepeatHandler(tmr: Timer) {
+    protected var _tmr = tmr
 }
 
-private class _RepeatHandler(job: Job) : RepeatHandler(job) {
-    val job: Job get() = _job
+private class _RepeatHandler(tmr: Timer) : RepeatHandler(tmr) {
+    val tmr: Timer get() = _tmr
 }
 
+// 按照时间段重复, 0时间不激活
 fun <T : Number> Repeat(seconds: T, proc: () -> Unit): RepeatHandler {
-    val job = GlobalScope.launch {
-        while (isActive) {
-            Sleep(seconds.toDouble())
-            if (isActive) {
-                proc()
-            }
-        }
+    val tmr = Timer()
+    val ms = (seconds.toDouble() * 1000).toLong()
+    tmr.scheduleAtFixedRate(ms, ms) {
+        proc()
     }
-    return _RepeatHandler(job)
+    return _RepeatHandler(tmr)
+}
+
+// 按照时间段重复, 0时间激活
+fun <T : Number> Period(seconds: T, proc: () -> Unit): RepeatHandler {
+    val tmr = Timer()
+    val ms = (seconds.toDouble() * 1000).toLong()
+    tmr.scheduleAtFixedRate(0, ms) {
+        proc()
+    }
+    return _RepeatHandler(tmr)
 }
 
 fun CancelRepeat(hdl: RepeatHandler) {
     val h = hdl as _RepeatHandler
-    h.job.cancel()
+    h.tmr.cancel()
 }
 
 class Timeout<T : Number>(time: T, proc: () -> Unit, autostart: Boolean = true) {
