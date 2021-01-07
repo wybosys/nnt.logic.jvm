@@ -45,6 +45,7 @@ open class Jdbc : AbstractDbms() {
         if (cfg.has("pwd"))
             pwd = cfg["pwd"]!!.asString()
 
+        // json中按照秒配置
         if (cfg.has("slowquery"))
             slowquery = (cfg["slowquery"]!!.asDecimal() * 1000).toLong()
 
