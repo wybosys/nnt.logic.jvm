@@ -1,6 +1,5 @@
 package com.nnt.store
 
-import com.alibaba.druid.pool.DruidDataSourceFactory
 import com.nnt.core.File
 import com.nnt.core.JsonObject
 import com.nnt.core.URI
@@ -14,9 +13,7 @@ import org.apache.ibatis.session.SqlSession
 import org.apache.ibatis.session.SqlSessionFactory
 import org.apache.ibatis.session.SqlSessionFactoryBuilder
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
-import org.springframework.jdbc.core.JdbcTemplate
 import java.util.*
-import javax.sql.DataSource
 
 private const val DEFAULT_PORT = 3306
 
@@ -106,7 +103,7 @@ class RMysql : AbstractRdb() {
     }
 
     private lateinit var _mapfac: SqlSessionFactory
-    private lateinit var _dsfac: DataSource
+    private lateinit var _dsfac: JdbcDataSource
 
     override fun open() {
         if (open_jdbc()) {
@@ -119,15 +116,15 @@ class RMysql : AbstractRdb() {
 
     // jdbc 直连
     private fun open_jdbc(): Boolean {
-        val props = Properties()
-        props.setProperty("driverClassName", "com.mysql.cj.jdbc.Driver")
-        props.setProperty("url", "jdbc:mysql://${host}:${port}/${scheme}?characterEncoding=UTF-8")
+        val props = Jdbc.DefaultJdbcProperties()
+        props.driverClassName = "com.mysql.cj.jdbc.Driver"
+        props.jdbcUrl = "jdbc:mysql://${host}:${port}/${scheme}?characterEncoding=UTF-8"
         if (!user.isEmpty()) {
-            props.setProperty("username", user)
+            props.username = user
             if (!pwd.isEmpty())
-                props.setProperty("password", pwd)
+                props.password = pwd
         }
-        _dsfac = DruidDataSourceFactory.createDataSource(props)
+        _dsfac = JdbcDataSource(props)
         return jdbc { ses ->
             val cnt = ses.queryForObject(
                 "select 1",
@@ -207,7 +204,7 @@ class RMysql : AbstractRdb() {
     ): Boolean {
         var r = true
         try {
-            val ses = JdbcSession(JdbcTemplate(_dsfac))
+            val ses = JdbcSession(_dsfac)
             proc(ses)
             ses.close()
         } catch (err: Throwable) {
@@ -218,8 +215,7 @@ class RMysql : AbstractRdb() {
     }
 
     fun acquireJdbc(): JdbcSession {
-        val tpl = JdbcTemplate(_dsfac)
-        return JdbcSession(tpl)
+        return JdbcSession(_dsfac)
     }
 
     override fun acquireSession(): ISession {

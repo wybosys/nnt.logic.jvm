@@ -2,9 +2,7 @@ package com.nnt.store
 
 import com.nnt.core.*
 import com.nnt.store.reflect.SchemeInfo
-import org.springframework.jdbc.core.JdbcTemplate
 import java.util.*
-import javax.sql.DataSource
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -179,13 +177,11 @@ val DEFAULT_PHOENIX_SLOWQUERY = 1000L
 class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
 
     private var _repeat: RepeatHandler? = null
-    private var _ds: DataSource
     private var _phoenix = phoenix
 
     init {
         logidr = "phoenix"
         _ds = _phoenix.openJdbc()
-        _tpl = JdbcTemplate(_ds)
 
         // phoenix一般面向大数据系统，慢查询默认放大到1s
         slowquery = DEFAULT_PHOENIX_SLOWQUERY
@@ -204,7 +200,7 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
         val interval = 30.0 + Random.nextDouble(20.0)
 
         _repeat = Repeat(interval) {
-            val tpl = _tpl!!
+            val tpl = _ds!!.template
             synchronized(this) {
                 // _ds = _phoenix.openJdbc()
                 // _tpl = JdbcTemplate(_ds)
@@ -227,8 +223,8 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
                 if (old == now) {
                     logger.error("${logidr}出现写入失败, 重新建立链接")
 
+                    _ds!!.close()
                     _ds = _phoenix.openJdbc()
-                    _tpl = JdbcTemplate(_ds)
                 }
 
                 // logger.log("${logidr} keepalive")

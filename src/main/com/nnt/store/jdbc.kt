@@ -7,11 +7,8 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.*
-import org.springframework.jdbc.datasource.SingleConnectionDataSource
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.jdbc.support.rowset.SqlRowSet
-import java.sql.Connection
-import javax.sql.DataSource
 import kotlin.reflect.KClass
 
 typealias JdbcProperties = HikariConfig
@@ -52,8 +49,6 @@ open class Jdbc : AbstractDbms() {
         return true
     }
 
-    private lateinit var _dsfac: DataSource
-
     protected open fun propertiesForJdbc(): JdbcProperties {
         val props = DefaultJdbcProperties()
         props.driverClassName = driver
@@ -66,9 +61,11 @@ open class Jdbc : AbstractDbms() {
         return props
     }
 
+    private var _ds: JdbcDataSource? = null
+
     override fun open() {
         val props = propertiesForJdbc()
-        _dsfac = HikariDataSource(props)
+        _ds = JdbcDataSource(props)
         logger.info("打开 ${id}@jdbc")
     }
 
@@ -77,8 +74,7 @@ open class Jdbc : AbstractDbms() {
     }
 
     fun acquire(): JdbcSession {
-        val tpl = JdbcTemplate(_dsfac)
-        val ses = JdbcSession(tpl)
+        val ses = JdbcSession(_ds!!)
         ses.slowquery = slowquery
         return ses
     }
@@ -89,19 +85,14 @@ open class Jdbc : AbstractDbms() {
 
     // 直接执行sql语句返回原始数据类型
     fun execute(
-        proc: (tpl: JdbcTemplate, conn: Connection) -> Unit,
+        proc: (tpl: JdbcTemplate) -> Unit,
     ): Boolean {
         var r = true
-        var conn: Connection? = null
         try {
-            conn = _dsfac.connection
-            val tpl = JdbcTemplate(SingleConnectionDataSource(conn, true))
-            proc(tpl, conn)
+            proc(_ds!!.template)
         } catch (err: Throwable) {
             logger.exception(err)
             r = false
-        } finally {
-            conn?.close()
         }
         return r
     }
@@ -120,14 +111,28 @@ open class Jdbc : AbstractDbms() {
 
 }
 
+open class JdbcDataSource(props: JdbcProperties) {
+
+    private val _ds = HikariDataSource(props)
+    private val _tpl = JdbcTemplate(_ds)
+
+    // 获得操作对象
+    val template: JdbcTemplate get() = _tpl
+
+    // 关闭
+    fun close() {
+        _ds.close()
+    }
+}
+
 // 5ms作为普通sql慢查询的默认阈值
 val DEFAULT_JDBC_SLOWQUERY = 5L
 
 // jdbc业务对象
 open class JdbcSession : ISession {
 
-    constructor(tpl: JdbcTemplate) {
-        _tpl = tpl
+    constructor(ds: JdbcDataSource) {
+        _ds = ds
     }
 
     protected constructor() {
@@ -135,19 +140,19 @@ open class JdbcSession : ISession {
     }
 
     // 不使用 JdbcOperations by tpl 的写法是因为会造成编译器warnning
-    protected var _tpl: JdbcTemplate? = null
+    protected var _ds: JdbcDataSource? = null
 
     // 记录日志使用的代号
     var logidr = "jdbc"
 
     protected open fun tpl(): JdbcTemplate {
         synchronized(this) {
-            return _tpl!!
+            return _ds!!.template
         }
     }
 
     override open fun close() {
-        // pass
+        _ds!!.close()
     }
 
     override open fun commit() {

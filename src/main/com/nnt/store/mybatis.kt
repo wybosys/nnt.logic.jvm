@@ -5,16 +5,13 @@ import com.nnt.core.JsonObject
 import com.nnt.core.URI
 import com.nnt.core.logger
 import com.nnt.store.reflect.TableInfo
-import com.zaxxer.hikari.HikariDataSource
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
 import org.apache.ibatis.cursor.Cursor
 import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory
 import org.apache.ibatis.mapping.Environment
 import org.apache.ibatis.session.*
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
-import org.springframework.jdbc.core.JdbcTemplate
 import java.util.*
-import javax.sql.DataSource
 import kotlin.reflect.KClass
 
 open class Mybatis : AbstractRdb() {
@@ -72,15 +69,8 @@ open class Mybatis : AbstractRdb() {
     }
 
     protected lateinit var _mapfac: SqlSessionFactory
-    private lateinit var _dsfac: DataSource
-
-    // 获得数据源
-    open fun dataSource(): DataSource {
-        return _dsfac
-    }
 
     override fun open() {
-        _dsfac = openJdbc()
         if (verify()) {
             _mapfac = openMapper()
             logger.info("连接 ${id}@mybatis")
@@ -112,9 +102,9 @@ open class Mybatis : AbstractRdb() {
         return props
     }
 
-    open fun openJdbc(): DataSource {
+    open fun openJdbc(): JdbcDataSource {
         val props = propertiesForJdbc()
-        return HikariDataSource(props)
+        return JdbcDataSource(props)
     }
 
     open fun openMapper(): SqlSessionFactory {
@@ -196,8 +186,8 @@ open class Mybatis : AbstractRdb() {
     }
 
     open fun acquireJdbc(): JdbcSession {
-        val tpl = JdbcTemplate(_dsfac)
-        return JdbcSession(tpl)
+        val ds = openJdbc()
+        return JdbcSession(ds)
     }
 
     open fun acquireSql(): MybatisSession {
