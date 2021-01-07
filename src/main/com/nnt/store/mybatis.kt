@@ -238,68 +238,57 @@ open class MybatisSession(sql: SqlSession) : ISession {
     // 自动清除缓存，默认为false，保持和mybatis的通用规则
     var autoClearCache = false
 
-    private fun _beforeSelect() {
+    private inline fun <T> _select(proc: () -> T): T {
         if (autoClearCache)
             _sql.clearCache()
+        return proc()
     }
 
-    fun <T : Any> selectOne(statement: String): T? {
-        _beforeSelect()
+    fun <T : Any> selectOne(statement: String): T? = _select {
         return _sql.selectOne(statement)
     }
 
-    fun <T : Any> selectOne(statement: String, parameters: T): T? {
-        _beforeSelect()
+    fun <T : Any> selectOne(statement: String, parameters: T): T? = _select {
         return _sql.selectOne(statement, parameters)
     }
 
-    fun <T : Any> selectList(statement: String): List<T> {
-        _beforeSelect()
+    fun <T : Any> selectList(statement: String): List<T> = _select {
         return _sql.selectList(statement)
     }
 
-    fun <T : Any> selectList(statement: String, parameters: T): List<T> {
-        _beforeSelect()
+    fun <T : Any> selectList(statement: String, parameters: T): List<T> = _select {
         return _sql.selectList(statement, parameters)
     }
 
-    fun <T : Any> selectList(statement: String, parameters: T, rowbounds: RowBounds): List<T> {
-        _beforeSelect()
+    fun <T : Any> selectList(statement: String, parameters: T, rowbounds: RowBounds): List<T> = _select {
         return _sql.selectList(statement, parameters, rowbounds)
     }
 
-    fun <K, V : Any> selectMap(statement: String, mapkey: String): Map<K, V> {
-        _beforeSelect()
+    fun <K, V : Any> selectMap(statement: String, mapkey: String): Map<K, V> = _select {
         return _sql.selectMap(statement, mapkey)
     }
 
-    fun <K, V : Any> selectMap(statement: String, parameters: V, mapkey: String): Map<K, V> {
-        _beforeSelect()
+    fun <K, V : Any> selectMap(statement: String, parameters: V, mapkey: String): Map<K, V> = _select {
         return _sql.selectMap(statement, parameters, mapkey)
     }
 
-    fun <K, V : Any> selectMap(statement: String, parameters: V, mapkey: String, rowbounds: RowBounds): Map<K, V> {
-        _beforeSelect()
+    fun <K, V : Any> selectMap(statement: String, parameters: V, mapkey: String, rowbounds: RowBounds): Map<K, V> = _select {
         return _sql.selectMap(statement, parameters, mapkey, rowbounds)
     }
 
-    fun <T> selectCursor(statement: String): Cursor<T> {
-        _beforeSelect()
+    fun <T> selectCursor(statement: String): Cursor<T> = _select {
         return _sql.selectCursor(statement)
     }
 
-    fun <T : Any> selectCursor(statement: String, parameters: T): Cursor<T> {
-        _beforeSelect()
+    fun <T : Any> selectCursor(statement: String, parameters: T): Cursor<T> = _select {
         return _sql.selectCursor(statement, parameters)
     }
 
-    fun <T : Any> selectCursor(statement: String, parameters: T, rowbounds: RowBounds): Cursor<T> {
-        _beforeSelect()
+    fun <T : Any> selectCursor(statement: String, parameters: T, rowbounds: RowBounds): Cursor<T> = _select {
         return _sql.selectCursor(statement, parameters, rowbounds)
     }
 
-    fun <T> select(statement: String, proc: (ctx: ResultContext<out T>) -> Unit) {
-        _beforeSelect()
+    fun <T> select(statement: String, proc: (ctx: ResultContext<out T>) -> Unit) = _select {
         _sql.select(statement, object : ResultHandler<T> {
             override fun handleResult(resultContext: ResultContext<out T>) {
                 proc(resultContext)
@@ -307,8 +296,7 @@ open class MybatisSession(sql: SqlSession) : ISession {
         })
     }
 
-    fun <T : Any> select(statement: String, parameters: T, proc: (ctx: ResultContext<out T>) -> Unit) {
-        _beforeSelect()
+    fun <T : Any> select(statement: String, parameters: T, proc: (ctx: ResultContext<out T>) -> Unit) = _select {
         _sql.select(statement, parameters, object : ResultHandler<T> {
             override fun handleResult(resultContext: ResultContext<out T>) {
                 proc(resultContext)
@@ -316,8 +304,7 @@ open class MybatisSession(sql: SqlSession) : ISession {
         })
     }
 
-    fun <T : Any> select(statement: String, parameters: T, rowbounds: RowBounds, proc: (ctx: ResultContext<out T>) -> Unit) {
-        _beforeSelect()
+    fun <T : Any> select(statement: String, parameters: T, rowbounds: RowBounds, proc: (ctx: ResultContext<out T>) -> Unit) = _select {
         _sql.select(statement, parameters, rowbounds, object : ResultHandler<T> {
             override fun handleResult(resultContext: ResultContext<out T>) {
                 proc(resultContext)
