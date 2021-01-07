@@ -223,8 +223,8 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
                 if (old == now) {
                     logger.error("${logidr}出现写入失败, 重新建立链接")
 
-                    _ds!!.close()
-                    _ds = _phoenix.openJdbc()
+                    // 重新打开
+                    _ds!!.open()
                 }
 
                 // logger.log("${logidr} keepalive")
