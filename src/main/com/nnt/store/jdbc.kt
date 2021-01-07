@@ -138,7 +138,7 @@ open class JdbcSession : ISession {
     protected var _tpl: JdbcTemplate? = null
 
     // 记录日志使用的代号
-    protected var logidr = "jdbc"
+    var logidr = "jdbc"
 
     protected open fun tpl(): JdbcTemplate {
         synchronized(this) {
