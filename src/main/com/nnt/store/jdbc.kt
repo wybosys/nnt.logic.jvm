@@ -113,15 +113,30 @@ open class Jdbc : AbstractDbms() {
 
 open class JdbcDataSource(val properties: JdbcProperties) {
 
-    private var _ds = HikariDataSource(properties)
-    private var _tpl = JdbcTemplate(_ds)
+    private var _ds: HikariDataSource? = null
+    private var _tpl: JdbcTemplate? = null
+
+    init {
+        open()
+    }
 
     // 获得操作对象
-    val template: JdbcTemplate get() = _tpl
+    val template: JdbcTemplate get() = _tpl!!
+
+    // 打开或者重新打开
+    fun open() {
+        close()
+
+        _ds = HikariDataSource(properties)
+        _tpl = JdbcTemplate(_ds)
+    }
 
     // 关闭
     fun close() {
-        _ds.close()
+        if (_ds != null) {
+            _ds!!.close()
+            _tpl = null
+        }
     }
 }
 
