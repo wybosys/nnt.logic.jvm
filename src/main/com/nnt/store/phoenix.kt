@@ -18,6 +18,9 @@ class Phoenix : Mybatis() {
     var scheme: String = ""
 
     override fun config(cfg: JsonObject): Boolean {
+        // 初始化
+        slowquery = DEFAULT_PHOENIX_SLOWQUERY
+
         // mybatis需要外部绑定url，保护一下
         if (!cfg.has("url"))
             cfg["url"] = ""
