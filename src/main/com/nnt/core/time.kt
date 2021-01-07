@@ -84,6 +84,7 @@ fun <T : Number> Period(seconds: T, proc: () -> Unit): RepeatHandler {
 fun CancelRepeat(hdl: RepeatHandler) {
     val h = hdl as _RepeatHandler
     h.tmr.cancel()
+    h.tmr.purge()
 }
 
 class Timeout<T : Number>(time: T, proc: () -> Unit, autostart: Boolean = true) {
