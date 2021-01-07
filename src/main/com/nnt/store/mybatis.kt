@@ -175,7 +175,7 @@ open class Mybatis : AbstractRdb() {
     }
 
     // 直接执行sql语句返回原始数据类型
-    fun jdbc(
+    open fun jdbc(
         proc: (ses: JdbcSession) -> Unit,
     ): Boolean {
         var r = true

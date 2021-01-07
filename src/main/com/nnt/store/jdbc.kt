@@ -127,6 +127,9 @@ open class JdbcSession : ISession {
     // 不使用 JdbcOperations by tpl 的写法是因为会造成编译器warnning
     protected var _tpl: JdbcTemplate? = null
 
+    // 记录日志使用的代号
+    protected var logidr = "jdbc"
+
     protected open fun tpl(): JdbcTemplate {
         synchronized(this) {
             return _tpl!!
@@ -149,88 +152,119 @@ open class JdbcSession : ISession {
         close()
     }
 
+    var slowquery: Long = 5L // 5ms作为普通sql慢查询的默认阈值
+
+    // 性能监测
+    fun <T> metric(log: (cost: Long) -> Unit, proc: () -> T): T {
+        val start = System.currentTimeMillis()
+        val r = proc()
+        val cost = System.currentTimeMillis() - start
+        if (cost >= slowquery) {
+            log(cost)
+        }
+        return r
+    }
+
     // 代理
 
-    open fun <T> query(sql: String, rse: ResultSetExtractor<T>): T? {
+    open fun <T> query(sql: String, rse: ResultSetExtractor<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().query(sql, rse)
+            return@metric tpl().query(sql, rse)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun query(sql: String, rch: RowCallbackHandler): Boolean {
+    open fun query(sql: String, rch: RowCallbackHandler): Boolean = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
             tpl().query(sql, rch)
-            return true
+            return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return false
+        return@metric false
     }
 
-    open fun <T> query(sql: String, rowMapper: RowMapper<T>): List<T> {
+    open fun <T> query(sql: String, rowMapper: RowMapper<T>): List<T> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().query(sql, rowMapper)
+            return@metric tpl().query(sql, rowMapper)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun <T : Any> queryForList(sql: String, elementType: KClass<T>): List<T> {
+    open fun <T : Any> queryForList(sql: String, elementType: KClass<T>): List<T> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForList(sql, elementType.java)
+            return@metric tpl().queryForList(sql, elementType.java)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun queryForList(sql: String): List<Map<String, Any>> {
+    open fun queryForList(sql: String): List<Map<String, Any>> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForList(sql)
+            return@metric tpl().queryForList(sql)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun <T> query(sql: String, pss: PreparedStatementSetter, rse: ResultSetExtractor<T>): T? {
+    open fun <T> query(sql: String, pss: PreparedStatementSetter, rse: ResultSetExtractor<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().query(sql, pss, rse)
+            return@metric tpl().query(sql, pss, rse)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T> query(sql: String, args: Array<Any>, argTypes: IntArray, rse: ResultSetExtractor<T>): T? {
+    open fun <T> query(sql: String, args: Array<Any>, argTypes: IntArray, rse: ResultSetExtractor<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().query(sql, args, argTypes, rse)
+            return@metric tpl().query(sql, args, argTypes, rse)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T> query(sql: String, args: Array<Any>, rse: ResultSetExtractor<T>): T? {
+    open fun <T> query(sql: String, args: Array<Any>, rse: ResultSetExtractor<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().query(sql, args, rse)
+            return@metric tpl().query(sql, args, rse)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T> query(sql: String, rse: ResultSetExtractor<T>, vararg args: Any): T? {
+    open fun <T> query(sql: String, rse: ResultSetExtractor<T>, vararg args: Any): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().query(sql, rse, *args)
+            return@metric tpl().query(sql, rse, *args)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
     open fun query(psc: PreparedStatementCreator, rch: RowCallbackHandler): Boolean {
@@ -243,44 +277,52 @@ open class JdbcSession : ISession {
         return false
     }
 
-    open fun query(sql: String, pss: PreparedStatementSetter, rch: RowCallbackHandler): Boolean {
+    open fun query(sql: String, pss: PreparedStatementSetter, rch: RowCallbackHandler): Boolean = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
             tpl().query(sql, pss, rch)
-            return true
+            return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return false
+        return@metric false
     }
 
-    open fun query(sql: String, args: Array<Any>, argTypes: IntArray, rch: RowCallbackHandler): Boolean {
+    open fun query(sql: String, args: Array<Any>, argTypes: IntArray, rch: RowCallbackHandler): Boolean = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
             tpl().query(sql, args, argTypes, rch)
-            return true
+            return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return false
+        return@metric false
     }
 
-    open fun query(sql: String, args: Array<Any>, rch: RowCallbackHandler): Boolean {
+    open fun query(sql: String, args: Array<Any>, rch: RowCallbackHandler): Boolean = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
             tpl().query(sql, args, rch)
-            return true
+            return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return false
+        return@metric false
     }
 
-    open fun query(sql: String, rch: RowCallbackHandler, vararg args: Any): Boolean {
+    open fun query(sql: String, rch: RowCallbackHandler, vararg args: Any): Boolean = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
             tpl().query(sql, rch, *args)
-            return true
+            return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return false
+        return@metric false
     }
 
     open fun <T> query(psc: PreparedStatementCreator, rowMapper: RowMapper<T>): List<T> {
@@ -292,173 +334,205 @@ open class JdbcSession : ISession {
         return listOf()
     }
 
-    open fun <T> query(sql: String, pss: PreparedStatementSetter, rowMapper: RowMapper<T>): List<T> {
+    open fun <T> query(sql: String, pss: PreparedStatementSetter, rowMapper: RowMapper<T>): List<T> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().query(sql, pss, rowMapper)
+            return@metric tpl().query(sql, pss, rowMapper)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun <T> query(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): List<T> {
+    open fun <T> query(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): List<T> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().query(sql, args, argTypes, rowMapper)
+            return@metric tpl().query(sql, args, argTypes, rowMapper)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun <T> query(sql: String, args: Array<Any>, rowMapper: RowMapper<T>): List<T> {
+    open fun <T> query(sql: String, args: Array<Any>, rowMapper: RowMapper<T>): List<T> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().query(sql, args, rowMapper)
+            return@metric tpl().query(sql, args, rowMapper)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun <T> query(sql: String, rowMapper: RowMapper<T>, vararg args: Any): List<T> {
+    open fun <T> query(sql: String, rowMapper: RowMapper<T>, vararg args: Any): List<T> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().query(sql, rowMapper, *args)
+            return@metric tpl().query(sql, rowMapper, *args)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>): T? {
+    open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForObject(sql, rowMapper)
+            return@metric tpl().queryForObject(sql, rowMapper)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>): T? {
+    open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForObject(sql, requiredType.java)
+            return@metric tpl().queryForObject(sql, requiredType.java)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): T? {
+    open fun <T> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForObject(sql, args, argTypes, rowMapper)
+            return@metric tpl().queryForObject(sql, args, argTypes, rowMapper)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T> queryForObject(sql: String, args: Array<Any>, rowMapper: RowMapper<T>): T? {
+    open fun <T> queryForObject(sql: String, args: Array<Any>, rowMapper: RowMapper<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForObject(sql, args, rowMapper)
+            return@metric tpl().queryForObject(sql, args, rowMapper)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>, vararg args: Any): T? {
+    open fun <T> queryForObject(sql: String, rowMapper: RowMapper<T>, vararg args: Any): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForObject(sql, rowMapper, *args)
+            return@metric tpl().queryForObject(sql, rowMapper, *args)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, requiredType: KClass<T>): T? {
+    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, requiredType: KClass<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForObject(sql, args, argTypes, requiredType.java)
+            return@metric tpl().queryForObject(sql, args, argTypes, requiredType.java)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T? {
+    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForObject(sql, args, requiredType.java)
+            return@metric tpl().queryForObject(sql, args, requiredType.java)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? {
+    open fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForObject(sql, requiredType.java, *args)
+            return@metric tpl().queryForObject(sql, requiredType.java, *args)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun queryForMap(sql: String): Map<String, Any>? {
+    open fun queryForMap(sql: String): Map<String, Any>? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForMap(sql)
+            return@metric tpl().queryForMap(sql)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun queryForMap(sql: String, args: Array<Any>, argTypes: IntArray): Map<String, Any>? {
+    open fun queryForMap(sql: String, args: Array<Any>, argTypes: IntArray): Map<String, Any>? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForMap(sql, args, argTypes)
+            return@metric tpl().queryForMap(sql, args, argTypes)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun queryForMap(sql: String, vararg args: Any): Map<String, Any>? {
+    open fun queryForMap(sql: String, vararg args: Any): Map<String, Any>? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForMap(sql, *args)
+            return@metric tpl().queryForMap(sql, *args)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun <T : Any> queryForList(sql: String, args: Array<Any>, elementType: KClass<T>): List<T> {
+    open fun <T : Any> queryForList(sql: String, args: Array<Any>, elementType: KClass<T>): List<T> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
             val ti = GetTableInfo(elementType)
             if (ti == null) {
-                return tpl().queryForList(sql, toValue(args), elementType.java)
+                return@metric tpl().queryForList(sql, toValue(args), elementType.java)
             }
 
             // 模型类型
             val r = tpl().queryForList(sql, *toValue(args))
-            return r.map {
+            return@metric r.map {
                 val t = elementType.constructors.first().call()
                 Fill(t, it, ti)
                 t
@@ -466,19 +540,21 @@ open class JdbcSession : ISession {
         } catch (err: Throwable) {
             // pass
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun <T : Any> queryForList(sql: String, elementType: KClass<T>, vararg args: Any): List<T> {
+    open fun <T : Any> queryForList(sql: String, elementType: KClass<T>, vararg args: Any): List<T> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
             val ti = GetTableInfo(elementType)
             if (ti == null) {
-                return tpl().queryForList(sql, elementType.java, *toValue(args))
+                return@metric tpl().queryForList(sql, elementType.java, *toValue(args))
             }
 
             // 模型类型
             val r = tpl().queryForList(sql, *toValue(args))
-            return r.map {
+            return@metric r.map {
                 val t = elementType.constructors.first().call()
                 Fill(t, it, ti)
                 t
@@ -486,61 +562,73 @@ open class JdbcSession : ISession {
         } catch (err: Throwable) {
             // pass
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun queryForList(sql: String, args: Array<Any>, argTypes: IntArray): List<Map<String, Any>> {
+    open fun queryForList(sql: String, args: Array<Any>, argTypes: IntArray): List<Map<String, Any>> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForList(sql, args, argTypes)
+            return@metric tpl().queryForList(sql, args, argTypes)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun queryForList(sql: String, vararg args: Any): List<Map<String, Any>> {
+    open fun queryForList(sql: String, vararg args: Any): List<Map<String, Any>> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForList(sql, *args)
+            return@metric tpl().queryForList(sql, *args)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return listOf()
+        return@metric listOf()
     }
 
-    open fun queryForRowSet(sql: String): SqlRowSet? {
+    open fun queryForRowSet(sql: String): SqlRowSet? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForRowSet(sql)
+            return@metric tpl().queryForRowSet(sql)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun queryForRowSet(sql: String, args: Array<Any>, argTypes: IntArray): SqlRowSet? {
+    open fun queryForRowSet(sql: String, args: Array<Any>, argTypes: IntArray): SqlRowSet? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForRowSet(sql, args, argTypes)
+            return@metric tpl().queryForRowSet(sql, args, argTypes)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun queryForRowSet(sql: String, vararg args: Any): SqlRowSet? {
+    open fun queryForRowSet(sql: String, vararg args: Any): SqlRowSet? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().queryForRowSet(sql, *args)
+            return@metric tpl().queryForRowSet(sql, *args)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return null
+        return@metric null
     }
 
-    open fun update(sql: String): Int {
+    open fun update(sql: String): Int = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().update(sql)
+            return@metric tpl().update(sql)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return 0
+        return@metric 0
     }
 
     open fun update(psc: PreparedStatementCreator): Int {
@@ -561,67 +649,81 @@ open class JdbcSession : ISession {
         return 0
     }
 
-    open fun update(sql: String, pss: PreparedStatementSetter): Int {
+    open fun update(sql: String, pss: PreparedStatementSetter): Int = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().update(sql, pss)
+            return@metric tpl().update(sql, pss)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return 0
+        return@metric 0
     }
 
-    open fun update(sql: String, args: Array<Any>, argTypes: IntArray): Int {
+    open fun update(sql: String, args: Array<Any>, argTypes: IntArray): Int = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().update(sql, args, argTypes)
+            return@metric tpl().update(sql, args, argTypes)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return 0
+        return@metric 0
     }
 
-    open fun update(sql: String, vararg args: Any?): Int {
+    open fun update(sql: String, vararg args: Any?): Int = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().update(sql, *args)
+            return@metric tpl().update(sql, *args)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return 0
+        return@metric 0
     }
 
-    open fun batchUpdate(vararg sql: String): IntArray {
+    open fun batchUpdate(vararg sql: String): IntArray = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().batchUpdate(*sql)
+            return@metric tpl().batchUpdate(*sql)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return intArrayOf()
+        return@metric intArrayOf()
     }
 
-    open fun batchUpdate(sql: String, pss: BatchPreparedStatementSetter): IntArray {
+    open fun batchUpdate(sql: String, pss: BatchPreparedStatementSetter): IntArray = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().batchUpdate(sql, pss)
+            return@metric tpl().batchUpdate(sql, pss)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return intArrayOf()
+        return@metric intArrayOf()
     }
 
-    open fun batchUpdate(sql: String, batchArgs: List<Array<Any>>): IntArray {
+    open fun batchUpdate(sql: String, batchArgs: List<Array<Any>>): IntArray = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().batchUpdate(sql, batchArgs)
+            return@metric tpl().batchUpdate(sql, batchArgs)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return intArrayOf()
+        return@metric intArrayOf()
     }
 
-    open fun batchUpdate(sql: String, batchArgs: List<Array<Any>>, argTypes: IntArray): IntArray {
+    open fun batchUpdate(sql: String, batchArgs: List<Array<Any>>, argTypes: IntArray): IntArray = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().batchUpdate(sql, batchArgs, argTypes)
+            return@metric tpl().batchUpdate(sql, batchArgs, argTypes)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return intArrayOf()
+        return@metric intArrayOf()
     }
 
     open fun <T> batchUpdate(
@@ -629,13 +731,15 @@ open class JdbcSession : ISession {
         batchArgs: Collection<T>,
         batchSize: Int,
         pss: ParameterizedPreparedStatementSetter<T>,
-    ): Array<IntArray> {
+    ): Array<IntArray> = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
-            return tpl().batchUpdate(sql, batchArgs, batchSize, pss)
+            return@metric tpl().batchUpdate(sql, batchArgs, batchSize, pss)
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return arrayOf()
+        return@metric arrayOf()
     }
 
     open fun <T> execute(action: ConnectionCallback<T>): T? {
@@ -656,14 +760,16 @@ open class JdbcSession : ISession {
         return null
     }
 
-    open fun execute(sql: String): Boolean {
+    open fun execute(sql: String): Boolean = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         try {
             tpl().execute(sql)
-            return true
+            return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
         }
-        return false
+        return@metric false
     }
 
     open fun <T> execute(csc: CallableStatementCreator, action: CallableStatementCallback<T>): T? {

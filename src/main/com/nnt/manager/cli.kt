@@ -10,7 +10,7 @@ class Cli {
     companion object {
 
         private var _running = false
-        
+
         fun Run() = GlobalScope.launch {
             async {
                 _running = true

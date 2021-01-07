@@ -70,7 +70,22 @@ class Phoenix : Mybatis() {
             ses.execute("upsert into nnt.logic_phoenix_alive (id, val) values (1, 0)")
         }
     }
-    
+
+    override fun jdbc(
+        proc: (ses: JdbcSession) -> Unit,
+    ): Boolean {
+        var r = true
+        try {
+            val ses = PhoenixJdbcSession(this)
+            proc(ses)
+            ses.close()
+        } catch (err: Throwable) {
+            logger.exception(err)
+            r = false
+        }
+        return r
+    }
+
     override fun acquireJdbc(): JdbcSession {
         return PhoenixJdbcSession(this)
     }
@@ -160,8 +175,12 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
     private var _phoenix = phoenix
 
     init {
+        logidr = "phoenix"
         _ds = _phoenix.openJdbc()
         _tpl = JdbcTemplate(_ds)
+
+        // phoenix一般面向大数据系统，慢查询默认放大到1s
+        slowquery = 1000L
 
         // phoenix thin queryserver 每5分钟需要重连一次，避免掉线，暂时没有找到原因
         startKeepAlive()
@@ -195,13 +214,13 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
                 )
 
                 if (old == now) {
-                    logger.error("phoenix出现写入失败, 重新建立链接")
+                    logger.error("${logidr}出现写入失败, 重新建立链接")
 
                     _ds = _phoenix.openJdbc()
                     _tpl = JdbcTemplate(_ds)
                 }
 
-                // logger.log("phoenix keepalive")
+                // logger.log("${logidr} keepalive")
             }
         }
     }
@@ -218,28 +237,34 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
         stopKeepAlive()
     }
 
-    override fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? {
+    override fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         if (requiredType == Date::class.java) {
             val r = super.queryForObject(sql, Long::class, *args)
             if (r == null)
-                return null
+                return@metric null
 
             @Suppress("UNCHECKED_CAST")
-            return Date(r.toLong()) as T
+            return@metric Date(r.toLong()) as T
         }
-        return super.queryForObject(sql, requiredType, *args)
+
+        return@metric super.queryForObject(sql, requiredType, *args)
     }
 
-    override fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>): T? {
+    override fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         if (requiredType == Date::class) {
             val r = super.queryForObject(sql, Long::class)
             if (r == null)
-                return null
+                return@metric null
 
             @Suppress("UNCHECKED_CAST")
-            return Date(r.toLong()) as T
+            return@metric Date(r.toLong()) as T
         }
-        return super.queryForObject(sql, requiredType)
+
+        return@metric super.queryForObject(sql, requiredType)
     }
 
     override fun <T : Any> queryForObject(
@@ -247,27 +272,33 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
         args: Array<Any>,
         argTypes: IntArray,
         requiredType: KClass<T>,
-    ): T? {
+    ): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         if (requiredType == Date::class.java) {
             val r = super.queryForObject(sql, args, argTypes, Long::class)
             if (r == null)
-                return null
+                return@metric null
 
             @Suppress("UNCHECKED_CAST")
-            return Date(r.toLong()) as T
+            return@metric Date(r.toLong()) as T
         }
-        return super.queryForObject(sql, args, argTypes, requiredType)
+
+        return@metric super.queryForObject(sql, args, argTypes, requiredType)
     }
 
-    override fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T? {
+    override fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T? = metric({
+        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+    }) {
         if (requiredType == Date::class.java) {
             val r = super.queryForObject(sql, args, Long::class)
             if (r == null)
-                return null
+                return@metric null
 
             @Suppress("UNCHECKED_CAST")
-            return Date(r.toLong()) as T
+            return@metric Date(r.toLong()) as T
         }
-        return super.queryForObject(sql, args, requiredType)
+
+        return@metric super.queryForObject(sql, args, requiredType)
     }
 }
