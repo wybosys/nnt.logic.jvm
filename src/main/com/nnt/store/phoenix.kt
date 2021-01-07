@@ -76,7 +76,7 @@ class Phoenix : Mybatis() {
     ): Boolean {
         var r = true
         try {
-            val ses = PhoenixJdbcSession(this)
+            val ses = acquireSession() as JdbcSession
             proc(ses)
             ses.close()
         } catch (err: Throwable) {
@@ -87,7 +87,9 @@ class Phoenix : Mybatis() {
     }
 
     override fun acquireJdbc(): JdbcSession {
-        return PhoenixJdbcSession(this)
+        val ses = PhoenixJdbcSession(this)
+        ses.slowquery = slowquery
+        return ses
     }
 
     override fun acquireSession(): ISession {
@@ -165,6 +167,9 @@ class Phoenix : Mybatis() {
     }
 }
 
+// phoenix一般面向大数据系统，慢查询默认放大到1s
+val DEFAULT_PHOENIX_SLOWQUERY = 1000L
+
 // phoenix 5.x 中时间对象需要额外处理，传入time，传出Long，否则会有timezone
 // https://developer.aliyun.com/article/684390
 
@@ -180,7 +185,7 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
         _tpl = JdbcTemplate(_ds)
 
         // phoenix一般面向大数据系统，慢查询默认放大到1s
-        slowquery = 1000L
+        slowquery = DEFAULT_PHOENIX_SLOWQUERY
 
         // phoenix thin queryserver 每5分钟需要重连一次，避免掉线，暂时没有找到原因
         startKeepAlive()

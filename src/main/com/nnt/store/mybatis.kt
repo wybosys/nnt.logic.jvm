@@ -24,6 +24,7 @@ open class Mybatis : AbstractRdb() {
     var pwd: String = ""
     var driver: String = ""
     var maps = listOf<URI>()
+    var slowquery = DEFAULT_JDBC_SLOWQUERY
 
     // 纯mybatis不支持获得数据库信息
     override fun tables(): Map<String, TableInfo> {
@@ -62,6 +63,9 @@ open class Mybatis : AbstractRdb() {
             }
             maps = nmb["map"]!!.map { URI(it.asString()) }
         }
+
+        if (cfg.has("slowquery"))
+            slowquery = (cfg["slowquery"]!!.asDecimal() * 1000).toLong()
 
         return true
     }
@@ -180,7 +184,7 @@ open class Mybatis : AbstractRdb() {
     ): Boolean {
         var r = true
         try {
-            val ses = JdbcSession(JdbcTemplate(_dsfac))
+            val ses = acquireJdbc()
             proc(ses)
             ses.close()
         } catch (err: Throwable) {

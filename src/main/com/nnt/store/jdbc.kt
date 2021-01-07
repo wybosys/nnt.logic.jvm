@@ -22,6 +22,7 @@ open class Jdbc : AbstractDbms() {
     var user: String = ""
     var pwd: String = ""
     var driver: String = ""
+    var slowquery: Long = DEFAULT_JDBC_SLOWQUERY
 
     override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
@@ -43,6 +44,9 @@ open class Jdbc : AbstractDbms() {
             user = cfg["user"]!!.asString()
         if (cfg.has("pwd"))
             pwd = cfg["pwd"]!!.asString()
+
+        if (cfg.has("slowquery"))
+            slowquery = (cfg["slowquery"]!!.asDecimal() * 1000).toLong()
 
         return true
     }
@@ -73,7 +77,9 @@ open class Jdbc : AbstractDbms() {
 
     fun acquire(): JdbcSession {
         val tpl = JdbcTemplate(_dsfac)
-        return JdbcSession(tpl)
+        val ses = JdbcSession(tpl)
+        ses.slowquery = slowquery
+        return ses
     }
 
     override fun acquireSession(): ISession {
@@ -112,6 +118,9 @@ open class Jdbc : AbstractDbms() {
     }
 
 }
+
+// 5ms作为普通sql慢查询的默认阈值
+val DEFAULT_JDBC_SLOWQUERY = 5L
 
 // jdbc业务对象
 open class JdbcSession : ISession {
@@ -152,7 +161,7 @@ open class JdbcSession : ISession {
         close()
     }
 
-    var slowquery: Long = 5L // 5ms作为普通sql慢查询的默认阈值
+    var slowquery: Long = DEFAULT_JDBC_SLOWQUERY
 
     // 性能监测
     fun <T> metric(log: (cost: Long) -> Unit, proc: () -> T): T {
