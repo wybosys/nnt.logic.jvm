@@ -111,10 +111,10 @@ open class Jdbc : AbstractDbms() {
 
 }
 
-open class JdbcDataSource(props: JdbcProperties) {
+open class JdbcDataSource(val properties: JdbcProperties) {
 
-    private val _ds = HikariDataSource(props)
-    private val _tpl = JdbcTemplate(_ds)
+    private var _ds = HikariDataSource(properties)
+    private var _tpl = JdbcTemplate(_ds)
 
     // 获得操作对象
     val template: JdbcTemplate get() = _tpl
