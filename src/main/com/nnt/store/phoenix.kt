@@ -16,7 +16,7 @@ class Phoenix : Mybatis() {
     var host: String = ""
     var port: Int = 8765
     var scheme: String = ""
-    
+
     override fun config(cfg: JsonObject): Boolean {
         // 初始化
         slowquery = DEFAULT_PHOENIX_SLOWQUERY
@@ -201,7 +201,7 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
             return
 
         // 避免在同一个时间点刷新
-        val interval = 30.0 + Random.nextDouble(30.0)
+        val interval = 30.0 + Random.nextDouble(20.0)
 
         _repeat = Repeat(interval) {
             val tpl = _tpl!!
