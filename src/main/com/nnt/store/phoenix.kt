@@ -99,8 +99,8 @@ class Phoenix : Mybatis() {
         val props = super.propertiesForJdbc()
         // phoenix需要自己设置
         props.connectionTestQuery = "select 1"
-        // phoneix默认idle时间是60s, 设置为55s空闲即扔掉
-        props.idleTimeout = 55000L
+        // phoneix默认idle时间是60s
+        props.idleTimeout = 60000L
         // 设置自动保持连接
         props.keepAliveInterval = 55000L
         props.keepAliveQuery = null // 使用action判断
