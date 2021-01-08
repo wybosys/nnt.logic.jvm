@@ -43,24 +43,6 @@ class Test : ITest, TestGrpc.TestImplBase() {
     override fun hello(request: Empty, responseObserver: StreamObserver<TestOuterClass.TestReply>) {
         logger.info("调用 grpc-hello")
 
-        /*
-        val mysql = Dbms.Find("mysql") as RMysql
-        mysql.mapper { ses ->
-            var res = ses.selectOne<Echoo>("listEchoo")
-            ses.autoClearCache = true
-            res = ses.selectOne<Echoo>("listEchoo")
-            println(res)
-        }
-         */
-
-        /*
-        val pnx = Dbms.Find("phoenix") as Phoenix
-        pnx.jdbc { ses ->
-            var res = ses.queryForList("select * from xaas.user limit 100")
-            println(res)
-        }
-         */
-
         val reply = TestOuterClass.TestReply.newBuilder().setMessage("hello grpc").build()
         responseObserver.onNext(reply)
         responseObserver.onCompleted()

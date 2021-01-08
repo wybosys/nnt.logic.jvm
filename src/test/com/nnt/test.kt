@@ -8,7 +8,10 @@ import com.nnt.server.EmptyTransaction
 import com.nnt.server.Routers
 import com.nnt.server.Transaction
 import com.nnt.store.KvRedis
+import com.nnt.store.Phoenix
+import com.nnt.store.RMysql
 import com.nnt.thirds.dust.DustCompiler
+import com.test.Echoo
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
@@ -221,5 +224,41 @@ class Test {
         ses.hgetall("xxxxxxx")
         ses.geoadd("test_geo", 180.0, 180.0, "haha")
         ses.close()
+    }
+
+    @Test
+    fun TestMysql() {
+        val mysql = Dbms.Find("mysql") as RMysql
+
+        mysql.mapper { ses ->
+            var res = ses.selectOne<Echoo>("listEchoo")
+            ses.autoClearCache = true
+            res = ses.selectOne<Echoo>("listEchoo")
+        }
+
+        mysql.jdbc { ses ->
+            var res = ses.queryForList("select * from echoo")
+            println(res.size)
+        }
+
+        mysql.jdbc { ses ->
+            var res = ses.queryForList("select * from echoo")
+            println(res.size)
+        }
+    }
+
+    @Test
+    fun TestPhoenix() {
+        val pnx = Dbms.Find("phoenix") as Phoenix
+
+        pnx.jdbc { ses ->
+            var res = ses.queryForList("select * from xaas.user limit 100")
+            println(res)
+        }
+
+        pnx.jdbc { ses ->
+            var res = ses.queryForList("select * from xaas.user limit 100")
+            println(res)
+        }
     }
 }
