@@ -159,7 +159,7 @@ val DEFAULT_JDBC_SLOWQUERY = 5L
 
 // jdbc业务对象
 open class JdbcSession : ISession {
-    
+
     // 不使用 JdbcOperations by tpl 的写法是因为会造成编译器warnning
     private lateinit var _tpl: JdbcTemplate
     private var _ds: JdbcDataSource? = null
@@ -208,6 +208,8 @@ open class JdbcSession : ISession {
         }
 
         _tmr_keepalive = Repeat(_ds!!.properties.keepAliveInterval / 1000.0) {
+            logger.log("${logidr} keepalive")
+
             if (_ds!!.properties.keepAliveQuery != null) {
                 _tpl.execute(_ds!!.properties.keepAliveQuery)
             }

@@ -53,6 +53,10 @@ class RSample : AbstractRouter() {
     fun test_phoenix(phoenix: Phoenix, interval: Long) {
         val ses = phoenix.acquireSession() as PhoenixJdbcSession
 
+        // 打开持久化
+        ses.logidr = "phoenix-${interval}"
+        ses.immortal()
+
         if (phoenix.table("test") != null) {
             ses.execute("drop table ${ses.scheme}.test${interval}")
         }

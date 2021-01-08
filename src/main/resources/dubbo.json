@@ -105,7 +105,8 @@
     {
       "id": "phoenix",
       "thin": "localhost:8765",
-      "entry": "com.nnt.store.Phoenix"
+      "entry": "com.nnt.store.Phoenix",
+      "scheme": "nntlogic"
     }
   ],
   "logger": [
