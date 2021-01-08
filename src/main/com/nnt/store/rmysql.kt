@@ -109,8 +109,8 @@ class RMysql : AbstractRdb() {
     private lateinit var _dsfac: JdbcDataSource
 
     override fun open() {
-        if (open_jdbc()) {
-            open_mapper()
+        if (openJdbc()) {
+            openMapper()
             logger.info("连接 ${id}@mysql")
         } else {
             logger.info("连接 ${id}@mysql 失败")
@@ -118,7 +118,7 @@ class RMysql : AbstractRdb() {
     }
 
     // jdbc 直连
-    private fun open_jdbc(): Boolean {
+    private fun openJdbc(): Boolean {
         val props = Jdbc.DefaultJdbcProperties()
         props.driverClassName = "com.mysql.cj.jdbc.Driver"
         props.jdbcUrl = "jdbc:mysql://${host}:${port}/${scheme}?characterEncoding=UTF-8"
@@ -139,7 +139,7 @@ class RMysql : AbstractRdb() {
     }
 
     // 支持mybatis的mapper模式
-    private fun open_mapper() {
+    private fun openMapper() {
         // 初始化数据源
         val fac = PooledDataSourceFactory()
         val props = Properties()
@@ -179,7 +179,7 @@ class RMysql : AbstractRdb() {
     }
 
     override fun close() {
-        // pass
+        _dsfac.close()
     }
 
     // 使用mybatis的mapper操作orm数据

@@ -68,11 +68,9 @@ open class Mybatis : AbstractRdb() {
         return true
     }
 
-    protected lateinit var _mapfac: SqlSessionFactory
-
     override fun open() {
-        if (verify()) {
-            _mapfac = openMapper()
+        if (openJdbc()) {
+            openMapper()
             logger.info("连接 ${id}@mybatis")
         } else {
             logger.info("连接 ${id}@mybatis 失败")
@@ -102,12 +100,19 @@ open class Mybatis : AbstractRdb() {
         return props
     }
 
-    open fun openJdbc(): JdbcDataSource {
+    // 提取mybatis-mapper的对象
+    protected lateinit var _mapfac: SqlSessionFactory
+
+    // 数据源+连接池
+    protected lateinit var _dsfac: JdbcDataSource
+
+    protected fun openJdbc(): Boolean {
         val props = propertiesForJdbc()
-        return JdbcDataSource(props)
+        _dsfac = JdbcDataSource(props)
+        return verify()
     }
 
-    open fun openMapper(): SqlSessionFactory {
+    protected fun openMapper() {
         // 初始化数据源
         val fac = PooledDataSourceFactory()
         val props = Properties()
@@ -143,11 +148,11 @@ open class Mybatis : AbstractRdb() {
             }
         }
 
-        return SqlSessionFactoryBuilder().build(conf)
+        _mapfac = SqlSessionFactoryBuilder().build(conf)
     }
 
     override fun close() {
-        // pass
+        _dsfac.close()
     }
 
     // 使用mybatis的mapper操作orm数据
@@ -187,7 +192,7 @@ open class Mybatis : AbstractRdb() {
 
     open fun acquireJdbc(): JdbcSession {
         val ses = JdbcSession()
-        ses.dataSource = openJdbc()
+        ses.dataSource = _dsfac
         return ses
     }
 

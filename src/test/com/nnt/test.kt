@@ -253,12 +253,12 @@ class Test {
 
         pnx.jdbc { ses ->
             var res = ses.queryForList("select * from xaas.user limit 100")
-            println(res)
+            println(res.size)
         }
 
         pnx.jdbc { ses ->
             var res = ses.queryForList("select * from xaas.user limit 100")
-            println(res)
+            println(res.size)
         }
     }
 }

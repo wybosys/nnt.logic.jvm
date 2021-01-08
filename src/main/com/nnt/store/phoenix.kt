@@ -90,7 +90,7 @@ class Phoenix : Mybatis() {
 
     override fun acquireJdbc(): JdbcSession {
         val ses = PhoenixJdbcSession(this)
-        ses.dataSource = openJdbc()
+        ses.dataSource = _dsfac
         ses.slowquery = slowquery
         return ses
     }
