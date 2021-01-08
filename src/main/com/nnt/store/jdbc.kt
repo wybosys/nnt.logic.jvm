@@ -1,17 +1,28 @@
 package com.nnt.store
 
-import com.nnt.core.JsonObject
-import com.nnt.core.logger
-import com.nnt.core.toValue
+import com.nnt.core.*
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.*
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.jdbc.support.rowset.SqlRowSet
+import java.util.*
 import kotlin.reflect.KClass
 
-typealias JdbcProperties = HikariConfig
+typealias JdbcKeepAliveAction = (ses: JdbcSession, tpl: JdbcTemplate) -> Unit
+
+open class JdbcProperties : HikariConfig() {
+
+    // 测试心跳的sql
+    var keepAliveQuery: String? = "select 1"
+
+    // 执行心跳的函数
+    var keepAliveAction: JdbcKeepAliveAction? = null
+
+    // 心跳间隔（毫秒）
+    var keepAliveInterval: Long = 60000L
+}
 
 open class Jdbc : AbstractDbms() {
 
@@ -74,7 +85,8 @@ open class Jdbc : AbstractDbms() {
     }
 
     fun acquire(): JdbcSession {
-        val ses = JdbcSession(_ds!!)
+        val ses = JdbcSession()
+        ses.dataSource = _ds!!
         ses.slowquery = slowquery
         return ses
     }
@@ -89,7 +101,7 @@ open class Jdbc : AbstractDbms() {
     ): Boolean {
         var r = true
         try {
-            proc(_ds!!.template)
+            proc(_ds!!.acquire())
         } catch (err: Throwable) {
             logger.exception(err)
             r = false
@@ -99,12 +111,12 @@ open class Jdbc : AbstractDbms() {
 
     companion object {
 
+        // 默认jdbc配置
         fun DefaultJdbcProperties(): JdbcProperties {
             val props = JdbcProperties()
             props.poolName = "nnt.logic"
             props.minimumIdle = 0
-            props.maximumPoolSize = 512
-            props.connectionTestQuery = "select 1"
+            props.maximumPoolSize = 1024
             return props
         }
     }
@@ -113,30 +125,32 @@ open class Jdbc : AbstractDbms() {
 
 open class JdbcDataSource(val properties: JdbcProperties) {
 
+    // 数据源
     private var _ds: HikariDataSource? = null
-    private var _tpl: JdbcTemplate? = null
 
     init {
-        open()
+        _ds = HikariDataSource(properties)
     }
-
-    // 获得操作对象
-    val template: JdbcTemplate get() = _tpl!!
 
     // 打开或者重新打开
     fun open() {
         close()
-
         _ds = HikariDataSource(properties)
-        _tpl = JdbcTemplate(_ds)
     }
 
     // 关闭
     fun close() {
         if (_ds != null) {
             _ds!!.close()
-            _tpl = null
         }
+    }
+
+    /**
+     * 获取一个临时数据连接
+     * 不需要关心释放，统一通过ds管理，注意需要避免长期拿在手中
+     */
+    fun acquire(): JdbcTemplate {
+        return JdbcTemplate(_ds!!)
     }
 }
 
@@ -145,32 +159,28 @@ val DEFAULT_JDBC_SLOWQUERY = 5L
 
 // jdbc业务对象
 open class JdbcSession : ISession {
-
-    constructor(ds: JdbcDataSource) {
-        _ds = ds
-    }
-
-    protected constructor() {
-        // 有些session需要特殊情况发生时才初始化tpl
-    }
-
+    
     // 不使用 JdbcOperations by tpl 的写法是因为会造成编译器warnning
-    protected var _ds: JdbcDataSource? = null
+    private lateinit var _tpl: JdbcTemplate
+    private var _ds: JdbcDataSource? = null
+
+    var dataSource: JdbcDataSource
+        get() {
+            return _ds!!
+        }
+        set(value) {
+            _ds = value
+            _tpl = value.acquire()
+        }
 
     // 记录日志使用的代号
     var logidr = "jdbc"
 
-    protected open fun tpl(): JdbcTemplate {
-        synchronized(this) {
-            return _ds!!.template
-        }
+    override fun close() {
+        stopKeepAlive()
     }
 
-    override open fun close() {
-        _ds!!.close()
-    }
-
-    override open fun commit() {
+    override fun commit() {
         // pass
     }
 
@@ -178,10 +188,44 @@ open class JdbcSession : ISession {
         // pass
     }
 
+    // 析构自动关闭
     protected fun finalize() {
         close()
     }
 
+    // 开启长生命周期
+    open fun immortal() {
+        // 内部一般实现为自动心跳
+        startKeepAlive()
+    }
+
+    protected var _tmr_keepalive: RepeatHandler? = null
+
+    open fun startKeepAlive() {
+        if (_tmr_keepalive != null) {
+            logger.warn("${logidr} 已经启动keepalive")
+            return
+        }
+
+        _tmr_keepalive = Repeat(_ds!!.properties.keepAliveInterval / 1000.0) {
+            if (_ds!!.properties.keepAliveQuery != null) {
+                _tpl.execute(_ds!!.properties.keepAliveQuery)
+            }
+
+            if (_ds!!.properties.keepAliveAction != null) {
+                _ds!!.properties.keepAliveAction!!(this, _tpl)
+            }
+        }
+    }
+
+    open fun stopKeepAlive() {
+        if (_tmr_keepalive != null) {
+            CancelRepeat(_tmr_keepalive!!)
+            _tmr_keepalive = null
+        }
+    }
+
+    // 性能检测判断是否是慢查询的时间阈值，单位为毫秒
     var slowquery: Long = DEFAULT_JDBC_SLOWQUERY
 
     // 性能监测
@@ -201,7 +245,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().query(sql, rse)
+            return@metric _tpl.query(sql, rse)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -212,7 +256,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            tpl().query(sql, rch)
+            _tpl.query(sql, rch)
             return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
@@ -224,7 +268,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().query(sql, rowMapper)
+            return@metric _tpl.query(sql, rowMapper)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -235,7 +279,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForList(sql, elementType.java)
+            return@metric _tpl.queryForList(sql, elementType.java)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -246,7 +290,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForList(sql)
+            return@metric _tpl.queryForList(sql)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -257,7 +301,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().query(sql, pss, rse)
+            return@metric _tpl.query(sql, pss, rse)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -268,7 +312,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().query(sql, args, argTypes, rse)
+            return@metric _tpl.query(sql, args, argTypes, rse)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -279,7 +323,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().query(sql, args, rse)
+            return@metric _tpl.query(sql, args, rse)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -290,7 +334,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().query(sql, rse, *args)
+            return@metric _tpl.query(sql, rse, *args)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -299,7 +343,7 @@ open class JdbcSession : ISession {
 
     open fun query(psc: PreparedStatementCreator, rch: RowCallbackHandler): Boolean {
         try {
-            tpl().query(psc, rch)
+            _tpl.query(psc, rch)
             return true
         } catch (err: Throwable) {
             logger.exception(err)
@@ -311,7 +355,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            tpl().query(sql, pss, rch)
+            _tpl.query(sql, pss, rch)
             return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
@@ -323,7 +367,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            tpl().query(sql, args, argTypes, rch)
+            _tpl.query(sql, args, argTypes, rch)
             return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
@@ -335,7 +379,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            tpl().query(sql, args, rch)
+            _tpl.query(sql, args, rch)
             return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
@@ -347,7 +391,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            tpl().query(sql, rch, *args)
+            _tpl.query(sql, rch, *args)
             return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
@@ -357,7 +401,7 @@ open class JdbcSession : ISession {
 
     open fun <T> query(psc: PreparedStatementCreator, rowMapper: RowMapper<T>): List<T> {
         try {
-            return tpl().query(psc, rowMapper)
+            return _tpl.query(psc, rowMapper)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -368,7 +412,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().query(sql, pss, rowMapper)
+            return@metric _tpl.query(sql, pss, rowMapper)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -379,7 +423,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().query(sql, args, argTypes, rowMapper)
+            return@metric _tpl.query(sql, args, argTypes, rowMapper)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -390,7 +434,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().query(sql, args, rowMapper)
+            return@metric _tpl.query(sql, args, rowMapper)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -401,7 +445,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().query(sql, rowMapper, *args)
+            return@metric _tpl.query(sql, rowMapper, *args)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -412,7 +456,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForObject(sql, rowMapper)
+            return@metric _tpl.queryForObject(sql, rowMapper)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -425,7 +469,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForObject(sql, requiredType.java)
+            return@metric _tpl.queryForObject(sql, requiredType.java)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -438,7 +482,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForObject(sql, args, argTypes, rowMapper)
+            return@metric _tpl.queryForObject(sql, args, argTypes, rowMapper)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -451,7 +495,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForObject(sql, args, rowMapper)
+            return@metric _tpl.queryForObject(sql, args, rowMapper)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -464,7 +508,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForObject(sql, rowMapper, *args)
+            return@metric _tpl.queryForObject(sql, rowMapper, *args)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -477,7 +521,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForObject(sql, args, argTypes, requiredType.java)
+            return@metric _tpl.queryForObject(sql, args, argTypes, requiredType.java)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -490,7 +534,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForObject(sql, args, requiredType.java)
+            return@metric _tpl.queryForObject(sql, args, requiredType.java)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -503,7 +547,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForObject(sql, requiredType.java, *args)
+            return@metric _tpl.queryForObject(sql, requiredType.java, *args)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -516,7 +560,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForMap(sql)
+            return@metric _tpl.queryForMap(sql)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -529,7 +573,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForMap(sql, args, argTypes)
+            return@metric _tpl.queryForMap(sql, args, argTypes)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -542,7 +586,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForMap(sql, *args)
+            return@metric _tpl.queryForMap(sql, *args)
         } catch (err: EmptyResultDataAccessException) {
             // pass
         } catch (err: Throwable) {
@@ -557,11 +601,11 @@ open class JdbcSession : ISession {
         try {
             val ti = GetTableInfo(elementType)
             if (ti == null) {
-                return@metric tpl().queryForList(sql, toValue(args), elementType.java)
+                return@metric _tpl.queryForList(sql, toValue(args), elementType.java)
             }
 
             // 模型类型
-            val r = tpl().queryForList(sql, *toValue(args))
+            val r = _tpl.queryForList(sql, *toValue(args))
             return@metric r.map {
                 val t = elementType.constructors.first().call()
                 Fill(t, it, ti)
@@ -579,11 +623,11 @@ open class JdbcSession : ISession {
         try {
             val ti = GetTableInfo(elementType)
             if (ti == null) {
-                return@metric tpl().queryForList(sql, elementType.java, *toValue(args))
+                return@metric _tpl.queryForList(sql, elementType.java, *toValue(args))
             }
 
             // 模型类型
-            val r = tpl().queryForList(sql, *toValue(args))
+            val r = _tpl.queryForList(sql, *toValue(args))
             return@metric r.map {
                 val t = elementType.constructors.first().call()
                 Fill(t, it, ti)
@@ -599,7 +643,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForList(sql, args, argTypes)
+            return@metric _tpl.queryForList(sql, args, argTypes)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -610,7 +654,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForList(sql, *args)
+            return@metric _tpl.queryForList(sql, *args)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -621,7 +665,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForRowSet(sql)
+            return@metric _tpl.queryForRowSet(sql)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -632,7 +676,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForRowSet(sql, args, argTypes)
+            return@metric _tpl.queryForRowSet(sql, args, argTypes)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -643,7 +687,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().queryForRowSet(sql, *args)
+            return@metric _tpl.queryForRowSet(sql, *args)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -654,7 +698,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().update(sql)
+            return@metric _tpl.update(sql)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -663,7 +707,7 @@ open class JdbcSession : ISession {
 
     open fun update(psc: PreparedStatementCreator): Int {
         try {
-            return tpl().update(psc)
+            return _tpl.update(psc)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -672,7 +716,7 @@ open class JdbcSession : ISession {
 
     open fun update(psc: PreparedStatementCreator, generatedKeyHolder: KeyHolder): Int {
         try {
-            return tpl().update(psc, generatedKeyHolder)
+            return _tpl.update(psc, generatedKeyHolder)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -683,7 +727,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().update(sql, pss)
+            return@metric _tpl.update(sql, pss)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -694,7 +738,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().update(sql, args, argTypes)
+            return@metric _tpl.update(sql, args, argTypes)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -705,7 +749,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().update(sql, *args)
+            return@metric _tpl.update(sql, *args)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -716,7 +760,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().batchUpdate(*sql)
+            return@metric _tpl.batchUpdate(*sql)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -727,7 +771,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().batchUpdate(sql, pss)
+            return@metric _tpl.batchUpdate(sql, pss)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -738,7 +782,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().batchUpdate(sql, batchArgs)
+            return@metric _tpl.batchUpdate(sql, batchArgs)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -749,7 +793,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().batchUpdate(sql, batchArgs, argTypes)
+            return@metric _tpl.batchUpdate(sql, batchArgs, argTypes)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -765,7 +809,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            return@metric tpl().batchUpdate(sql, batchArgs, batchSize, pss)
+            return@metric _tpl.batchUpdate(sql, batchArgs, batchSize, pss)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -774,7 +818,7 @@ open class JdbcSession : ISession {
 
     open fun <T> execute(action: ConnectionCallback<T>): T? {
         try {
-            return tpl().execute(action)
+            return _tpl.execute(action)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -783,7 +827,7 @@ open class JdbcSession : ISession {
 
     open fun <T> execute(action: StatementCallback<T>): T? {
         try {
-            return tpl().execute(action)
+            return _tpl.execute(action)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -794,7 +838,7 @@ open class JdbcSession : ISession {
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
     }) {
         try {
-            tpl().execute(sql)
+            _tpl.execute(sql)
             return@metric true
         } catch (err: Throwable) {
             logger.exception(err)
@@ -804,7 +848,7 @@ open class JdbcSession : ISession {
 
     open fun <T> execute(csc: CallableStatementCreator, action: CallableStatementCallback<T>): T? {
         try {
-            return tpl().execute(csc, action)
+            return _tpl.execute(csc, action)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -813,7 +857,7 @@ open class JdbcSession : ISession {
 
     open fun <T> execute(callString: String, action: CallableStatementCallback<T>): T? {
         try {
-            return tpl().execute(callString, action)
+            return _tpl.execute(callString, action)
         } catch (err: Throwable) {
             logger.exception(err)
         }
@@ -822,7 +866,7 @@ open class JdbcSession : ISession {
 
     open fun call(csc: CallableStatementCreator, declaredParameters: List<SqlParameter>): Map<String, Any> {
         try {
-            return tpl().call(csc, declaredParameters)
+            return _tpl.call(csc, declaredParameters)
         } catch (err: Throwable) {
             logger.exception(err)
         }

@@ -2,6 +2,7 @@ package com.nnt.store
 
 import com.nnt.core.*
 import com.nnt.store.reflect.SchemeInfo
+import org.springframework.jdbc.core.JdbcTemplate
 import java.util.*
 import kotlin.random.Random
 import kotlin.reflect.KClass
@@ -89,8 +90,24 @@ class Phoenix : Mybatis() {
 
     override fun acquireJdbc(): JdbcSession {
         val ses = PhoenixJdbcSession(this)
+        ses.dataSource = openJdbc()
         ses.slowquery = slowquery
         return ses
+    }
+
+    override fun propertiesForJdbc(): JdbcProperties {
+        val props = super.propertiesForJdbc()
+        // phoenix需要自己设置
+        props.connectionTestQuery = "select 1"
+        // phoneix默认idle时间是60s, 设置为55s空闲即扔掉
+        props.idleTimeout = 55000L
+        // 设置自动保持连接
+        props.keepAliveInterval = 55000L
+        props.keepAliveQuery = null // 使用action判断
+        props.keepAliveAction = { ses, tpl ->
+            PhoenixKeepAliveAction(ses as PhoenixJdbcSession, tpl)
+        }
+        return props
     }
 
     override fun acquireSession(): ISession {
@@ -171,78 +188,42 @@ class Phoenix : Mybatis() {
 // phoenix一般面向大数据系统，慢查询默认放大到1s
 val DEFAULT_PHOENIX_SLOWQUERY = 1000L
 
+private fun PhoenixKeepAliveAction(ses: PhoenixJdbcSession, tpl: JdbcTemplate) {
+    val old = tpl.queryForObject(
+        "select val from nnt.logic_phoenix_alive where id=1",
+        Long::class.java
+    )
+
+    tpl.update(
+        "upsert into nnt.logic_phoenix_alive (id, val) values (1, ?)",
+        Random.nextLong(999999999)
+    )
+
+    val now = tpl.queryForObject(
+        "select val from nnt.logic_phoenix_alive where id=1",
+        Long::class.java
+    )
+
+    if (now == old) {
+        logger.error("${ses.logidr} keepalive失败")
+    }
+}
+
 // phoenix 5.x 中时间对象需要额外处理，传入time，传出Long，否则会有timezone
 // https://developer.aliyun.com/article/684390
 
 class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
 
-    private var _repeat: RepeatHandler? = null
     private var _phoenix = phoenix
 
     init {
         logidr = "phoenix"
-        _ds = _phoenix.openJdbc()
 
         // phoenix一般面向大数据系统，慢查询默认放大到1s
         slowquery = DEFAULT_PHOENIX_SLOWQUERY
-
-        // phoenix thin queryserver 每5分钟需要重连一次，避免掉线，暂时没有找到原因
-        startKeepAlive()
     }
 
     val scheme: String get() = _phoenix.scheme
-
-    fun startKeepAlive() {
-        if (_repeat != null)
-            return
-
-        // 避免在同一个时间点刷新
-        val interval = 30.0 + Random.nextDouble(20.0)
-
-        _repeat = Repeat(interval) {
-            val tpl = _ds!!.template
-            synchronized(this) {
-                // _ds = _phoenix.openJdbc()
-                // _tpl = JdbcTemplate(_ds)
-
-                val old = tpl.queryForObject(
-                    "select val from nnt.logic_phoenix_alive where id=1",
-                    Long::class.java
-                )
-
-                tpl.update(
-                    "upsert into nnt.logic_phoenix_alive (id, val) values (1, ?)",
-                    Random.nextLong(999999999)
-                )
-
-                val now = tpl.queryForObject(
-                    "select val from nnt.logic_phoenix_alive where id=1",
-                    Long::class.java
-                )
-
-                if (old == now) {
-                    logger.error("${logidr}出现写入失败, 重新建立链接")
-
-                    // 重新打开
-                    _ds!!.open()
-                }
-
-                // logger.log("${logidr} keepalive")
-            }
-        }
-    }
-
-    fun stopKeepAlive() {
-        if (_repeat != null) {
-            CancelRepeat(_repeat!!)
-            _repeat = null
-        }
-    }
-
-    override fun close() {
-        super.close()
-        stopKeepAlive()
-    }
 
     override fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? = metric({
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")

@@ -186,8 +186,9 @@ open class Mybatis : AbstractRdb() {
     }
 
     open fun acquireJdbc(): JdbcSession {
-        val ds = openJdbc()
-        return JdbcSession(ds)
+        val ses = JdbcSession()
+        ses.dataSource = openJdbc()
+        return ses
     }
 
     open fun acquireSql(): MybatisSession {

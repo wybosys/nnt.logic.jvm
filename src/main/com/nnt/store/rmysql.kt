@@ -102,7 +102,10 @@ class RMysql : AbstractRdb() {
         return true
     }
 
+    // 提取mybatis-mapper的对象
     private lateinit var _mapfac: SqlSessionFactory
+
+    // 数据源+连接池
     private lateinit var _dsfac: JdbcDataSource
 
     override fun open() {
@@ -204,7 +207,8 @@ class RMysql : AbstractRdb() {
     ): Boolean {
         var r = true
         try {
-            val ses = JdbcSession(_dsfac)
+            val ses = JdbcSession()
+            ses.dataSource = _dsfac
             proc(ses)
             ses.close()
         } catch (err: Throwable) {
@@ -215,7 +219,9 @@ class RMysql : AbstractRdb() {
     }
 
     fun acquireJdbc(): JdbcSession {
-        return JdbcSession(_dsfac)
+        val ses = JdbcSession()
+        ses.dataSource = _dsfac
+        return ses
     }
 
     override fun acquireSession(): ISession {
