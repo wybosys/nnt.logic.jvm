@@ -207,7 +207,7 @@ private fun PhoenixKeepAliveAction(ses: PhoenixJdbcSession, tpl: JdbcTemplate) {
     if (now == old) {
         logger.error("${ses.logidr} keepalive失败")
     } else {
-        logger.log("${ses.logidr} keepalive成功")
+        // logger.log("${ses.logidr} keepalive成功")
     }
 }
 

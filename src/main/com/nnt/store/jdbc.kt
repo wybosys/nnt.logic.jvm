@@ -208,7 +208,7 @@ open class JdbcSession : ISession {
         }
 
         _tmr_keepalive = Repeat(_ds!!.properties.keepAliveInterval / 1000.0) {
-            logger.log("${logidr} keepalive")
+            // logger.log("${logidr} keepalive")
 
             if (_ds!!.properties.keepAliveQuery != null) {
                 _tpl.execute(_ds!!.properties.keepAliveQuery)
