@@ -22,11 +22,73 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='com.test.dubbo',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x10\x64ubbo/test.proto\x12\x0e\x63om.test.dubbo\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\tdao.proto\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t2\xb9\x02\n\x04Test\x12<\n\x05hello\x12\x16.google.protobuf.Empty\x1a\x19.com.test.dubbo.TestReply\"\x00\x12\x38\n\x05\x65\x63hoo\x12\x1c.google.protobuf.StringValue\x1a\x0f.com.test.Echoo\"\x00\x12\x34\n\x06\x65\x63hoos\x12\x16.google.protobuf.Empty\x1a\x10.com.test.Echoos\"\x00\x12\x44\n\x0b\x63lear_echoo\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int32Value\"\x00\x12=\n\x0cupdate_echoo\x12\x0f.com.test.Echoo\x1a\x1a.google.protobuf.BoolValue\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x10\x64ubbo/test.proto\x12\x0e\x63om.test.dubbo\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\tdao.proto\"\x1c\n\x0bReqTestEcho\x12\r\n\x05input\x18\x01 \x01(\t\"\x1d\n\x0bRspTestEcho\x12\x0e\n\x06output\x18\x01 \x01(\t\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t2\xfd\x02\n\x04Test\x12<\n\x05hello\x12\x16.google.protobuf.Empty\x1a\x19.com.test.dubbo.TestReply\"\x00\x12\x42\n\x04\x65\x63ho\x12\x1b.com.test.dubbo.ReqTestEcho\x1a\x1b.com.test.dubbo.RspTestEcho\"\x00\x12\x38\n\x05\x65\x63hoo\x12\x1c.google.protobuf.StringValue\x1a\x0f.com.test.Echoo\"\x00\x12\x34\n\x06\x65\x63hoos\x12\x16.google.protobuf.Empty\x1a\x10.com.test.Echoos\"\x00\x12\x44\n\x0b\x63lear_echoo\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int32Value\"\x00\x12=\n\x0cupdate_echoo\x12\x0f.com.test.Echoo\x1a\x1a.google.protobuf.BoolValue\"\x00\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_protobuf_dot_wrappers__pb2.DESCRIPTOR,dao__pb2.DESCRIPTOR,])
 
 
+
+
+_REQTESTECHO = _descriptor.Descriptor(
+  name='ReqTestEcho',
+  full_name='com.test.dubbo.ReqTestEcho',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='input', full_name='com.test.dubbo.ReqTestEcho.input', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=108,
+  serialized_end=136,
+)
+
+
+_RSPTESTECHO = _descriptor.Descriptor(
+  name='RspTestEcho',
+  full_name='com.test.dubbo.RspTestEcho',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='output', full_name='com.test.dubbo.RspTestEcho.output', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=138,
+  serialized_end=167,
+)
 
 
 _TESTREPLY = _descriptor.Descriptor(
@@ -55,12 +117,28 @@ _TESTREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=108,
-  serialized_end=136,
+  serialized_start=169,
+  serialized_end=197,
 )
 
+DESCRIPTOR.message_types_by_name['ReqTestEcho'] = _REQTESTECHO
+DESCRIPTOR.message_types_by_name['RspTestEcho'] = _RSPTESTECHO
 DESCRIPTOR.message_types_by_name['TestReply'] = _TESTREPLY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+ReqTestEcho = _reflection.GeneratedProtocolMessageType('ReqTestEcho', (_message.Message,), dict(
+  DESCRIPTOR = _REQTESTECHO,
+  __module__ = 'dubbo.test_pb2'
+  # @@protoc_insertion_point(class_scope:com.test.dubbo.ReqTestEcho)
+  ))
+_sym_db.RegisterMessage(ReqTestEcho)
+
+RspTestEcho = _reflection.GeneratedProtocolMessageType('RspTestEcho', (_message.Message,), dict(
+  DESCRIPTOR = _RSPTESTECHO,
+  __module__ = 'dubbo.test_pb2'
+  # @@protoc_insertion_point(class_scope:com.test.dubbo.RspTestEcho)
+  ))
+_sym_db.RegisterMessage(RspTestEcho)
 
 TestReply = _reflection.GeneratedProtocolMessageType('TestReply', (_message.Message,), dict(
   DESCRIPTOR = _TESTREPLY,
@@ -77,8 +155,8 @@ _TEST = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=139,
-  serialized_end=452,
+  serialized_start=200,
+  serialized_end=581,
   methods=[
   _descriptor.MethodDescriptor(
     name='hello',
@@ -90,9 +168,18 @@ _TEST = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
+    name='echo',
+    full_name='com.test.dubbo.Test.echo',
+    index=1,
+    containing_service=None,
+    input_type=_REQTESTECHO,
+    output_type=_RSPTESTECHO,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
     name='echoo',
     full_name='com.test.dubbo.Test.echoo',
-    index=1,
+    index=2,
     containing_service=None,
     input_type=google_dot_protobuf_dot_wrappers__pb2._STRINGVALUE,
     output_type=dao__pb2._ECHOO,
@@ -101,7 +188,7 @@ _TEST = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='echoos',
     full_name='com.test.dubbo.Test.echoos',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=dao__pb2._ECHOOS,
@@ -110,7 +197,7 @@ _TEST = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='clear_echoo',
     full_name='com.test.dubbo.Test.clear_echoo',
-    index=3,
+    index=4,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=google_dot_protobuf_dot_wrappers__pb2._INT32VALUE,
@@ -119,7 +206,7 @@ _TEST = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='update_echoo',
     full_name='com.test.dubbo.Test.update_echoo',
-    index=4,
+    index=5,
     containing_service=None,
     input_type=dao__pb2._ECHOO,
     output_type=google_dot_protobuf_dot_wrappers__pb2._BOOLVALUE,

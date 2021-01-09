@@ -32,6 +32,20 @@ class TestClient extends \Grpc\BaseStub {
     }
 
     /**
+     * 普通测试echo
+     * @param \Com\Test\Dubbo\ReqTestEcho $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     */
+    public function echo(\Com\Test\Dubbo\ReqTestEcho $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.test.dubbo.Test/echo',
+        $argument,
+        ['\Com\Test\Dubbo\RspTestEcho', 'decode'],
+        $metadata, $options);
+    }
+
+    /**
      * 数据库添加一个echoo
      * @param \Google\Protobuf\StringValue $argument input argument
      * @param array $metadata metadata

@@ -48,6 +48,16 @@ class Test : ITest, TestGrpc.TestImplBase() {
         responseObserver.onCompleted()
     }
 
+    override fun echo(request: TestOuterClass.ReqTestEcho, responseObserver: StreamObserver<TestOuterClass.RspTestEcho>) {
+        logger.info("调用 grpc-echo")
+
+        val rsp = TestOuterClass.RspTestEcho.newBuilder()
+            .setOutput(request.input)
+            .build()
+        responseObserver.onNext(rsp)
+        responseObserver.onCompleted()
+    }
+
     override fun echoos(request: Empty, responseObserver: StreamObserver<Dao.Echoos>) {
         logger.info("调用 grpc-echoos")
 

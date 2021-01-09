@@ -22,6 +22,11 @@ class TestStub(object):
         request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         response_deserializer=dubbo_dot_test__pb2.TestReply.FromString,
         )
+    self.echo = channel.unary_unary(
+        '/com.test.dubbo.Test/echo',
+        request_serializer=dubbo_dot_test__pb2.ReqTestEcho.SerializeToString,
+        response_deserializer=dubbo_dot_test__pb2.RspTestEcho.FromString,
+        )
     self.echoo = channel.unary_unary(
         '/com.test.dubbo.Test/echoo',
         request_serializer=google_dot_protobuf_dot_wrappers__pb2.StringValue.SerializeToString,
@@ -50,6 +55,13 @@ class TestServicer(object):
 
   def hello(self, request, context):
     """返回欢迎
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def echo(self, request, context):
+    """普通测试echo
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
@@ -90,6 +102,11 @@ def add_TestServicer_to_server(servicer, server):
           servicer.hello,
           request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
           response_serializer=dubbo_dot_test__pb2.TestReply.SerializeToString,
+      ),
+      'echo': grpc.unary_unary_rpc_method_handler(
+          servicer.echo,
+          request_deserializer=dubbo_dot_test__pb2.ReqTestEcho.FromString,
+          response_serializer=dubbo_dot_test__pb2.RspTestEcho.SerializeToString,
       ),
       'echoo': grpc.unary_unary_rpc_method_handler(
           servicer.echoo,

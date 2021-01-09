@@ -11,6 +11,9 @@ service Test {
   // 返回欢迎
   rpc hello(google.protobuf.Empty) returns (TestReply) {}
 
+  // 普通测试echo
+  rpc echo(ReqTestEcho) returns (RspTestEcho) {}
+
   // 数据库添加一个echoo
   rpc echoo(google.protobuf.StringValue) returns (com.test.Echoo) {}
 
@@ -22,6 +25,14 @@ service Test {
 
   // 更新
   rpc update_echoo(com.test.Echoo) returns (google.protobuf.BoolValue) {}
+}
+
+message ReqTestEcho {
+  string input = 1;
+}
+
+message RspTestEcho {
+  string output = 1;
 }
 
 message TestReply {

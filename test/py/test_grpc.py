@@ -2,6 +2,7 @@
 
 import asyncio
 from dubbo.test_pb2_grpc import TestStub
+from dubbo.test_pb2 import ReqTestEcho
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import StringValue
 
@@ -21,6 +22,12 @@ async def test(idx):
     # 测试hello
     response = stub.hello(Empty())
     print("收到数据 %s" % response.message)
+
+    # 测试echo
+    req = ReqTestEcho()
+    req.input = "hello"
+    response = stub.echo(req)
+    print("收到数据 %s" % (response.output))
 
     # 测试echoo
     response = stub.echoo(StringValue(value="test echoo"))
