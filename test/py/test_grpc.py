@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import asyncio
-from dubbo.test_pb2_grpc import TestStub
+from dubbo.test_pb2_grpc import TestStub, Test1Stub
 from dubbo.test_pb2 import ReqTestEcho
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import StringValue
@@ -14,6 +14,7 @@ host = "localhost:8093"
 # 链接服务器
 channel = grpc.insecure_channel(host)
 stub = TestStub(channel)
+stub1 = Test1Stub(channel)
 
 
 async def test(idx):
@@ -27,6 +28,11 @@ async def test(idx):
     req = ReqTestEcho()
     req.input = "hello"
     response = stub.echo(req)
+    print("收到数据 %s" % (response.output))
+
+    req = ReqTestEcho()
+    req.input = "test1:hello"
+    response = stub1.echo(req)
     print("收到数据 %s" % (response.output))
 
     # 测试echoo

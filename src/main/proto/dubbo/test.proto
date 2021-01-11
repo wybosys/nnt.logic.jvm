@@ -27,6 +27,13 @@ service Test {
   rpc update_echoo(com.test.Echoo) returns (google.protobuf.BoolValue) {}
 }
 
+service Test1 {
+
+  // 普通测试echo
+  rpc echo(ReqTestEcho) returns (RspTestEcho) {}
+
+}
+
 message ReqTestEcho {
   string input = 1;
 }

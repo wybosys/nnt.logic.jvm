@@ -53,7 +53,8 @@
           "type": "grpc",
           "port": 8093,
           "service": [
-            "test"
+            "test",
+            "test1"
           ]
         }
       ],
@@ -66,6 +67,11 @@
           "id": "test",
           "impl": "com.test.dubbo.Test",
           "iface": "com.test.dubbo.ITest"
+        },
+        {
+          "id": "test1",
+          "impl": "com.test.dubbo.Test1",
+          "iface": "com.test.dubbo.ITest1"
         }
       ]
     }

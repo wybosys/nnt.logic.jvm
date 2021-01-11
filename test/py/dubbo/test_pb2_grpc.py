@@ -132,3 +132,45 @@ def add_TestServicer_to_server(servicer, server):
   generic_handler = grpc.method_handlers_generic_handler(
       'com.test.dubbo.Test', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))
+
+
+class Test1Stub(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def __init__(self, channel):
+    """Constructor.
+
+    Args:
+      channel: A grpc.Channel.
+    """
+    self.echo = channel.unary_unary(
+        '/com.test.dubbo.Test1/echo',
+        request_serializer=dubbo_dot_test__pb2.ReqTestEcho.SerializeToString,
+        response_deserializer=dubbo_dot_test__pb2.RspTestEcho.FromString,
+        )
+
+
+class Test1Servicer(object):
+  # missing associated documentation comment in .proto file
+  pass
+
+  def echo(self, request, context):
+    """普通测试echo
+    """
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+
+def add_Test1Servicer_to_server(servicer, server):
+  rpc_method_handlers = {
+      'echo': grpc.unary_unary_rpc_method_handler(
+          servicer.echo,
+          request_deserializer=dubbo_dot_test__pb2.ReqTestEcho.FromString,
+          response_serializer=dubbo_dot_test__pb2.RspTestEcho.SerializeToString,
+      ),
+  }
+  generic_handler = grpc.method_handlers_generic_handler(
+      'com.test.dubbo.Test1', rpc_method_handlers)
+  server.add_generic_rpc_handlers((generic_handler,))
