@@ -3,7 +3,7 @@ package com.nnt.store.reflect
 // 描述关系型数据库结构
 
 // 数据库信息
-class SchemeInfo {
+class SchemaInfo {
 
     // 数据库名
     var name: String = ""

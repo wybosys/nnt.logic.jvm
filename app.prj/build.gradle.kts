@@ -108,6 +108,7 @@ dependencies {
     implementation("org.apache.hbase:hbase-client:2.2.6")
     implementation("org.apache.phoenix:phoenix-queryserver-client:5.0.0-HBase-2.0")
     implementation("org.springframework:spring-jdbc:4.3.8.RELEASE")
+    implementation("com.facebook.presto:presto-jdbc:0.99")
 
     // mq
     implementation("org.apache.kafka:kafka-clients:2.6.0")

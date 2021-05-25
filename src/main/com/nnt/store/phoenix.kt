@@ -1,7 +1,7 @@
 package com.nnt.store
 
 import com.nnt.core.*
-import com.nnt.store.reflect.SchemeInfo
+import com.nnt.store.reflect.SchemaInfo
 import org.springframework.jdbc.core.JdbcTemplate
 import java.util.*
 import kotlin.random.Random
@@ -13,8 +13,8 @@ private const val DEFAULT_PORT = 8765
 class Phoenix : Mybatis() {
 
     var host: String = ""
-    var port: Int = 8765
-    var scheme: String = ""
+    var port: Int = DEFAULT_PORT
+    var schema: String = ""
 
     override fun config(cfg: JsonObject): Boolean {
         // 初始化
@@ -50,8 +50,8 @@ class Phoenix : Mybatis() {
         url = "jdbc:phoenix:thin:url=http://${host}:${port};serialization=PROTOBUF;timeZone=Asia/Shanghai;"
 
         // 设置默认数据库
-        if (cfg.has("scheme"))
-            scheme = cfg["scheme"]!!.asString().toUpperCase()
+        if (cfg.has("schema"))
+            schema = cfg["schema"]!!.asString().toUpperCase()
 
         return true
     }
@@ -115,22 +115,22 @@ class Phoenix : Mybatis() {
     }
 
     override fun tables(): Map<String, com.nnt.store.reflect.TableInfo> {
-        return tables(scheme)
+        return tables(schema)
     }
 
     override fun table(name: String): com.nnt.store.reflect.TableInfo? {
-        return table(scheme, name)
+        return table(schema, name)
     }
 
-    fun schemes(): Map<String, SchemeInfo> {
-        val r = mutableMapOf<String, SchemeInfo>()
+    fun schemas(): Map<String, SchemaInfo> {
+        val r = mutableMapOf<String, SchemaInfo>()
         jdbc {
             val res = it.queryForList("select distinct table_schem from system.catalog where table_type='u'")
             res.forEach {
                 var sch = it["table_schem"]
                 if (sch == null)
                     sch = ""
-                val si = SchemeInfo()
+                val si = SchemaInfo()
                 si.name = sch as String
                 r[si.name] = si
             }
@@ -138,15 +138,15 @@ class Phoenix : Mybatis() {
         return r
     }
 
-    fun scheme(scheme: String): SchemeInfo? {
-        var r: SchemeInfo? = null
+    fun scheme(scheme: String): SchemaInfo? {
+        var r: SchemaInfo? = null
         jdbc {
             val res = it.queryForMap(
                 "select distinct table_schem from system.catalog where table_type='u' and table_schem=?",
                 scheme.toUpperCase()
             )
             if (res != null) {
-                r = SchemeInfo()
+                r = SchemaInfo()
                 r!!.name = res["table_schem"] as String
             }
         }
@@ -225,7 +225,7 @@ class PhoenixJdbcSession(phoenix: Phoenix) : JdbcSession() {
         slowquery = DEFAULT_PHOENIX_SLOWQUERY
     }
 
-    val scheme: String get() = _phoenix.scheme
+    val schema: String get() = _phoenix.schema
 
     override fun <T : Any> queryForObject(sql: String, requiredType: KClass<T>, vararg args: Any): T? = metric({
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")

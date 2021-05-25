@@ -34,7 +34,7 @@
       "host": "localhost:3306",
       "user": "root",
       "pwd": "root",
-      "scheme": "nnt-logic",
+      "schema": "nnt-logic",
       "entry": "com.nnt.store.RMysql",
       "mybatis": {
         "map": [
@@ -49,13 +49,6 @@
       "entry": "com.nnt.store.KvRedis"
     },
     {
-      "id": "neo",
-      "host": "localhost:7687",
-      "user": "neo4j",
-      "pwd": "root",
-      "entry": "com.nnt.store.Neo4J"
-    },
-    {
       "id": "hbase",
       "zk": "localhost:2181",
       "entry": "com.nnt.store.HBase"
@@ -63,8 +56,14 @@
     {
       "id": "phoenix",
       "thin": "localhost:8765",
-      "scheme": "nntlogic",
+      "schema": "nntlogic",
       "entry": "com.nnt.store.Phoenix"
+    },
+    {
+      "id": "presto",
+      "host": "localhost:9765",
+      "catalog": "hive",
+      "entry": "com.nnt.store.Presto"
     }
   ],
   "logger": [

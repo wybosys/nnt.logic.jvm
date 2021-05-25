@@ -23,7 +23,7 @@ class RMysql : AbstractRdb() {
     var port: Int = DEFAULT_PORT
     var user: String = ""
     var pwd: String = ""
-    var scheme: String = ""
+    var schema: String = ""
     var maps = listOf<URI>()
 
     override fun tables(): Map<String, TableInfo> {
@@ -66,11 +66,11 @@ class RMysql : AbstractRdb() {
         if (cfg.has("pwd"))
             pwd = cfg["pwd"]!!.asString()
 
-        if (!cfg.has("scheme")) {
+        if (!cfg.has("schema")) {
             logger.fatal("${id} 没有配置数据表")
             return false
         }
-        scheme = cfg["scheme"]!!.asString()
+        schema = cfg["schema"]!!.asString()
 
         if (!cfg.has("host")) {
             logger.fatal("${id} 没有配置数据库地址")
@@ -121,7 +121,7 @@ class RMysql : AbstractRdb() {
     private fun openJdbc(): Boolean {
         val props = Jdbc.DefaultJdbcProperties()
         props.driverClassName = "com.mysql.cj.jdbc.Driver"
-        props.jdbcUrl = "jdbc:mysql://${host}:${port}/${scheme}?characterEncoding=UTF-8"
+        props.jdbcUrl = "jdbc:mysql://${host}:${port}/${schema}?characterEncoding=UTF-8"
         if (!user.isEmpty()) {
             props.username = user
             if (!pwd.isEmpty())
@@ -144,7 +144,7 @@ class RMysql : AbstractRdb() {
         val fac = PooledDataSourceFactory()
         val props = Properties()
         props.setProperty("driver", "com.mysql.cj.jdbc.Driver")
-        props.setProperty("url", "jdbc:mysql://${host}:${port}/${scheme}?characterEncoding=UTF-8")
+        props.setProperty("url", "jdbc:mysql://${host}:${port}/${schema}?characterEncoding=UTF-8")
         if (!user.isEmpty()) {
             props.setProperty("username", user)
             if (!pwd.isEmpty())

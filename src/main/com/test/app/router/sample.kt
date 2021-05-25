@@ -58,11 +58,11 @@ class RSample : AbstractRouter() {
         ses.immortal()
 
         if (phoenix.table("test") != null) {
-            ses.execute("drop table ${ses.scheme}.test${interval}")
+            ses.execute("drop table ${ses.schema}.test${interval}")
         }
 
         // 创建测试表
-        ses.execute("create table ${ses.scheme}.test${interval} (id integer primary key, random_value integer)")
+        ses.execute("create table ${ses.schema}.test${interval} (id integer primary key, random_value integer)")
 
         var cur = 0
 
@@ -71,17 +71,17 @@ class RSample : AbstractRouter() {
 
             // 写入测试数据
             val cnt = ses.queryForObject(
-                "select count(*) from ${ses.scheme}.test${interval}",
+                "select count(*) from ${ses.schema}.test${interval}",
                 Long::class
             )!!
 
             ses.update(
-                "upsert into ${ses.scheme}.test${interval} (id, random_value) values (?, ?)",
+                "upsert into ${ses.schema}.test${interval} (id, random_value) values (?, ?)",
                 cur++, Random.nextInt(0, 10000000)
             )
 
             val cnt2 = ses.queryForObject(
-                "select count(*) from ${ses.scheme}.test${interval}",
+                "select count(*) from ${ses.schema}.test${interval}",
                 Long::class
             )!!
 
@@ -103,6 +103,17 @@ class RSample : AbstractRouter() {
         test_phoenix(phoenix, 60 * 5)
         test_phoenix(phoenix, 60 * 10)
         test_phoenix(phoenix, 60 * 60)
+    }
+
+    @action(Null::class)
+    suspend fun presto(trans:Trans) {
+        trans.submit()
+
+        val presto = Dbms.Find("presto") as Presto
+        presto.jdbc {
+            val res = it.queryForList("select * from test")
+            logger.info(res.toString())
+        }
     }
 
     @action(Null::class)
