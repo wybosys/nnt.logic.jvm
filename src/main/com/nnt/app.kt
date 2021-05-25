@@ -6,7 +6,7 @@ import com.nnt.manager.App
 import com.nnt.manager.Cli
 import com.nnt.signals.kSignalChanged
 
-class Index {
+class App {
 
     companion object {
 
