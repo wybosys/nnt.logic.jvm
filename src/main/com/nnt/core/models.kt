@@ -62,3 +62,21 @@ open class NumPaged {
             return total > PAGED_LIMIT
         }
 }
+
+// 模型数据类型枚举
+@model([enumm])
+enum class DataType(val value: Int) {
+    UNKNOWN(0),
+    STRING(1),
+    INTEGER(2),
+    DECIMAL(3),
+    BOOLEAN(4),
+    TIMESTAMP(5),
+    JSON(6),
+    MAP(7),
+    ARRAY(8),
+    ENUMERATE(9),
+    FILTER(10),
+    TYPE(11),
+    INTFLOAT(12),
+}

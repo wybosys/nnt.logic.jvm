@@ -7,7 +7,6 @@ import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.*
 import org.springframework.jdbc.support.KeyHolder
 import org.springframework.jdbc.support.rowset.SqlRowSet
-import java.util.*
 import kotlin.reflect.KClass
 
 typealias JdbcKeepAliveAction = (ses: JdbcSession, tpl: JdbcTemplate) -> Unit
@@ -874,4 +873,20 @@ open class JdbcSession : ISession {
         }
         return mapOf()
     }
+}
+
+// 从jdbc的数据类型转换为模型数据类型，一般用于元数据传递
+fun JdbcDataTypeToModelDataType(styp: String): DataType {
+    var r = DataType.UNKNOWN
+    when (styp) {
+        "VARCHAR", "TEXT" ->
+            r = DataType.STRING
+        "FLOAT", "DOUBLE" ->
+            r = DataType.DECIMAL
+        "BIGINT", "TINYINT", "INT" ->
+            r = DataType.INTEGER
+        "JSON" ->
+            r = DataType.JSON
+    }
+    return r
 }
