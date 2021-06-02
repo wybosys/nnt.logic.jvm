@@ -82,37 +82,13 @@
       "host": "localhost:3306",
       "user": "root",
       "pwd": "root",
-      "scheme": "nnt-logic",
+      "schema": "nnt-logic",
       "entry": "com.nnt.store.RMysql",
       "mybatis": {
         "map": [
           "bundle://mybatis/sample.xml"
         ]
       }
-    },
-    {
-      "id": "kv",
-      "host": "localhost:6379",
-      "prefix": "nnt-logic-sample",
-      "entry": "com.nnt.store.KvRedis"
-    },
-    {
-      "id": "neo",
-      "host": "localhost:7687",
-      "user": "neo4j",
-      "pwd": "root",
-      "entry": "com.nnt.store.Neo4J"
-    },
-    {
-      "id": "hbase",
-      "zk": "localhost:2181",
-      "entry": "com.nnt.store.HBase"
-    },
-    {
-      "id": "phoenix",
-      "thin": "localhost:8765",
-      "entry": "com.nnt.store.Phoenix",
-      "scheme": "nntlogic"
     }
   ],
   "logger": [

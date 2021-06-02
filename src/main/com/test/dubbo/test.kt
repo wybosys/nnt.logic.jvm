@@ -21,14 +21,14 @@ import javax.ws.rs.core.MediaType
 @Path("test")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-interface ITest : TestGrpc.ITest {
+interface ITest : DubboTestGrpc.ITest {
 
     @GET
     @Path("hello")
     fun hello(): String
 }
 
-class Test : ITest, TestGrpc.TestImplBase() {
+class Test : ITest, DubboTestGrpc.TestImplBase() {
 
     override fun hello(): String {
         logger.info("调用 rest-hello")
@@ -102,7 +102,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
         }
     }
 
-    override fun updateEchoo(request: Dao.Echoo, responseObserver: StreamObserver<BoolValue>) {
+    override fun echooupdate(request: Dao.Echoo, responseObserver: StreamObserver<BoolValue>) {
         logger.info("调用 grpc-update-echoo")
 
         val mysql = Dbms.Find("mysql") as RMysql
@@ -119,7 +119,7 @@ class Test : ITest, TestGrpc.TestImplBase() {
         }
     }
 
-    override fun clearEchoo(request: Empty, responseObserver: StreamObserver<Int32Value>) {
+    override fun echooclear(request: Empty, responseObserver: StreamObserver<Int32Value>) {
         logger.info("调用 grpc-clear-echoo")
 
         val mysql = Dbms.Find("mysql") as RMysql

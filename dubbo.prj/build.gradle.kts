@@ -7,7 +7,7 @@ plugins {
     idea
     kotlin("jvm") version "1.4.10"
     kotlin("kapt") version "1.4.10"
-    id("com.google.protobuf") version "0.8.13"
+    id("com.google.protobuf") version "0.8.16"
     id("org.springframework.boot") version "2.3.4.RELEASE"
 }
 
@@ -23,10 +23,11 @@ buildscript {
     repositories {
         maven("https://maven.aliyun.com/repository/gradle-plugin")
         maven("https://maven.aliyun.com/repository/central")
+        mavenCentral()
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10")
-        classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.13")
+        classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.16")
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.3.4.RELEASE")
     }
 }
@@ -34,6 +35,7 @@ buildscript {
 repositories {
     maven("https://maven.aliyun.com/repository/central")
     maven("https://maven.aliyun.com/repository/apache-snapshots")
+    mavenCentral()
 }
 
 springBoot {
@@ -131,11 +133,11 @@ dependencies {
     // grpc
     implementation("com.google.protobuf:protobuf-java:3.12.0")
     implementation("com.google.protobuf:protobuf-java-util:3.12.0")
-    implementation("io.grpc:grpc-all:1.32.1")
+    implementation("io.grpc:grpc-all:1.34.1")
 
     // dubbo
-    implementation("org.apache.dubbo:dubbo:2.7.8")
-    implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.8")
+    implementation("org.apache.dubbo:dubbo:2.7.11")
+    implementation("org.apache.dubbo:dubbo-dependencies-zookeeper:2.7.11")
     implementation("org.apache.zookeeper:zookeeper:3.4.13") { isForce = true }
 
     // dubbo-spring
@@ -167,19 +169,24 @@ tasks.test {
 protobuf {
 
     protoc {
-        artifact = "com.google.protobuf:protoc:3.7.0"
+        artifact = "com.google.protobuf:protoc:3.12.0"
     }
 
     plugins {
         id("grpc-java") {
-            artifact = "org.apache.dubbo:protoc-gen-dubbo-java:1.19.0-20191122.130716-5"
+            artifact = "io.grpc:protoc-gen-grpc-java:1.34.1"
+        }
+
+        id("dubbo-grpc") {
+            artifact = "io.github.wybosys:dubbo-compiler:0.0.1"
         }
     }
 
     generateProtoTasks {
-        all().forEach {
-            it.plugins {
-                id("grpc-java")
+        all().forEach { task ->
+            task.plugins {
+                id("grpc-java") {}
+                id("dubbo-grpc") {}
             }
         }
     }

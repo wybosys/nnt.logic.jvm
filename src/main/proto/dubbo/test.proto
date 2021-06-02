@@ -21,10 +21,10 @@ service Test {
   rpc echoos(google.protobuf.Empty) returns (com.test.Echoos) {}
 
   // 清空echoo
-  rpc clear_echoo(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+  rpc echooclear(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
 
   // 更新
-  rpc update_echoo(com.test.Echoo) returns (google.protobuf.BoolValue) {}
+  rpc echooupdate(com.test.Echoo) returns (google.protobuf.BoolValue) {}
 }
 
 service Test1 {
