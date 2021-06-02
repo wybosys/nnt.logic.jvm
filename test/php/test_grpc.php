@@ -35,7 +35,7 @@ function test($idx)
     # 修改
     # response.id = 5555
     $reply->setOutput("modified");
-    [$reply, $status] = $stub->update_echoo($reply)->wait();
+    [$reply, $status] = $stub->echooupdate($reply)->wait();
     if ($reply->getValue())
         println("修改成功");
     else
@@ -49,7 +49,7 @@ function test($idx)
     }
 
     # 清空echoo
-    [$reply, $status] = $stub->clear_echoo(new GPBEmpty())->wait();
+    [$reply, $status] = $stub->echooclear(new GPBEmpty())->wait();
     println("清空 {$reply->getValue()} 条数据");
 }
 

@@ -79,9 +79,9 @@ class TestClient extends \Grpc\BaseStub {
      * @param array $metadata metadata
      * @param array $options call options
      */
-    public function clear_echoo(\Google\Protobuf\GPBEmpty $argument,
+    public function echooclear(\Google\Protobuf\GPBEmpty $argument,
       $metadata = [], $options = []) {
-        return $this->_simpleRequest('/com.test.dubbo.Test/clear_echoo',
+        return $this->_simpleRequest('/com.test.dubbo.Test/echooclear',
         $argument,
         ['\Google\Protobuf\Int32Value', 'decode'],
         $metadata, $options);
@@ -93,9 +93,9 @@ class TestClient extends \Grpc\BaseStub {
      * @param array $metadata metadata
      * @param array $options call options
      */
-    public function update_echoo(\Com\Test\Echoo $argument,
+    public function echooupdate(\Com\Test\Echoo $argument,
       $metadata = [], $options = []) {
-        return $this->_simpleRequest('/com.test.dubbo.Test/update_echoo',
+        return $this->_simpleRequest('/com.test.dubbo.Test/echooupdate',
         $argument,
         ['\Google\Protobuf\BoolValue', 'decode'],
         $metadata, $options);

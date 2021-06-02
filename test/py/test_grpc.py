@@ -42,7 +42,7 @@ async def test(idx):
     # 修改
     # response.id = 5555
     response.output = "modified"
-    response = stub.update_echoo(response)
+    response = stub.echooupdate(response)
     print("修改成功" if response.value else "修改失败")
 
     # 查询
@@ -52,7 +52,7 @@ async def test(idx):
         print("%d %s" % (e.id, e.output))
 
     # 清空echoo
-    response = stub.clear_echoo(Empty())
+    response = stub.echooclear(Empty())
     print("清空 %d 条数据" % response.value)
 
 

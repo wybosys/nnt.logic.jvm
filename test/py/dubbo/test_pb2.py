@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='com.test.dubbo',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x10\x64ubbo/test.proto\x12\x0e\x63om.test.dubbo\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\tdao.proto\"\x1c\n\x0bReqTestEcho\x12\r\n\x05input\x18\x01 \x01(\t\"\x1d\n\x0bRspTestEcho\x12\x0e\n\x06output\x18\x01 \x01(\t\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t2\xfd\x02\n\x04Test\x12<\n\x05hello\x12\x16.google.protobuf.Empty\x1a\x19.com.test.dubbo.TestReply\"\x00\x12\x42\n\x04\x65\x63ho\x12\x1b.com.test.dubbo.ReqTestEcho\x1a\x1b.com.test.dubbo.RspTestEcho\"\x00\x12\x38\n\x05\x65\x63hoo\x12\x1c.google.protobuf.StringValue\x1a\x0f.com.test.Echoo\"\x00\x12\x34\n\x06\x65\x63hoos\x12\x16.google.protobuf.Empty\x1a\x10.com.test.Echoos\"\x00\x12\x44\n\x0b\x63lear_echoo\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int32Value\"\x00\x12=\n\x0cupdate_echoo\x12\x0f.com.test.Echoo\x1a\x1a.google.protobuf.BoolValue\"\x00\x32K\n\x05Test1\x12\x42\n\x04\x65\x63ho\x12\x1b.com.test.dubbo.ReqTestEcho\x1a\x1b.com.test.dubbo.RspTestEcho\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x10\x64ubbo/test.proto\x12\x0e\x63om.test.dubbo\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\tdao.proto\"\x1c\n\x0bReqTestEcho\x12\r\n\x05input\x18\x01 \x01(\t\"\x1d\n\x0bRspTestEcho\x12\x0e\n\x06output\x18\x01 \x01(\t\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t2\xfb\x02\n\x04Test\x12<\n\x05hello\x12\x16.google.protobuf.Empty\x1a\x19.com.test.dubbo.TestReply\"\x00\x12\x42\n\x04\x65\x63ho\x12\x1b.com.test.dubbo.ReqTestEcho\x1a\x1b.com.test.dubbo.RspTestEcho\"\x00\x12\x38\n\x05\x65\x63hoo\x12\x1c.google.protobuf.StringValue\x1a\x0f.com.test.Echoo\"\x00\x12\x34\n\x06\x65\x63hoos\x12\x16.google.protobuf.Empty\x1a\x10.com.test.Echoos\"\x00\x12\x43\n\nechooclear\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int32Value\"\x00\x12<\n\x0b\x65\x63hooupdate\x12\x0f.com.test.Echoo\x1a\x1a.google.protobuf.BoolValue\"\x00\x32K\n\x05Test1\x12\x42\n\x04\x65\x63ho\x12\x1b.com.test.dubbo.ReqTestEcho\x1a\x1b.com.test.dubbo.RspTestEcho\"\x00\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_protobuf_dot_wrappers__pb2.DESCRIPTOR,dao__pb2.DESCRIPTOR,])
 
@@ -156,7 +156,7 @@ _TEST = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   serialized_start=200,
-  serialized_end=581,
+  serialized_end=579,
   methods=[
   _descriptor.MethodDescriptor(
     name='hello',
@@ -195,8 +195,8 @@ _TEST = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
-    name='clear_echoo',
-    full_name='com.test.dubbo.Test.clear_echoo',
+    name='echooclear',
+    full_name='com.test.dubbo.Test.echooclear',
     index=4,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
@@ -204,8 +204,8 @@ _TEST = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
-    name='update_echoo',
-    full_name='com.test.dubbo.Test.update_echoo',
+    name='echooupdate',
+    full_name='com.test.dubbo.Test.echooupdate',
     index=5,
     containing_service=None,
     input_type=dao__pb2._ECHOO,
@@ -224,8 +224,8 @@ _TEST1 = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=1,
   serialized_options=None,
-  serialized_start=583,
-  serialized_end=658,
+  serialized_start=581,
+  serialized_end=656,
   methods=[
   _descriptor.MethodDescriptor(
     name='echo',
