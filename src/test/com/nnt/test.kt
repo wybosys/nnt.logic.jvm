@@ -232,8 +232,10 @@ class Test {
 
         mysql.mapper { ses ->
             var res = ses.selectOne<Echoo>("listEchoo")
+            println(res)
             ses.autoClearCache = true
             res = ses.selectOne<Echoo>("listEchoo")
+            println(res)
         }
 
         mysql.jdbc { ses ->
