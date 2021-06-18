@@ -22,6 +22,7 @@ class TestClient extends \Grpc\BaseStub {
      * @param \Google\Protobuf\GPBEmpty $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
+     * @return \Grpc\UnaryCall
      */
     public function hello(\Google\Protobuf\GPBEmpty $argument,
       $metadata = [], $options = []) {
@@ -36,6 +37,7 @@ class TestClient extends \Grpc\BaseStub {
      * @param \Com\Test\Dubbo\ReqTestEcho $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
+     * @return \Grpc\UnaryCall
      */
     public function echo(\Com\Test\Dubbo\ReqTestEcho $argument,
       $metadata = [], $options = []) {
@@ -50,6 +52,7 @@ class TestClient extends \Grpc\BaseStub {
      * @param \Google\Protobuf\StringValue $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
+     * @return \Grpc\UnaryCall
      */
     public function echoo(\Google\Protobuf\StringValue $argument,
       $metadata = [], $options = []) {
@@ -64,6 +67,7 @@ class TestClient extends \Grpc\BaseStub {
      * @param \Google\Protobuf\GPBEmpty $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
+     * @return \Grpc\UnaryCall
      */
     public function echoos(\Google\Protobuf\GPBEmpty $argument,
       $metadata = [], $options = []) {
@@ -78,6 +82,7 @@ class TestClient extends \Grpc\BaseStub {
      * @param \Google\Protobuf\GPBEmpty $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
+     * @return \Grpc\UnaryCall
      */
     public function echooclear(\Google\Protobuf\GPBEmpty $argument,
       $metadata = [], $options = []) {
@@ -92,6 +97,7 @@ class TestClient extends \Grpc\BaseStub {
      * @param \Com\Test\Echoo $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
+     * @return \Grpc\UnaryCall
      */
     public function echooupdate(\Com\Test\Echoo $argument,
       $metadata = [], $options = []) {

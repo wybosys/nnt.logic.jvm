@@ -69,6 +69,13 @@ def listall(dir, allows, denys):
 #    os.system(cmd)
 
 
+def FindTool(cmd: str) -> str:
+    (sta, out) = subprocess.getstatusoutput('which %s' % cmd)
+    if sta == 0:
+        return out
+    return None
+
+
 def GenPy(protos: List[str]):
     gr = "python3 -m grpc_tools.protoc --python_out=py --grpc_python_out=py -I../src/main/proto %s" % (
         ' '.join(protos))
@@ -78,8 +85,11 @@ def GenPy(protos: List[str]):
 
 
 def GenPHP(protos: List[str]):
-    gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc=/usr/bin/grpc_php_plugin --php_out=php --grpc_out=php %s" % (
-        ' '.join(protos))
+    plugin = FindTool('grpc_php_plugin')
+    if not plugin:
+        raise Exception('没有找到 grpc_php_plugin')
+    gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc=%s --php_out=php --grpc_out=php %s" % (
+        plugin, ' '.join(protos))
     (sta, out) = subprocess.getstatusoutput(gr)
     if sta != 0:
         raise Exception(out)

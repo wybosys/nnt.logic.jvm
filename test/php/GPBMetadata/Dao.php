@@ -14,13 +14,18 @@ class Dao
         if (static::$is_initialized == true) {
           return;
         }
-        $pool->internalAddGeneratedFile(hex2bin(
-            "0a7a0a0964616f2e70726f746f1208636f6d2e7465737422320a05456368" .
-            "6f6f120a0a026964180120012805120d0a05696e70757418022001280912" .
-            "0e0a066f757470757418032001280922270a064563686f6f73121d0a0469" .
-            "74656d18012003280b320f2e636f6d2e746573742e4563686f6f62067072" .
-            "6f746f33"
-        ));
+        $pool->internalAddGeneratedFile(
+            '
+z
+	dao.protocom.test"2
+Echoo
+
+id (
+input (	
+output (	"\'
+Echoos
+item (2.com.test.Echoobproto3'
+        , true);
 
         static::$is_initialized = true;
     }

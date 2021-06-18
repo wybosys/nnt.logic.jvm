@@ -16,7 +16,7 @@ class RspTestEcho extends \Google\Protobuf\Internal\Message
     /**
      * Generated from protobuf field <code>string output = 1;</code>
      */
-    private $output = '';
+    protected $output = '';
 
     /**
      * Constructor.

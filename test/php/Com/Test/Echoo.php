@@ -18,15 +18,15 @@ class Echoo extends \Google\Protobuf\Internal\Message
     /**
      * Generated from protobuf field <code>int32 id = 1;</code>
      */
-    private $id = 0;
+    protected $id = 0;
     /**
      * Generated from protobuf field <code>string input = 2;</code>
      */
-    private $input = '';
+    protected $input = '';
     /**
      * Generated from protobuf field <code>string output = 3;</code>
      */
-    private $output = '';
+    protected $output = '';
 
     /**
      * Constructor.
