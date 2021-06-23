@@ -74,6 +74,15 @@
           "iface": "com.test.dubbo.ITest1"
         }
       ]
+    },
+    {
+      "id": "sample-grpc-web",
+      "entry": "com.nnt.server.GrpcWeb",
+      "listen": "*:8094",
+      "service": [
+        "com.test.dubbo.Test",
+        "com.test.dubbo.Test1"
+      ]
     }
   ],
   "dbms": [
