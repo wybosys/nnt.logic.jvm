@@ -12,10 +12,11 @@ import io.grpcweb.JettyWebserverForGrpcwebTraffic
 
 open class GrpcWeb : AbstractServer() {
 
-    var listen: String = ""
     var port: Int = 80
-    val grpcport: Int = Socket.RandomPort()
-    var _svcs = mutableListOf<BindableService>()
+    var grpcport: Int = Socket.RandomPort()
+    private var _binded = false // 是否是绑定模式
+
+    val _svcs = mutableListOf<BindableService>()
 
     override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
@@ -28,16 +29,21 @@ open class GrpcWeb : AbstractServer() {
         val th = cfg["listen"]!!.asString()
         val sp = th.split(":")
         if (sp.size == 1) {
-            listen = th
         } else {
-            listen = sp[0]
             port = sp[1].toInt()
         }
-        if (listen == "*")
-            listen = "0.0.0.0"
 
-        // 读取配置的服务
-        if (cfg.has("service")) {
+        // 配置为绑定
+        if (cfg.has("bindto")) {
+            val th = cfg["bindto"]!!.asString()
+            val sp = th.split(":")
+            if (sp.size == 1) {
+            } else {
+                grpcport = sp[1].toInt()
+            }
+            _binded = true
+        } else if (cfg.has("service")) {
+            // 配置为独立服务
             val service = cfg["service"]!!
             if (service.isArray) {
                 for (v in service.asArray()) {
@@ -58,16 +64,18 @@ open class GrpcWeb : AbstractServer() {
     private var _svr_web: org.eclipse.jetty.server.Server? = null
 
     override fun start() {
-        logger.log("grpc端口为 ${grpcport}")
+        if (!_binded) {
+            // logger.log("grpc端口为 ${grpcport}")
 
-        // 启动内置grpc服务
-        val sb = ServerBuilder.forPort(grpcport)
+            // 启动内置grpc服务
+            val sb = ServerBuilder.forPort(grpcport)
 
-        _svcs.forEach {
-            sb.addService(it)
+            _svcs.forEach {
+                sb.addService(it)
+            }
+            _svr_grpc = sb.build()
+            _svr_grpc!!.start()
         }
-        _svr_grpc = sb.build()
-        _svr_grpc!!.start()
 
         // 启动web服务
         _svr_web = JettyWebserverForGrpcwebTraffic(port).start()
