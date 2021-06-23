@@ -119,10 +119,6 @@ def GenPHP(protos: List[str]):
 
 
 def GenJs(protos: List[str]):
-    """
-    通过cnpm安装 grpc-toos grpc_tools_node_protoc_ts
-    """
-    # 先输出js
     plugin = FindTool('protoc-gen-grpc-web')
     if not plugin:
         if platform.system() == 'Windows':
@@ -134,15 +130,17 @@ def GenJs(protos: List[str]):
     (sta, out) = subprocess.getstatusoutput(gr)
     if sta != 0:
         raise Exception(out)
-    # 在输出ts接口
-    protoc = FindTool('grpc_tools_node_protoc')
-    if not protoc:
-        raise Exception('没有找到 grpc_tools_node_protoc')
-    plugin = FindTool('protoc-gen-ts')
+
+
+def GenTs(protos: List[str]):
+    plugin = FindTool('protoc-gen-grpc-web')
     if not plugin:
-        raise Exception('没有找到 protoc-gen-ts')
-    gr = """"%s" --proto_path=../src/main/proto --plugin=protoc-gen-ts="%s" --ts_out=js %s""" % (
-        protoc, plugin, ' '.join(protos))
+        if platform.system() == 'Windows':
+            plugin = '%s/tools/protoc-gen-grpc-web-1.2.1-windows-x86_64.exe' % PROJECT_DIR
+        else:
+            raise Exception('没有找到 protoc-gen-grpc-web')
+    gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc_web=%s --js_out=import_style=commonjs,binary:ts --grpc_web_out=import_style=typescript,mode=grpcwebtext:ts %s" % (
+        plugin, ' '.join(protos))
     (sta, out) = subprocess.getstatusoutput(gr)
     if sta != 0:
         raise Exception(out)
@@ -150,7 +148,7 @@ def GenJs(protos: List[str]):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
-    args.add_argument('type', choices=['py', 'php', 'js', 'all'])
+    args.add_argument('type', choices=['py', 'php', 'js', 'ts', 'all'])
     args = args.parse_args()
 
     protos = listall(PROTO_DIR, PROTO_ALLOW, PROTO_DENY)
@@ -162,7 +160,10 @@ if __name__ == '__main__':
         GenPHP(protos)
     elif args.type == 'js':
         GenJs(protos)
+    elif args.type == 'ts':
+        GenTs(protos)
     else:
         GenPy(protos)
         GenPHP(protos)
         GenJs(protos)
+        GenTs(protos)
