@@ -29,15 +29,18 @@ open class GrpcWeb : AbstractServer() {
         val th = cfg["listen"]!!.asString()
         val sp = th.split(":")
         if (sp.size == 1) {
+            // 当前grpc-web不支持跨服务器监听
         } else {
             port = sp[1].toInt()
         }
 
         // 配置为绑定
+        @Suppress("NAME_SHADOWING")
         if (cfg.has("bindto")) {
             val th = cfg["bindto"]!!.asString()
             val sp = th.split(":")
             if (sp.size == 1) {
+                // 当前grpc-web不支持跨服务器监听
             } else {
                 grpcport = sp[1].toInt()
             }
