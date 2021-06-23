@@ -5,6 +5,7 @@ import os
 import re
 import subprocess
 import platform
+import psutil
 from typing import List
 
 # 使用python生成
@@ -71,8 +72,28 @@ def listall(dir, allows, denys):
 #    os.system(cmd)
 
 
-def FindTool(cmd: str) -> str:
-    (sta, out) = subprocess.getstatusoutput('which %s' % cmd)
+def InPowershell() -> bool:
+    # Get the parent process name.
+    pprocName = psutil.Process(os.getppid()).name()
+    # See if it is Windows PowerShell (powershell.exe) or PowerShell Core (pwsh[.exe]):
+    isPowerShell = bool(re.fullmatch(
+        'pwsh|pwsh.exe|powershell.exe', pprocName))
+    return isPowerShell
+
+
+def FindTool(tgt: str) -> str:
+    cur = platform.system()
+    if cur == 'Windows':
+        # 判断是否运行于ps中
+        if InPowershell():
+            (sta, out) = subprocess.getstatusoutput(
+                '(Get-Command %s).Source' % tgt)
+        else:
+            (sta, out) = subprocess.getstatusoutput('where %s' % tgt)
+            if sta == 0:
+                out = out.split('\n')[1]
+    else:
+        (sta, out) = subprocess.getstatusoutput('which %s' % tgt)
     if sta == 0:
         return out
     return None
@@ -97,7 +118,11 @@ def GenPHP(protos: List[str]):
         raise Exception(out)
 
 
-def GenWeb(protos: List[str]):
+def GenJs(protos: List[str]):
+    """
+    通过cnpm安装 grpc-toos grpc_tools_node_protoc_ts
+    """
+    # 先输出js
     plugin = FindTool('protoc-gen-grpc-web')
     if not plugin:
         if platform.system() == 'Windows':
@@ -109,11 +134,23 @@ def GenWeb(protos: List[str]):
     (sta, out) = subprocess.getstatusoutput(gr)
     if sta != 0:
         raise Exception(out)
+    # 在输出ts接口
+    protoc = FindTool('grpc_tools_node_protoc')
+    if not protoc:
+        raise Exception('没有找到 grpc_tools_node_protoc')
+    plugin = FindTool('protoc-gen-ts')
+    if not plugin:
+        raise Exception('没有找到 protoc-gen-ts')
+    gr = """"%s" --proto_path=../src/main/proto --plugin=protoc-gen-ts="%s" --ts_out=js %s""" % (
+        protoc, plugin, ' '.join(protos))
+    (sta, out) = subprocess.getstatusoutput(gr)
+    if sta != 0:
+        raise Exception(out)
 
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
-    args.add_argument('type', choices=['py', 'php', 'web', 'all'])
+    args.add_argument('type', choices=['py', 'php', 'js', 'all'])
     args = args.parse_args()
 
     protos = listall(PROTO_DIR, PROTO_ALLOW, PROTO_DENY)
@@ -123,9 +160,9 @@ if __name__ == '__main__':
         GenPy(protos)
     elif args.type == 'php':
         GenPHP(protos)
-    elif args.type == 'web':
-        GenWeb(protos)
+    elif args.type == 'js':
+        GenJs(protos)
     else:
         GenPy(protos)
         GenPHP(protos)
-        GenWeb(protos)
+        GenJs(protos)
