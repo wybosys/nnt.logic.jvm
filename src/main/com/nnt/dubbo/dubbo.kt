@@ -165,10 +165,8 @@ open class Dubbo : AbstractServer() {
 
             svc.registry = reg
             svc.`interface` = e.value.iface
-            svc.version = "1.0.0"
             svc.ref = impl
             svc.serviceClass = impl.javaClass
-            svc.protocols = mutableListOf()
 
             svcs[e.key] = svc
             e.value.svccfg = svc

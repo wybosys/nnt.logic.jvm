@@ -100,6 +100,8 @@ def FindTool(tgt: str) -> str:
 
 
 def GenPy(protos: List[str]):
+    if not os.path.isdir('py'):
+        os.mkdir('py')
     gr = "python3 -m grpc_tools.protoc --python_out=py --grpc_python_out=py -I../src/main/proto %s" % (
         ' '.join(protos))
     (sta, out) = subprocess.getstatusoutput(gr)
@@ -108,6 +110,8 @@ def GenPy(protos: List[str]):
 
 
 def GenPHP(protos: List[str]):
+    if not os.path.isdir('php'):
+        os.mkdir('php')
     plugin = FindTool('grpc_php_plugin')
     if not plugin:
         raise Exception('没有找到 grpc_php_plugin')
@@ -119,6 +123,8 @@ def GenPHP(protos: List[str]):
 
 
 def GenJs(protos: List[str]):
+    if not os.path.isdir('js'):
+        os.mkdir('js')
     plugin = FindTool('protoc-gen-grpc-web')
     if not plugin:
         if platform.system() == 'Windows':
@@ -133,13 +139,15 @@ def GenJs(protos: List[str]):
 
 
 def GenTs(protos: List[str]):
+    if not os.path.isdir('ts'):
+        os.mkdir('ts')
     plugin = FindTool('protoc-gen-grpc-web')
     if not plugin:
         if platform.system() == 'Windows':
             plugin = '%s/tools/protoc-gen-grpc-web-1.2.1-windows-x86_64.exe' % PROJECT_DIR
         else:
             raise Exception('没有找到 protoc-gen-grpc-web')
-    gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc_web=%s --js_out=import_style=commonjs,binary:ts --grpc_web_out=import_style=typescript,mode=grpcwebtext:ts %s" % (
+    gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc_web=%s --js_out=import_style=commonjs,binary:ts --grpc_web_out=import_style=typescript,mode=grpcweb:ts %s" % (
         plugin, ' '.join(protos))
     (sta, out) = subprocess.getstatusoutput(gr)
     if sta != 0:
