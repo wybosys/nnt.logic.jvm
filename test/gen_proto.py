@@ -4,6 +4,7 @@ import argparse
 import os
 import re
 import subprocess
+import platform
 from typing import List
 
 # 使用python生成
@@ -13,6 +14,7 @@ from typing import List
 # protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc= /usr/bin/grpc_python_plugin --python_out=py --grpc_out=py dubbo/test.proto dao.proto
 
 # 保存所有proto的目录
+PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 PROTO_DIR = "../src/main/proto"
 PROTO_ALLOW = [re.compile("\.proto$")]
 PROTO_DENY = [re.compile("^[~#]")]
@@ -95,9 +97,23 @@ def GenPHP(protos: List[str]):
         raise Exception(out)
 
 
+def GenWeb(protos: List[str]):
+    plugin = FindTool('protoc-gen-grpc-web')
+    if not plugin:
+        if platform.system() == 'Windows':
+            plugin = '%s/tools/protoc-gen-grpc-web-1.2.1-windows-x86_64.exe' % PROJECT_DIR
+        else:
+            raise Exception('没有找到 protoc-gen-grpc-web')
+    gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc_web=%s --js_out=import_style=commonjs,binary:js --grpc_web_out=import_style=commonjs,mode=grpcwebtext:js %s" % (
+        plugin, ' '.join(protos))
+    (sta, out) = subprocess.getstatusoutput(gr)
+    if sta != 0:
+        raise Exception(out)
+
+
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
-    args.add_argument('type', choices=['py', 'php', 'all'])
+    args.add_argument('type', choices=['py', 'php', 'web', 'all'])
     args = args.parse_args()
 
     protos = listall(PROTO_DIR, PROTO_ALLOW, PROTO_DENY)
@@ -107,6 +123,9 @@ if __name__ == '__main__':
         GenPy(protos)
     elif args.type == 'php':
         GenPHP(protos)
+    elif args.type == 'web':
+        GenWeb(protos)
     else:
         GenPy(protos)
         GenPHP(protos)
+        GenWeb(protos)
