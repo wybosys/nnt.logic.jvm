@@ -1,3 +1,3 @@
 
 $BIN_DIR = Split-Path -Parent $MyInvocation.MyCommand.Definition
-python3 ${BIN_DIR}\gen_proto $args
+python3 ${BIN_DIR}\gen_proto.py $args
