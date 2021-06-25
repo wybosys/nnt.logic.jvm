@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x10\x64ubbo/test.proto\x12\x0e\x63om.test.dubbo\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\tdao.proto\"\x1c\n\x0bReqTestEcho\x12\r\n\x05input\x18\x01 \x01(\t\"\x1d\n\x0bRspTestEcho\x12\x0e\n\x06output\x18\x01 \x01(\t\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t2\xfb\x02\n\x04Test\x12<\n\x05hello\x12\x16.google.protobuf.Empty\x1a\x19.com.test.dubbo.TestReply\"\x00\x12\x42\n\x04\x65\x63ho\x12\x1b.com.test.dubbo.ReqTestEcho\x1a\x1b.com.test.dubbo.RspTestEcho\"\x00\x12\x38\n\x05\x65\x63hoo\x12\x1c.google.protobuf.StringValue\x1a\x0f.com.test.Echoo\"\x00\x12\x34\n\x06\x65\x63hoos\x12\x16.google.protobuf.Empty\x1a\x10.com.test.Echoos\"\x00\x12\x43\n\nechooclear\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int32Value\"\x00\x12<\n\x0b\x65\x63hooupdate\x12\x0f.com.test.Echoo\x1a\x1a.google.protobuf.BoolValue\"\x00\x32K\n\x05Test1\x12\x42\n\x04\x65\x63ho\x12\x1b.com.test.dubbo.ReqTestEcho\x1a\x1b.com.test.dubbo.RspTestEcho\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x10\x64ubbo/test.proto\x12\x0e\x63om.test.dubbo\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\tdao.proto\"\x1c\n\x0bReqTestEcho\x12\r\n\x05input\x18\x01 \x01(\t\"\x1d\n\x0bRspTestEcho\x12\x0e\n\x06output\x18\x01 \x01(\t\"\x1c\n\tTestReply\x12\x0f\n\x07message\x18\x01 \x01(\t2\xb6\x03\n\x04Test\x12<\n\x05hello\x12\x16.google.protobuf.Empty\x1a\x19.com.test.dubbo.TestReply\"\x00\x12\x42\n\x04\x65\x63ho\x12\x1b.com.test.dubbo.ReqTestEcho\x1a\x1b.com.test.dubbo.RspTestEcho\"\x00\x12\x38\n\x05\x65\x63hoo\x12\x1c.google.protobuf.StringValue\x1a\x0f.com.test.Echoo\"\x00\x12\x34\n\x06\x65\x63hoos\x12\x16.google.protobuf.Empty\x1a\x10.com.test.Echoos\"\x00\x12\x43\n\nechooclear\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int32Value\"\x00\x12<\n\x0b\x65\x63hooupdate\x12\x0f.com.test.Echoo\x1a\x1a.google.protobuf.BoolValue\"\x00\x12\x39\n\x05\x65rror\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x32K\n\x05Test1\x12\x42\n\x04\x65\x63ho\x12\x1b.com.test.dubbo.ReqTestEcho\x1a\x1b.com.test.dubbo.RspTestEcho\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_protobuf_dot_wrappers__pb2.DESCRIPTOR,dao__pb2.DESCRIPTOR,])
 
@@ -160,7 +160,7 @@ _TEST = _descriptor.ServiceDescriptor(
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
   serialized_start=200,
-  serialized_end=579,
+  serialized_end=638,
   methods=[
   _descriptor.MethodDescriptor(
     name='hello',
@@ -222,6 +222,16 @@ _TEST = _descriptor.ServiceDescriptor(
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
+  _descriptor.MethodDescriptor(
+    name='error',
+    full_name='com.test.dubbo.Test.error',
+    index=6,
+    containing_service=None,
+    input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
+    output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
 ])
 _sym_db.RegisterServiceDescriptor(_TEST)
 
@@ -235,8 +245,8 @@ _TEST1 = _descriptor.ServiceDescriptor(
   index=1,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=581,
-  serialized_end=656,
+  serialized_start=640,
+  serialized_end=715,
   methods=[
   _descriptor.MethodDescriptor(
     name='echo',

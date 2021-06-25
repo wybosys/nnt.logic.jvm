@@ -48,6 +48,11 @@ class TestStub(object):
                 request_serializer=dao__pb2.Echoo.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_wrappers__pb2.BoolValue.FromString,
                 )
+        self.error = channel.unary_unary(
+                '/com.test.dubbo.Test/error',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
 
 
 class TestServicer(object):
@@ -96,6 +101,13 @@ class TestServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def error(self, request, context):
+        """测试返回失败
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_TestServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -128,6 +140,11 @@ def add_TestServicer_to_server(servicer, server):
                     servicer.echooupdate,
                     request_deserializer=dao__pb2.Echoo.FromString,
                     response_serializer=google_dot_protobuf_dot_wrappers__pb2.BoolValue.SerializeToString,
+            ),
+            'error': grpc.unary_unary_rpc_method_handler(
+                    servicer.error,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -239,6 +256,23 @@ class Test(object):
         return grpc.experimental.unary_unary(request, target, '/com.test.dubbo.Test/echooupdate',
             dao__pb2.Echoo.SerializeToString,
             google_dot_protobuf_dot_wrappers__pb2.BoolValue.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def error(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/com.test.dubbo.Test/error',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

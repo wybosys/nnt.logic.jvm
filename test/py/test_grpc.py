@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-
+import argparse
 import asyncio
-from dubbo.test_pb2_grpc import TestStub, Test1Stub
-from dubbo.test_pb2 import ReqTestEcho
+
+import grpc
 from google.protobuf.empty_pb2 import Empty
 from google.protobuf.wrappers_pb2 import StringValue
 
-import grpc
+from dubbo.test_pb2 import ReqTestEcho
+from dubbo.test_pb2_grpc import TestStub, Test1Stub
 
 # 当前启动的测试服务
 host = "localhost:8093"
@@ -55,11 +56,23 @@ async def test(idx):
     response = stub.echooclear(Empty())
     print("清空 %d 条数据" % response.value)
 
+    # 测试返回错误
+    try:
+        stub.error(Empty())
+    except grpc.RpcError as e:
+        print(e)
 
-async def test_co():
-    await asyncio.wait([test(i) for i in range(100)])
+
+if __name__ == '__main__':
+    args = argparse.ArgumentParser()
+    args.add_argument('-n', '--ncnt', default=1, help='数量')
+    args = args.parse_args()
 
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(test_co())
-loop.close()
+    async def test_co():
+        await asyncio.wait([test(i) for i in range(args.ncnt)])
+
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_co())
+    loop.close()

@@ -139,4 +139,10 @@ class Test : ITest, DubboTestGrpc.TestImplBase() {
         }
     }
 
+    override fun error(request: Empty, responseObserver: StreamObserver<Empty>) {
+        logger.info("调用 grpc-error")
+
+        responseObserver.onError(Exception("测试失败返回"))
+    }
+
 }

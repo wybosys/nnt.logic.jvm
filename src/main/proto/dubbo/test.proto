@@ -25,6 +25,9 @@ service Test {
 
   // 更新
   rpc echooupdate(com.test.Echoo) returns (google.protobuf.BoolValue) {}
+
+  // 测试返回失败
+  rpc error(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 service Test1 {
