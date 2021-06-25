@@ -134,7 +134,7 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java:3.12.0")
     implementation("com.google.protobuf:protobuf-java-util:3.12.0")
     implementation("io.grpc:grpc-all:1.34.1")
-    implementation(files("libs/grpcweb-java-0.1-SNAPSHOT.jar"))
+    implementation(files("libs/grpcweb-java-0.1-SNAPSHOT.jar")) // github.com/wybosys/grpcweb-java
 
     // dubbo
     implementation("org.apache.dubbo:dubbo:2.7.11")

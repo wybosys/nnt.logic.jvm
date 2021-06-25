@@ -4,6 +4,7 @@ import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
 import com.google.protobuf.Int32Value
 import com.google.protobuf.StringValue
+import com.nnt.core.Delay
 import com.nnt.core.logger
 import com.nnt.core.toJson
 import com.nnt.manager.Dbms
@@ -48,14 +49,20 @@ class Test : ITest, DubboTestGrpc.TestImplBase() {
         responseObserver.onCompleted()
     }
 
-    override fun echo(request: TestOuterClass.ReqTestEcho, responseObserver: StreamObserver<TestOuterClass.RspTestEcho>) {
+    override fun echo(
+        request: TestOuterClass.ReqTestEcho,
+        responseObserver: StreamObserver<TestOuterClass.RspTestEcho>
+    ) {
         logger.info("调用 grpc-echo")
 
         val rsp = TestOuterClass.RspTestEcho.newBuilder()
             .setOutput(request.input)
             .build()
-        responseObserver.onNext(rsp)
-        responseObserver.onCompleted()
+
+        Delay(2) {
+            responseObserver.onNext(rsp)
+            responseObserver.onCompleted()
+        }
     }
 
     override fun echoos(request: Empty, responseObserver: StreamObserver<Dao.Echoos>) {
