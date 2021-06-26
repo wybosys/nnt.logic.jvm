@@ -60,7 +60,7 @@ async def test(idx):
     try:
         stub.error(Empty())
     except grpc.RpcError as e:
-        print(e)
+        print(e.code(), e.details())
 
 
 if __name__ == '__main__':

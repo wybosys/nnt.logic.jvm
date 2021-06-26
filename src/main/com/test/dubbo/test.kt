@@ -12,6 +12,7 @@ import com.nnt.store.RMysql
 import com.test.Dao
 import com.test.Echoo
 import com.test.Sample
+import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import javax.ws.rs.Consumes
 import javax.ws.rs.GET
@@ -142,7 +143,7 @@ class Test : ITest, DubboTestGrpc.TestImplBase() {
     override fun error(request: Empty, responseObserver: StreamObserver<Empty>) {
         logger.info("调用 grpc-error")
 
-        responseObserver.onError(Exception("测试失败返回"))
+        responseObserver.onError(Status.INTERNAL.withDescription("测试返回失败").asException())
     }
 
 }
