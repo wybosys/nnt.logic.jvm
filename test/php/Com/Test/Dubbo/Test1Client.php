@@ -21,7 +21,6 @@ class Test1Client extends \Grpc\BaseStub {
      * @param \Com\Test\Dubbo\ReqTestEcho $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
      */
     public function echo(\Com\Test\Dubbo\ReqTestEcho $argument,
       $metadata = [], $options = []) {

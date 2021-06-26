@@ -2,11 +2,12 @@
 
 import argparse
 import os
+import platform
 import re
 import subprocess
-import platform
-import psutil
 from typing import List
+
+import psutil
 
 # 使用python生成
 # python3 -m grpc_tools.protoc --python_out=py --grpc_python_out=py -I../src/main/proto dubbo/test.proto dao.proto
@@ -17,8 +18,8 @@ from typing import List
 # 保存所有proto的目录
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 PROTO_DIR = "../src/main/proto"
-PROTO_ALLOW = [re.compile("\.proto$")]
-PROTO_DENY = [re.compile("^[~#]")]
+PROTO_ALLOW = [re.compile(r'\.proto$')]
+PROTO_DENY = [re.compile(r'^[~#]')]
 
 
 def checkpat(inp, pats):
@@ -43,15 +44,16 @@ def listall(dir, allows, denys):
             ret += listall(tgt, allows, denys)
     return ret
 
+
 # 构造生成的脚本
-#CMDS = []
+# CMDS = []
 # CMD_PYTHON = [
 #    "protoc --proto_path="+PROTO_DIR,
 #    "--plugin=protoc-gen-grpc=/usr/bin/grpc_python_plugin",
 #    "--python_out=py --grpc_out=py",
 #    ' '.join(PROTOS)
 # ]
-#cmd = ' '.join(CMD_PYTHON)
+# cmd = ' '.join(CMD_PYTHON)
 # CMDS.append(cmd)
 
 # CMD_PHP = [
@@ -60,11 +62,11 @@ def listall(dir, allows, denys):
 #    "--php_out=php --grpc_out=php",
 #    ' '.join(PROTOS)
 # ]
-#cmd = ' '.join(CMD_PHP)
+# cmd = ' '.join(CMD_PHP)
 # CMDS.append(cmd)
 
 # 生成php自动加载
-#CMDS.append("cd php && composer dump-autoload && cd -")
+# CMDS.append("cd php && composer dump-autoload && cd -")
 
 # 生成
 # for cmd in CMDS:
@@ -114,9 +116,13 @@ def GenPHP(protos: List[str]):
         os.mkdir('php')
     plugin = FindTool('grpc_php_plugin')
     if not plugin:
-        raise Exception('没有找到 grpc_php_plugin')
+        if platform.system() == 'Windows':
+            plugin = '%s/tools/grpc_php_plugin.exe' % PROJECT_DIR
+        else:
+            raise Exception('没有找到 grpc_php_plugin')
     gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc=%s --php_out=php --grpc_out=php %s" % (
         plugin, ' '.join(protos))
+    print(gr)
     (sta, out) = subprocess.getstatusoutput(gr)
     if sta != 0:
         raise Exception(out)

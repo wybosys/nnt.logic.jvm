@@ -8,6 +8,6 @@
   },
   "require": {
     "grpc/grpc": "^1.30",
-    "google/protobuf": "v3.13.0.1"
+    "google/protobuf": "^v3.13"
   }
 }
