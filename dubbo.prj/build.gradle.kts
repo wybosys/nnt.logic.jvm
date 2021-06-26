@@ -23,6 +23,7 @@ buildscript {
     repositories {
         maven("https://maven.aliyun.com/repository/gradle-plugin")
         maven("https://maven.aliyun.com/repository/central")
+        maven("https://maven.aliyun.com/repository/public")
         mavenCentral()
     }
     dependencies {
@@ -35,6 +36,7 @@ buildscript {
 repositories {
     maven("https://maven.aliyun.com/repository/central")
     maven("https://maven.aliyun.com/repository/apache-snapshots")
+    maven("https://maven.aliyun.com/repository/public")
     mavenCentral()
 }
 
@@ -158,6 +160,10 @@ dependencies {
     implementation("com.caucho:hessian:4.0.63")
     implementation("com.googlecode.xmemcached:xmemcached:2.4.6")
     implementation("org.apache.cxf:cxf-core:3.4.0")
+
+    // data
+    implementation("joinery:joinery-dataframe:1.9")
+    implementation("org.apache.poi:poi:4.1.2")
 
     // test
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")

@@ -34,6 +34,7 @@ class Test : ITest, DubboTestGrpc.TestImplBase() {
 
     override fun hello(): String {
         logger.info("调用 rest-hello")
+        
         return toJson(mapOf("msg" to "HELLO"))
     }
 
