@@ -188,11 +188,6 @@ open class Mybatis : AbstractRdb() {
         return ses
     }
 
-    open fun acquireSql(): MybatisSession {
-        val ses = _mapfac.openSession(false)
-        return MybatisSession(ses)
-    }
-
     override fun acquireSession(): ISession {
         return acquireJdbc()
     }
