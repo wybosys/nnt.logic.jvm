@@ -5,13 +5,16 @@
 
 <mapper namespace="com.test.Sample">
     <select id="listEchoo" resultType="com.test.Echoo">
-        select id,input,output from echoo
+        select id, input, output
+        from echoo
     </select>
     <insert id="echoo" parameterType="com.test.Echoo" useGeneratedKeys="true" keyProperty="id">
-        insert into echoo (id, input, output) values (null, #{input}, #{output})
+        insert into echoo (input, output)
+        values (#{input}, #{output})
     </insert>
     <delete id="clearEchoo">
-        delete from echoo
+        delete
+        from echoo
     </delete>
     <update id="updateEchoo" parameterType="com.test.Echoo">
         update echoo

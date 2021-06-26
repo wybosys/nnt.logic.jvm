@@ -1,6 +1,7 @@
 package com.nnt.store
 
-import com.nnt.core.*
+import com.nnt.core.JsonObject
+import com.nnt.core.logger
 import com.nnt.store.reflect.SchemaInfo
 import org.springframework.jdbc.core.JdbcTemplate
 import java.util.*
@@ -97,6 +98,7 @@ class Phoenix : Mybatis() {
 
     override fun propertiesForJdbc(): JdbcProperties {
         val props = super.propertiesForJdbc()
+        props.poolName = "nnt.logic.phoneix"
         // phoenix需要自己设置
         props.connectionTestQuery = "select 1"
         // phoneix默认idle时间是60s

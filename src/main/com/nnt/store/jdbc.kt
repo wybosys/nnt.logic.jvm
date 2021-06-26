@@ -3,6 +3,7 @@ package com.nnt.store
 import com.nnt.core.*
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.*
 import org.springframework.jdbc.support.KeyHolder
@@ -150,6 +151,18 @@ open class JdbcDataSource(val properties: JdbcProperties) {
      */
     fun acquire(): JdbcTemplate {
         return JdbcTemplate(_ds!!)
+    }
+}
+
+open class JdbcDataSourceFactory : PooledDataSourceFactory() {
+
+    init {
+        dataSource = null
+    }
+
+    fun setProperties(properties: JdbcProperties) {
+        setProperties(properties.dataSourceProperties)
+        dataSource = HikariDataSource(properties)
     }
 }
 
@@ -479,18 +492,19 @@ open class JdbcSession : ISession {
         return@metric null
     }
 
-    open fun <T> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): T? = metric({
-        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
-    }) {
-        try {
-            return@metric _tpl.queryForObject(sql, args, argTypes, rowMapper)
-        } catch (err: EmptyResultDataAccessException) {
-            // pass
-        } catch (err: Throwable) {
-            logger.exception(err)
+    open fun <T> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, rowMapper: RowMapper<T>): T? =
+        metric({
+            logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+        }) {
+            try {
+                return@metric _tpl.queryForObject(sql, args, argTypes, rowMapper)
+            } catch (err: EmptyResultDataAccessException) {
+                // pass
+            } catch (err: Throwable) {
+                logger.exception(err)
+            }
+            return@metric null
         }
-        return@metric null
-    }
 
     open fun <T> queryForObject(sql: String, args: Array<Any>, rowMapper: RowMapper<T>): T? = metric({
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
@@ -518,18 +532,19 @@ open class JdbcSession : ISession {
         return@metric null
     }
 
-    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, requiredType: KClass<T>): T? = metric({
-        logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
-    }) {
-        try {
-            return@metric _tpl.queryForObject(sql, args, argTypes, requiredType.java)
-        } catch (err: EmptyResultDataAccessException) {
-            // pass
-        } catch (err: Throwable) {
-            logger.exception(err)
+    open fun <T : Any> queryForObject(sql: String, args: Array<Any>, argTypes: IntArray, requiredType: KClass<T>): T? =
+        metric({
+            logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")
+        }) {
+            try {
+                return@metric _tpl.queryForObject(sql, args, argTypes, requiredType.java)
+            } catch (err: EmptyResultDataAccessException) {
+                // pass
+            } catch (err: Throwable) {
+                logger.exception(err)
+            }
+            return@metric null
         }
-        return@metric null
-    }
 
     open fun <T : Any> queryForObject(sql: String, args: Array<Any>, requiredType: KClass<T>): T? = metric({
         logger.warn("${logidr}-slowquery: cost ${it}ms: ${sql}")

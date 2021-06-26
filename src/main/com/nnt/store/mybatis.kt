@@ -7,11 +7,9 @@ import com.nnt.core.logger
 import com.nnt.store.reflect.TableInfo
 import org.apache.ibatis.builder.xml.XMLMapperBuilder
 import org.apache.ibatis.cursor.Cursor
-import org.apache.ibatis.datasource.pooled.PooledDataSourceFactory
 import org.apache.ibatis.mapping.Environment
 import org.apache.ibatis.session.*
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
-import java.util.*
 import kotlin.reflect.KClass
 
 open class Mybatis : AbstractRdb() {
@@ -35,6 +33,7 @@ open class Mybatis : AbstractRdb() {
     override fun config(cfg: JsonObject): Boolean {
         if (!super.config(cfg))
             return false
+
         if (cfg.has("user"))
             user = cfg["user"]!!.asString()
         if (cfg.has("pwd"))
@@ -78,7 +77,7 @@ open class Mybatis : AbstractRdb() {
     }
 
     // 验证是否打开
-    protected open fun verify(): Boolean {
+    open fun verify(): Boolean {
         return true
     }
 
@@ -114,15 +113,8 @@ open class Mybatis : AbstractRdb() {
 
     protected fun openMapper() {
         // 初始化数据源
-        val fac = PooledDataSourceFactory()
-        val props = Properties()
-        props.setProperty("driver", driver)
-        props.setProperty("url", url)
-        if (!user.isEmpty()) {
-            props.setProperty("username", user)
-            if (!pwd.isEmpty())
-                props.setProperty("password", pwd)
-        }
+        val fac = JdbcDataSourceFactory()
+        val props = propertiesForJdbc()
         fac.setProperties(props)
 
         // 初始化环境
@@ -273,9 +265,10 @@ open class MybatisSession(sql: SqlSession) : ISession {
         return _sql.selectMap(statement, parameters, mapkey)
     }
 
-    fun <K, V : Any> selectMap(statement: String, parameters: V, mapkey: String, rowbounds: RowBounds): Map<K, V> = _select {
-        return _sql.selectMap(statement, parameters, mapkey, rowbounds)
-    }
+    fun <K, V : Any> selectMap(statement: String, parameters: V, mapkey: String, rowbounds: RowBounds): Map<K, V> =
+        _select {
+            return _sql.selectMap(statement, parameters, mapkey, rowbounds)
+        }
 
     fun <T> selectCursor(statement: String): Cursor<T> = _select {
         return _sql.selectCursor(statement)
@@ -305,7 +298,12 @@ open class MybatisSession(sql: SqlSession) : ISession {
         })
     }
 
-    fun <T : Any> select(statement: String, parameters: T, rowbounds: RowBounds, proc: (ctx: ResultContext<out T>) -> Unit) = _select {
+    fun <T : Any> select(
+        statement: String,
+        parameters: T,
+        rowbounds: RowBounds,
+        proc: (ctx: ResultContext<out T>) -> Unit
+    ) = _select {
         _sql.select(statement, parameters, rowbounds, object : ResultHandler<T> {
             override fun handleResult(resultContext: ResultContext<out T>) {
                 proc(resultContext)
