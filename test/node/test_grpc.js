@@ -1,5 +1,6 @@
 const yargs = require("yargs")
 const grpc = require("grpc")
+const util = require("util")
 
 const {
     TestClient,
@@ -14,8 +15,8 @@ function test(idx) {
 
     let cli = new TestClient("localhost:8093", grpc.credentials.createInsecure(), null)
 
-    // 测试hello    
-    cli.hello(new Empty(), (err, data) => {
+    // 测试hello        
+    util.promisify(cli.hello).call(cli, new Empty()).then(data => {
         console.info(`收到数据 ${data.getMessage()}`)
     })
 
