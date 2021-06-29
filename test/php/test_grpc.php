@@ -51,7 +51,13 @@ function test($idx)
     # 清空echoo
     [$reply, $status] = $stub->echooclear(new GPBEmpty())->wait();
     println("清空 {$reply->getValue()} 条数据");
+
+    # 测试返回错误
+    [$reply, $status] = $stub->error(new GPBEmpty())->wait();
+    println("收到测试错误的返回: {$status->code} {$status->details}");
 }
 
-for ($i = 0; $i < 100; ++$i)
+$args = getopt('n:');
+$ncnt = @$args['n'] ?? 1;
+for ($i = 0; $i < $ncnt; ++$i)
     test($i);
