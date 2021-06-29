@@ -139,7 +139,7 @@ def GenNode(protos: List[str]):
             plugin = '%s/tools/grpc_node_plugin.exe' % PROJECT_DIR
         else:
             raise Exception('没有找到 grpc_node_plugin')
-    gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc=%s --js_out=node --grpc_out=node %s" % (
+    gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc=%s --js_out=import_style=commonjs,binary:node --grpc_out=node %s" % (
         plugin, ' '.join(protos))
     (sta, out) = subprocess.getstatusoutput(gr)
     if sta != 0:
