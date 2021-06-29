@@ -45,35 +45,6 @@ def listall(dir, allows, denys):
     return ret
 
 
-# 构造生成的脚本
-# CMDS = []
-# CMD_PYTHON = [
-#    "protoc --proto_path="+PROTO_DIR,
-#    "--plugin=protoc-gen-grpc=/usr/bin/grpc_python_plugin",
-#    "--python_out=py --grpc_out=py",
-#    ' '.join(PROTOS)
-# ]
-# cmd = ' '.join(CMD_PYTHON)
-# CMDS.append(cmd)
-
-# CMD_PHP = [
-#    "protoc --proto_path="+PROTO_DIR,
-#    "--plugin=protoc-gen-grpc=/usr/bin/grpc_php_plugin",
-#    "--php_out=php --grpc_out=php",
-#    ' '.join(PROTOS)
-# ]
-# cmd = ' '.join(CMD_PHP)
-# CMDS.append(cmd)
-
-# 生成php自动加载
-# CMDS.append("cd php && composer dump-autoload && cd -")
-
-# 生成
-# for cmd in CMDS:
-# print(cmd)
-#    os.system(cmd)
-
-
 def InPowershell() -> bool:
     # Get the parent process name.
     pprocName = psutil.Process(os.getppid()).name()
@@ -122,7 +93,6 @@ def GenPHP(protos: List[str]):
             raise Exception('没有找到 grpc_php_plugin')
     gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc=%s --php_out=php --grpc_out=php %s" % (
         plugin, ' '.join(protos))
-    print(gr)
     (sta, out) = subprocess.getstatusoutput(gr)
     if sta != 0:
         raise Exception(out)
@@ -160,9 +130,25 @@ def GenTs(protos: List[str]):
         raise Exception(out)
 
 
+def GenNode(protos: List[str]):
+    if not os.path.isdir('node'):
+        os.mkdir('node')
+    plugin = FindTool('grpc_node_plugin')
+    if not plugin:
+        if platform.system() == 'Windows':
+            plugin = '%s/tools/grpc_node_plugin.exe' % PROJECT_DIR
+        else:
+            raise Exception('没有找到 grpc_node_plugin')
+    gr = "protoc --proto_path=../src/main/proto --plugin=protoc-gen-grpc=%s --js_out=node --grpc_out=node %s" % (
+        plugin, ' '.join(protos))
+    (sta, out) = subprocess.getstatusoutput(gr)
+    if sta != 0:
+        raise Exception(out)
+
+
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
-    args.add_argument('type', choices=['py', 'php', 'js', 'ts', 'all'])
+    args.add_argument('type', choices=['py', 'php', 'js', 'ts', 'node', 'all'])
     args = args.parse_args()
 
     protos = listall(PROTO_DIR, PROTO_ALLOW, PROTO_DENY)
@@ -176,8 +162,11 @@ if __name__ == '__main__':
         GenJs(protos)
     elif args.type == 'ts':
         GenTs(protos)
+    elif args.type == 'node':
+        GenNode(protos)
     else:
         GenPy(protos)
         GenPHP(protos)
         GenJs(protos)
         GenTs(protos)
+        GenNode(protos)
