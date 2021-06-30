@@ -106,8 +106,13 @@ open class Mybatis : AbstractRdb() {
     protected lateinit var _dsfac: JdbcDataSource
 
     protected fun openJdbc(): Boolean {
-        val props = propertiesForJdbc()
-        _dsfac = JdbcDataSource(props)
+        try {
+            val props = propertiesForJdbc()
+            _dsfac = JdbcDataSource(props)
+        } catch (err: Exception) {
+            logger.exception(err)
+            return false
+        }
         return verify()
     }
 
